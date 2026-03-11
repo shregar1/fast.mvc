@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import Optional
 
 from constants.api_status import APIStatus
 
@@ -90,9 +91,18 @@ class UserLogoutService(IUserService):
 
     async def run(self) -> dict:
 
+        self.logger.debug("Validating logout context")
+        user_id: Optional[int] = self.user_id
+        if user_id is None:
+            raise BadInputError(
+                responseMessage="User id is required for logout.",
+                responseKey="error_user_id_required",
+                httpStatusCode=HTTPStatus.BAD_REQUEST,
+            )
+
         self.logger.debug("Fetching user")
         user: User = self.user_repository.retrieve_record_by_id_is_logged_in(
-            id=self.user_id, is_logged_in=True
+            id=user_id, is_logged_in=True
         )
         self.logger.debug("Fetched user")
 

@@ -1,7 +1,7 @@
 from loguru import logger
 
 
-class IError(BaseException):
+class IError(Exception):
 
     def __init__(
         self,

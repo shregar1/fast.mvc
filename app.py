@@ -6,7 +6,7 @@ import os
 import uvicorn
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,8 +14,11 @@ from fastapi.responses import JSONResponse
 from http import HTTPStatus
 from loguru import logger
 
+from constants.api_status import APIStatus
 from constants.default import Default
 from controllers.user import router as UserRouter
+from dtos.responses.base import BaseResponseDTO
+from errors.unexpected_response_error import UnexpectedResponseError
 
 from middlewares.authetication import AuthenticationMiddleware
 from middlewares.rate_limit import (
@@ -27,39 +30,46 @@ from middlewares.security_headers import (
 )
 from middlewares.request_context import RequestContextMiddleware
 
+
+def _get_int_env(name: str, default: int) -> int:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        logger.warning(
+            f"Invalid integer value for environment variable {name!r}: "
+            f"{value!r}. Falling back to default {default!r}."
+        )
+        return default
+
+
 app = FastAPI()
 
 load_dotenv()
-HOST = os.getenv("HOST")
-PORT = int(os.getenv("PORT"))
-RATE_LIMIT_REQUESTS_PER_MINUTE: int = int(
-    os.getenv(
-        "RATE_LIMIT_REQUESTS_PER_MINUTE",
-        Default.RATE_LIMIT_REQUESTS_PER_MINUTE,
-    )
+HOST = os.getenv("HOST", "0.0.0.0")
+PORT: int = _get_int_env("PORT", 8000)
+RATE_LIMIT_REQUESTS_PER_MINUTE: int = _get_int_env(
+    "RATE_LIMIT_REQUESTS_PER_MINUTE",
+    Default.RATE_LIMIT_REQUESTS_PER_MINUTE,
 )
-RATE_LIMIT_REQUESTS_PER_HOUR: int = int(
-    os.getenv(
-        "RATE_LIMIT_REQUESTS_PER_HOUR",
-        Default.RATE_LIMIT_REQUESTS_PER_HOUR,
-    )
+RATE_LIMIT_REQUESTS_PER_HOUR: int = _get_int_env(
+    "RATE_LIMIT_REQUESTS_PER_HOUR",
+    Default.RATE_LIMIT_REQUESTS_PER_HOUR,
 )
-RATE_LIMIT_WINDOW_SECONDS: int = int(
-    os.getenv(
-        "RATE_LIMIT_WINDOW_SECONDS",
-        Default.RATE_LIMIT_WINDOW_SECONDS,
-    )
+RATE_LIMIT_WINDOW_SECONDS: int = _get_int_env(
+    "RATE_LIMIT_WINDOW_SECONDS",
+    Default.RATE_LIMIT_WINDOW_SECONDS,
 )
-RATE_LIMIT_BURST_LIMIT: int = int(
-    os.getenv(
-        "RATE_LIMIT_BURST_LIMIT",
-        Default.RATE_LIMIT_BURST_LIMIT,
-    )
+RATE_LIMIT_BURST_LIMIT: int = _get_int_env(
+    "RATE_LIMIT_BURST_LIMIT",
+    Default.RATE_LIMIT_BURST_LIMIT,
 )
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """
     Handle validation errors and return a structured JSON response.
     """
@@ -68,7 +78,7 @@ async def validation_exception_handler(request, exc):
         if "ctx" in error:
             error.pop("ctx")
     response_payload: dict = {
-        "transactionUrn": request.state.urn,
+        "transactionUrn": getattr(request.state, "urn", None),
         "responseMessage": "Bad or missing input.",
         "responseKey": "error_bad_input",
         "errors": exc.errors(),
@@ -76,6 +86,56 @@ async def validation_exception_handler(request, exc):
     return JSONResponse(
         status_code=HTTPStatus.BAD_REQUEST,
         content=response_payload,
+    )
+
+
+@app.exception_handler(UnexpectedResponseError)
+async def unexpected_response_error_handler(
+    request: Request, exc: UnexpectedResponseError
+):
+    """
+    Handle application-specific unexpected response errors with a structured payload.
+    """
+    urn = getattr(request.state, "urn", None) or ""
+    logger.error(
+        f"UnexpectedResponseError occurred: {exc.responseMessage} "
+        f"(key={exc.responseKey}, status={exc.httpStatusCode})",
+        urn=urn,
+    )
+    response_dto = BaseResponseDTO(
+        transactionUrn=urn,
+        status=APIStatus.FAILED,
+        responseMessage=exc.responseMessage,
+        responseKey=exc.responseKey,
+        data={},
+        errors=None,
+    )
+    return JSONResponse(
+        status_code=exc.httpStatusCode,
+        content=response_dto.model_dump(),
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """
+    Catch-all handler for unhandled exceptions to avoid leaking internals.
+    """
+    urn = getattr(request.state, "urn", None) or ""
+    logger.exception(
+        "Unhandled exception occurred while processing request.", urn=urn
+    )
+    response_dto = BaseResponseDTO(
+        transactionUrn=urn,
+        status=APIStatus.FAILED,
+        responseMessage="Internal server error.",
+        responseKey="error_internal_server_error",
+        data={},
+        errors=None,
+    )
+    return JSONResponse(
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        content=response_dto.model_dump(),
     )
 
 

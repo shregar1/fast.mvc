@@ -4,6 +4,7 @@ import ulid
 
 from datetime import datetime
 from http import HTTPStatus
+from typing import Optional
 
 from constants.api_status import APIStatus
 
@@ -84,9 +85,27 @@ class UserRegistrationService(IUserService):
 
     async def run(self, request_dto: UserRegistrationRequestDTO) -> dict:
 
+        self.logger.debug("Validating registration payload")
+        email: Optional[str] = request_dto.email
+        password: Optional[str] = request_dto.password
+
+        if not email or not isinstance(email, str):
+            raise BadInputError(
+                responseMessage="Email is required.",
+                responseKey="error_email_required",
+                httpStatusCode=HTTPStatus.BAD_REQUEST,
+            )
+
+        if not password or not isinstance(password, str):
+            raise BadInputError(
+                responseMessage="Password is required.",
+                responseKey="error_password_required",
+                httpStatusCode=HTTPStatus.BAD_REQUEST,
+            )
+
         self.logger.debug("Checking if user exists")
         user: User = self.user_repository.retrieve_record_by_email(
-            email=request_dto.email
+            email=email
         )
 
         if user:
@@ -98,13 +117,17 @@ class UserRegistrationService(IUserService):
                 httpStatusCode=HTTPStatus.BAD_REQUEST,
             )
 
+        bcrypt_salt = os.getenv("BCRYPT_SALT")
+        if not bcrypt_salt:
+            raise RuntimeError("BCRYPT_SALT environment variable is not set.")
+
         self.logger.debug("Preparing user data")
         user: User = User(
             urn=ulid.ulid(),
-            email=request_dto.email,
+            email=email,
             password=bcrypt.hashpw(
-                request_dto.password.encode("utf-8"),
-                os.getenv("BCRYPT_SALT").encode("utf8"),
+                password.encode("utf-8"),
+                bcrypt_salt.encode("utf8"),
             ).decode("utf8"),
             is_deleted=False,
             created_by=1,

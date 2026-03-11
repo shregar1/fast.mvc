@@ -2,6 +2,7 @@ import bcrypt
 
 from datetime import datetime
 from http import HTTPStatus
+from typing import Optional
 
 from constants.api_status import APIStatus
 
@@ -95,10 +96,28 @@ class UserLoginService(IUserService):
 
     async def run(self, request_dto: UserLoginRequestDTO) -> dict:
 
+        self.logger.debug("Validating login payload")
+        email: Optional[str] = request_dto.email
+        password: Optional[str] = request_dto.password
+
+        if not email or not isinstance(email, str):
+            raise BadInputError(
+                responseMessage="Email is required.",
+                responseKey="error_email_required",
+                httpStatusCode=HTTPStatus.BAD_REQUEST,
+            )
+
+        if not password or not isinstance(password, str):
+            raise BadInputError(
+                responseMessage="Password is required.",
+                responseKey="error_password_required",
+                httpStatusCode=HTTPStatus.BAD_REQUEST,
+            )
+
         self.logger.debug("Fetching user")
         user: User = (
             self.user_repository.retrieve_record_by_email(
-                email=request_dto.email,
+                email=email,
                 is_deleted=False,
             )
         )
@@ -111,10 +130,7 @@ class UserLoginService(IUserService):
                 httpStatusCode=HTTPStatus.NOT_FOUND,
             )
 
-        if not bcrypt.checkpw(
-            request_dto.password.encode("utf8"),
-            user.password.encode("utf8"),
-        ):
+        if not bcrypt.checkpw(password.encode("utf8"), user.password.encode("utf8")):
             raise BadInputError(
                 responseMessage="Incorrect password.",
                 responseKey="error_authorisation_failed",

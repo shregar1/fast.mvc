@@ -2,6 +2,7 @@ from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from http import HTTPStatus, HTTPMethod
 from starlette.middleware.base import BaseHTTPMiddleware
+from sqlalchemy.exc import SQLAlchemyError
 
 from constants.api_status import APIStatus
 
@@ -20,7 +21,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
 
         logger.debug("Inside authentication middleware")
 
-        urn: str = request.state.urn
+        urn: str = getattr(request.state, "urn", None)
         endpoint: str = request.url.path
 
         if request.method == HTTPMethod.OPTIONS:
@@ -35,8 +36,8 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
             return response
 
         logger.debug("Accessing Protected Route", urn=request.state.urn)
-        token: str = request.headers.get("authorization")
-        if not token or "bearer" not in token.lower():
+        token_header: str = request.headers.get("authorization")
+        if not token_header or "bearer" not in token_header.lower():
 
             logger.debug("Preparing response metadata", urn=request.state.urn)
             response_dto: BaseResponseDTO = BaseResponseDTO(
@@ -57,7 +58,10 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
             logger.debug(
                 "Decoding the authetication token", urn=request.state.urn
             )
-            token = token.split(" ")[1]
+            parts = token_header.split()
+            if len(parts) != 2:
+                raise ValueError("Invalid Authorization header format.")
+            token = parts[1]
 
             user_data: dict = JWTUtility(urn=urn).decode_token(token=token)
             logger.debug(
@@ -100,6 +104,50 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
 
             request.state.user_id = user_data.get("user_id")
             request.state.user_urn = user_data.get("user_urn")
+
+        except (ValueError, KeyError) as err:
+
+            logger.debug(
+                f"{err.__class__} occured while parsing auth header or token "
+                f"payload, {err}",
+                urn=request.state.urn,
+            )
+
+            logger.debug("Preparing response metadata", urn=request.state.urn)
+            response_dto: BaseResponseDTO = BaseResponseDTO(
+                transactionUrn=urn,
+                status=APIStatus.FAILED,
+                responseMessage="JWT Authentication failed.",
+                responseKey="error_authetication_error",
+                data={},
+            )
+            httpStatusCode = HTTPStatus.UNAUTHORIZED
+            logger.debug("Prepared response metadata", urn=request.state.urn)
+            return JSONResponse(
+                content=response_dto.model_dump(), status_code=httpStatusCode
+            )
+
+        except SQLAlchemyError as err:
+
+            logger.error(
+                f"{err.__class__} occured while querying user repository, "
+                f"{err}",
+                urn=request.state.urn,
+            )
+
+            logger.debug("Preparing response metadata", urn=request.state.urn)
+            response_dto: BaseResponseDTO = BaseResponseDTO(
+                transactionUrn=urn,
+                status=APIStatus.FAILED,
+                responseMessage="Authentication service temporarily unavailable.",
+                responseKey="error_authentication_service_unavailable",
+                data={},
+            )
+            httpStatusCode = HTTPStatus.SERVICE_UNAVAILABLE
+            logger.debug("Prepared response metadata", urn=request.state.urn)
+            return JSONResponse(
+                content=response_dto.model_dump(), status_code=httpStatusCode
+            )
 
         except Exception as err:
 
