@@ -12,7 +12,8 @@ class ChannelsConfigurationDTO(BaseModel):
     DTO for channels configuration.
 
     Fields:
-        backend (str): Backend type: "redis", "kafka", or "none".
+        backend (str): Backend type: "redis", "kafka", "pusher",
+            "ably", "supabase", "socketio", or "none".
         topics (list[str]): Default topics to use for pub/sub.
     """
 

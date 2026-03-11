@@ -125,6 +125,16 @@ def cli():
     help="Include Elasticsearch configuration and helpers (default: False)"
 )
 @click.option(
+    "--with-meilisearch/--no-meilisearch",
+    default=False,
+    help="Include Meilisearch configuration and helpers (default: False)",
+)
+@click.option(
+    "--with-typesense/--no-typesense",
+    default=False,
+    help="Include Typesense configuration and helpers (default: False)",
+)
+@click.option(
     "--with-email/--no-email",
     default=False,
     help="Include email (SMTP/SendGrid) configuration and helpers (default: False)"
@@ -149,6 +159,61 @@ def cli():
     default=False,
     help="Include payment gateway configuration and helpers (default: False)"
 )
+@click.option(
+    "--with-rabbitmq/--no-rabbitmq",
+    default=False,
+    help="Include RabbitMQ queue configuration and helpers (default: False)",
+)
+@click.option(
+    "--with-sqs/--no-sqs",
+    default=False,
+    help="Include Amazon SQS queue configuration and helpers (default: False)",
+)
+@click.option(
+    "--with-celery/--no-celery",
+    default=False,
+    help="Include Celery background worker configuration and helpers (default: False)",
+)
+@click.option(
+    "--with-analytics/--no-analytics",
+    default=False,
+    help="Include analytics / event tracking configuration (default: False)",
+)
+@click.option(
+    "--with-vault/--no-vault",
+    default=False,
+    help="Include HashiCorp Vault secrets backend configuration (default: False)",
+)
+@click.option(
+    "--with-aws-secrets/--no-aws-secrets",
+    default=False,
+    help="Include AWS Secrets Manager backend configuration (default: False)",
+)
+@click.option(
+    "--with-feature-flags/--no-feature-flags",
+    default=False,
+    help="Include feature flags (LaunchDarkly/Unleash) configuration (default: False)",
+)
+@click.option(
+    "--with-s3/--no-s3",
+    default=False,
+    help="Include AWS S3 object storage configuration and helpers (default: False)",
+)
+@click.option(
+    "--with-gcs/--no-gcs",
+    default=False,
+    help="Include Google Cloud Storage configuration and helpers (default: False)",
+)
+@click.option(
+    "--with-azure-blob/--no-azure-blob",
+    default=False,
+    help="Include Azure Blob Storage configuration and helpers (default: False)",
+)
+@click.option(
+    "--with-identity/--no-identity",
+    default=False,
+    help="Include identity provider / SSO configuration helpers (default: False)",
+)
 def generate(
     project_name: str,
     output_dir: str,
@@ -162,11 +227,24 @@ def generate(
     with_dynamo: bool,
     with_cosmos: bool,
     with_elasticsearch: bool,
+    with_meilisearch: bool,
+    with_typesense: bool,
     with_email: bool,
     with_slack: bool,
     with_datadog: bool,
     with_telemetry: bool,
     with_payments: bool,
+    with_rabbitmq: bool,
+    with_sqs: bool,
+    with_celery: bool,
+    with_analytics: bool,
+    with_vault: bool,
+    with_aws_secrets: bool,
+    with_feature_flags: bool,
+    with_s3: bool,
+    with_gcs: bool,
+    with_azure_blob: bool,
+    with_identity: bool,
 ):
     """
     Generate a new project from the template.
@@ -214,11 +292,24 @@ def generate(
     generator.use_dynamo = with_dynamo
     generator.use_cosmos = with_cosmos
     generator.use_elasticsearch = with_elasticsearch
+    generator.use_meilisearch = with_meilisearch
+    generator.use_typesense = with_typesense
     generator.use_email = with_email
     generator.use_slack = with_slack
     generator.use_datadog = with_datadog
     generator.use_telemetry = with_telemetry
     generator.use_payments = with_payments
+    generator.use_rabbitmq = with_rabbitmq
+    generator.use_sqs = with_sqs
+    generator.use_celery = with_celery
+    generator.use_analytics = with_analytics
+    generator.use_vault = with_vault
+    generator.use_aws_secrets = with_aws_secrets
+    generator.use_feature_flags = with_feature_flags
+    generator.use_s3 = with_s3
+    generator.use_gcs = with_gcs
+    generator.use_azure_blob = with_azure_blob
+    generator.use_identity = with_identity
 
     # Simple helpers for repo files
     def _write_license(path: Path, license_key: str, project: str) -> None:
@@ -556,6 +647,19 @@ def init():
     use_datadog = click.confirm("  Use Datadog APM?", default=False)
     use_telemetry = click.confirm("  Use OpenTelemetry (OTel)?", default=False)
     use_payments = click.confirm("  Use Payments (Stripe/Razorpay/PayPal/PayU/Link)?", default=False)
+    use_rabbitmq = click.confirm("  Use RabbitMQ for queues?", default=False)
+    use_sqs = click.confirm("  Use Amazon SQS for queues?", default=False)
+    use_celery = click.confirm("  Use Celery for background jobs?", default=False)
+    use_s3 = click.confirm("  Use AWS S3 for file storage?", default=False)
+    use_gcs = click.confirm("  Use Google Cloud Storage for file storage?", default=False)
+    use_azure_blob = click.confirm("  Use Azure Blob Storage for file storage?", default=False)
+    use_meilisearch = click.confirm("  Use Meilisearch for search?", default=False)
+    use_typesense = click.confirm("  Use Typesense for search?", default=False)
+    use_analytics = click.confirm("  Use analytics / event tracking helpers?", default=False)
+    use_vault = click.confirm("  Use HashiCorp Vault for secrets?", default=False)
+    use_aws_secrets = click.confirm("  Use AWS Secrets Manager for secrets?", default=False)
+    use_feature_flags = click.confirm("  Use feature flags (LaunchDarkly/Unleash)?", default=False)
+    use_identity = click.confirm("  Use Identity providers / SSO (Google/GitHub/AzureAD/Okta/Auth0/SAML)?", default=False)
     click.echo()
 
     # Feature toggles and layout
@@ -704,6 +808,19 @@ def init():
     generator.use_datadog = use_datadog
     generator.use_telemetry = use_telemetry
     generator.use_payments = use_payments
+    generator.use_rabbitmq = use_rabbitmq
+    generator.use_sqs = use_sqs
+    generator.use_celery = use_celery
+    generator.use_s3 = use_s3
+    generator.use_gcs = use_gcs
+    generator.use_azure_blob = use_azure_blob
+    generator.use_meilisearch = use_meilisearch
+    generator.use_typesense = use_typesense
+    generator.use_analytics = use_analytics
+    generator.use_vault = use_vault
+    generator.use_aws_secrets = use_aws_secrets
+    generator.use_feature_flags = use_feature_flags
+    generator.use_identity = use_identity
     generator.app_port = app_port
     generator.db_name = db_name
     generator.db_host = db_host
@@ -936,6 +1053,10 @@ def add_entity(entity_name: str, tests: bool):
             "datadog",
             "telemetry",
             "payments",
+            "identity",
+            "queues",
+            "jobs",
+            "storage",
         ],
         case_sensitive=False,
     ),
@@ -1015,6 +1136,26 @@ def add_service(service_name: str):
         _copy_dir(f"config/{service_name}")
         _copy_file(f"configurations/{service_name}.py")
         _copy_file(f"dtos/configurations/{service_name}.py")
+    elif service_name == "identity":
+        _copy_dir("config/identity")
+        _copy_file("configurations/identity.py")
+        _copy_dir("dtos/configurations/identity")
+        _copy_dir("services/auth")
+    elif service_name == "queues":
+        _copy_dir("config/queues")
+        _copy_file("configurations/queues.py")
+        _copy_file("dtos/configurations/queues.py")
+        _copy_dir("services/queues")
+    elif service_name == "jobs":
+        _copy_dir("config/jobs")
+        _copy_file("configurations/jobs.py")
+        _copy_file("dtos/configurations/jobs.py")
+        _copy_dir("services/jobs")
+    elif service_name == "storage":
+        _copy_dir("config/storage")
+        _copy_file("configurations/storage.py")
+        _copy_file("dtos/configurations/storage.py")
+        _copy_dir("services/storage")
     elif service_name == "email":
         _copy_dir("config/email")
         _copy_file("configurations/email.py")

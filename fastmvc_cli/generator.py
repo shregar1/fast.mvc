@@ -325,11 +325,40 @@ class ProjectGenerator:
             "dynamo": getattr(self, "use_dynamo", False),
             "cosmos": getattr(self, "use_cosmos", False),
             "elasticsearch": getattr(self, "use_elasticsearch", False),
+            "search": bool(
+                getattr(self, "use_meilisearch", False)
+                or getattr(self, "use_typesense", False)
+            ),
             "email": getattr(self, "use_email", False),
             "slack": getattr(self, "use_slack", False),
             "datadog": getattr(self, "use_datadog", False),
             "telemetry": getattr(self, "use_telemetry", False),
             "payments": getattr(self, "use_payments", False),
+            "identity": getattr(self, "use_identity", False),
+            # Grouped configs: queues and jobs
+            "queues": bool(
+                getattr(self, "use_rabbitmq", False)
+                or getattr(self, "use_sqs", False)
+            ),
+            "jobs": bool(
+                getattr(self, "use_celery", False)
+            ),
+            # Grouped config: storage
+            "storage": bool(
+                getattr(self, "use_s3", False)
+                or getattr(self, "use_gcs", False)
+                or getattr(self, "use_azure_blob", False)
+            ),
+            # Analytics/event tracking
+            "analytics": getattr(self, "use_analytics", False),
+            # Secrets and feature flags
+            "secrets": bool(
+                getattr(self, "use_vault", False)
+                or getattr(self, "use_aws_secrets", False)
+            ),
+            "feature_flags": getattr(self, "use_feature_flags", False),
+            # Realtime / collaboration settings
+            "realtime": getattr(self, "use_realtime", False),
         }
 
         for service_name, enabled in optional_services.items():
@@ -370,11 +399,24 @@ class ProjectGenerator:
         use_cosmos = getattr(self, "use_cosmos", False)
         use_scylla = getattr(self, "use_scylla", False)
         use_elasticsearch = getattr(self, "use_elasticsearch", False)
+        use_meilisearch = getattr(self, "use_meilisearch", False)
+        use_typesense = getattr(self, "use_typesense", False)
         use_email = getattr(self, "use_email", False)
         use_slack = getattr(self, "use_slack", False)
         use_datadog = getattr(self, "use_datadog", False)
         use_telemetry = getattr(self, "use_telemetry", False)
         use_payments = getattr(self, "use_payments", False)
+        use_rabbitmq = getattr(self, "use_rabbitmq", False)
+        use_sqs = getattr(self, "use_sqs", False)
+        use_celery = getattr(self, "use_celery", False)
+        use_s3 = getattr(self, "use_s3", False)
+        use_gcs = getattr(self, "use_gcs", False)
+        use_azure_blob = getattr(self, "use_azure_blob", False)
+        use_analytics = getattr(self, "use_analytics", False)
+        use_vault = getattr(self, "use_vault", False)
+        use_aws_secrets = getattr(self, "use_aws_secrets", False)
+        use_feature_flags = getattr(self, "use_feature_flags", False)
+        use_identity = getattr(self, "use_identity", False)
         api_preset = getattr(self, "api_preset", "crud")
         profile = getattr(self, "profile", "standard")
         sqlalchemy_mode = getattr(self, "sqlalchemy_mode", "sync")
@@ -719,6 +761,47 @@ class ProjectGenerator:
                 ]
             )
 
+        # Queue / messaging configuration
+        if use_rabbitmq or use_sqs:
+            lines.extend(
+                [
+                    "# Queue / Messaging Configuration",
+                    'QUEUE_BACKEND="rabbitmq"  # or sqs,nats',
+                    "",
+                ]
+            )
+        else:
+            lines.extend(
+                [
+                    "# Queue / Messaging Configuration (disabled in this preset)",
+                    '# QUEUE_BACKEND="none"',
+                    "",
+                ]
+            )
+
+        # Background jobs / workers
+        if use_celery:
+            lines.extend(
+                [
+                    "# Celery Worker Configuration",
+                    'CELERY_ENABLED="true"',
+                    'CELERY_BROKER_URL="redis://localhost:6379/0"',
+                    'CELERY_RESULT_BACKEND="redis://localhost:6379/1"',
+                    "",
+                ]
+            )
+        else:
+            lines.extend(
+                [
+                    "# Celery Worker Configuration (disabled in this preset)",
+                    '# CELERY_ENABLED="false"',
+                    '# CELERY_BROKER_URL="redis://localhost:6379/0"',
+                    '# CELERY_RESULT_BACKEND="redis://localhost:6379/1"',
+                    "",
+                ]
+            )
+
+        # Payments
         if use_payments:
             lines.extend(
                 [
