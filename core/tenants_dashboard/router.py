@@ -20,6 +20,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 
 from configurations.feature_flags import FeatureFlagsConfiguration
 from configurations.identity import IdentityProvidersConfiguration
+from configurations.rate_limit import RateLimitConfiguration
 from core.tenancy.context import InMemoryTenantStore, Tenant
 
 
@@ -91,6 +92,16 @@ def _load_identity_providers() -> Dict[str, Any]:
         "acsUrl": cfg.saml.acs_url,
     }
     return providers
+
+
+def _load_quotas() -> Dict[str, Any]:
+    cfg = RateLimitConfiguration.instance().get_config()
+    return {
+        "enabled": cfg.enabled,
+        "defaultPerMinute": cfg.default_per_minute,
+        "defaultBurst": cfg.default_burst,
+        "overrides": cfg.per_tenant_overrides,
+    }
 
 
 @router.get("", response_class=HTMLResponse, summary="Tenants & Auth Dashboard")
@@ -471,7 +482,8 @@ async def tenants_state() -> JSONResponse:
     tenants = await _load_tenants()
     flags = _load_feature_flags()
     idps = _load_identity_providers()
-    return JSONResponse({"tenants": tenants, "flags": flags, "idps": idps})
+    quotas = _load_quotas()
+    return JSONResponse({"tenants": tenants, "flags": flags, "idps": idps, "quotas": quotas})
 
 
 __all__ = [

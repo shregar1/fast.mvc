@@ -1,3 +1,37 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Optional
+
+from dtos.configurations.cache import CacheConfigurationDTO
+
+
+class CacheConfiguration:
+    _instance: Optional["CacheConfiguration"] = None
+
+    def __init__(self) -> None:
+        base = Path(__file__).resolve().parent.parent
+        config_path = base / "config" / "cache" / "config.json"
+        if not config_path.exists():
+            self._config = CacheConfigurationDTO()
+            return
+        with config_path.open("r", encoding="utf-8") as f:
+            raw = json.load(f)
+        self._config = CacheConfigurationDTO(**raw)
+
+    @classmethod
+    def instance(cls) -> "CacheConfiguration":
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+    def get_config(self) -> CacheConfigurationDTO:
+        return self._config
+
+
+__all__ = ["CacheConfiguration"]
+
 """
 Cache Configuration Module.
 

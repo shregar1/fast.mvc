@@ -43,6 +43,16 @@ class MarketDataHub:
                 logger.warning(f"Failed to initialize QueueBroker for streams fan-out: {exc}")
                 self._queue_broker = None
 
+        # Optional event bus fan-out (SNS/EventBridge/Event Hubs/Kafka)
+        self._event_bus = None
+        try:
+            from services.events.bus import build_event_bus
+
+            self._event_bus = build_event_bus()
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.warning(f"Failed to initialize EventBus for streams fan-out: {exc}")
+            self._event_bus = None
+
     async def _publish_to_channel(
         self,
         history_store: Dict[str, Deque[Any]],
@@ -50,6 +60,8 @@ class MarketDataHub:
         key: str,
         event: Any,
         queue_body: Dict[str, Any] | None = None,
+        event_channel: str | None = None,
+        event_payload: Dict[str, Any] | None = None,
         context_label: str = "streams",
     ) -> None:
         """
@@ -70,6 +82,14 @@ class MarketDataHub:
                     f"Streams fan-out ({context_label}) to {self._fanout_backend} failed: {exc}"
                 )
 
+        if event_channel and event_payload and self._event_bus is not None:
+            try:
+                await self._event_bus.publish(event_channel, event_payload)
+            except Exception as exc:  # pragma: no cover - defensive
+                logger.warning(
+                    f"Streams event-bus fan-out ({context_label}) to {event_channel} failed: {exc}"
+                )
+
         for q in list(subscribers_store.get(key, [])):
             await self._push_with_backpressure(q, ("update", event))
 
@@ -77,6 +97,7 @@ class MarketDataHub:
         if not self._enabled:
             return
         queue_body: Dict[str, Any] | None = None
+        event_payload: Dict[str, Any] | None = None
         if self._fanout_backend:
             queue_body = {
                 "type": "tick",
@@ -86,12 +107,23 @@ class MarketDataHub:
                 "side": tick.side,
                 "ts": tick.ts,
             }
+        # Event bus payload mirrors queue fan-out body
+        event_payload = {
+            "type": "tick",
+            "symbol": tick.symbol,
+            "price": tick.price,
+            "size": tick.size,
+            "side": tick.side,
+            "ts": tick.ts,
+        }
         await self._publish_to_channel(
             history_store=self._symbol_ticks,
             subscribers_store=self._symbol_subscribers,
             key=tick.symbol,
             event=tick,
             queue_body=queue_body,
+            event_channel=f"ticks.{tick.symbol}",
+            event_payload=event_payload,
             context_label="ticks",
         )
 
@@ -119,6 +151,7 @@ class MarketDataHub:
         if not self._enabled:
             return
         queue_body: Dict[str, Any] | None = None
+        event_payload: Dict[str, Any] | None = None
         if self._fanout_backend:
             queue_body = {
                 "type": "order",
@@ -130,12 +163,24 @@ class MarketDataHub:
                 "ts": event.ts,
                 "data": event.data,
             }
+        event_payload = {
+            "type": "order",
+            "tenantId": event.tenant_id,
+            "orderId": event.order_id,
+            "symbol": event.symbol,
+            "side": event.side,
+            "status": event.status,
+            "ts": event.ts,
+            "data": event.data,
+        }
         await self._publish_to_channel(
             history_store=self._tenant_orders,
             subscribers_store=self._tenant_subscribers,
             key=event.tenant_id,
             event=event,
             queue_body=queue_body,
+            event_channel=f"orders.{event.tenant_id}",
+            event_payload=event_payload,
             context_label="orders",
         )
 

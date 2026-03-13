@@ -325,6 +325,7 @@ class ProjectGenerator:
             "dynamo": getattr(self, "use_dynamo", False),
             "cosmos": getattr(self, "use_cosmos", False),
             "elasticsearch": getattr(self, "use_elasticsearch", False),
+            "graph": getattr(self, "use_neo4j", False),
             "search": bool(
                 getattr(self, "use_meilisearch", False)
                 or getattr(self, "use_typesense", False)
@@ -352,6 +353,7 @@ class ProjectGenerator:
             ),
             # Analytics/event tracking
             "analytics": getattr(self, "use_analytics", False),
+            "events": getattr(self, "use_events", False),
             # Secrets and feature flags
             "secrets": bool(
                 getattr(self, "use_vault", False)

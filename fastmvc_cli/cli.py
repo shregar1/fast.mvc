@@ -125,6 +125,11 @@ def cli():
     help="Include Elasticsearch configuration and helpers (default: False)"
 )
 @click.option(
+    "--with-neo4j/--no-neo4j",
+    default=False,
+    help="Include Neo4j graph database configuration and helpers (default: False)",
+)
+@click.option(
     "--with-meilisearch/--no-meilisearch",
     default=False,
     help="Include Meilisearch configuration and helpers (default: False)",
@@ -183,6 +188,11 @@ def cli():
     "--with-analytics/--no-analytics",
     default=False,
     help="Include analytics / event tracking configuration (default: False)",
+)
+@click.option(
+    "--with-events/--no-events",
+    default=False,
+    help="Include cloud event bus configuration (SNS/EventBridge/Event Hubs/Kafka) (default: False)",
 )
 @click.option(
     "--with-vault/--no-vault",
@@ -252,6 +262,7 @@ def generate(
     with_dynamo: bool,
     with_cosmos: bool,
     with_elasticsearch: bool,
+    with_neo4j: bool,
     with_meilisearch: bool,
     with_typesense: bool,
     with_email: bool,
@@ -264,6 +275,7 @@ def generate(
     with_service_bus: bool,
     with_celery: bool,
     with_analytics: bool,
+    with_events: bool,
     with_vault: bool,
     with_aws_secrets: bool,
     with_feature_flags: bool,
@@ -322,6 +334,7 @@ def generate(
     generator.use_dynamo = with_dynamo
     generator.use_cosmos = with_cosmos
     generator.use_elasticsearch = with_elasticsearch
+    generator.use_neo4j = with_neo4j
     generator.use_meilisearch = with_meilisearch
     generator.use_typesense = with_typesense
     generator.use_email = with_email
@@ -334,6 +347,7 @@ def generate(
     generator.use_service_bus = with_service_bus
     generator.use_celery = with_celery
     generator.use_analytics = with_analytics
+    generator.use_events = with_events
     generator.use_vault = with_vault
     generator.use_aws_secrets = with_aws_secrets
     generator.use_feature_flags = with_feature_flags
@@ -677,6 +691,7 @@ def init():
     use_cosmos = click.confirm("  Use Azure Cosmos DB?", default=False)
     use_scylla = click.confirm("  Use ScyllaDB?", default=False)
     use_elasticsearch = click.confirm("  Use Elasticsearch?", default=False)
+    use_neo4j = click.confirm("  Use Neo4j graph DB?", default=False)
     use_email = click.confirm("  Use Email (SMTP/SendGrid)?", default=False)
     use_slack = click.confirm("  Use Slack?", default=False)
     use_datadog = click.confirm("  Use Datadog APM?", default=False)
@@ -692,6 +707,7 @@ def init():
     use_meilisearch = click.confirm("  Use Meilisearch for search?", default=False)
     use_typesense = click.confirm("  Use Typesense for search?", default=False)
     use_analytics = click.confirm("  Use analytics / event tracking helpers?", default=False)
+    use_events = click.confirm("  Use cloud event bus (SNS/EventBridge/Event Hubs/Kafka)?", default=False)
     use_vault = click.confirm("  Use HashiCorp Vault for secrets?", default=False)
     use_aws_secrets = click.confirm("  Use AWS Secrets Manager for secrets?", default=False)
     use_feature_flags = click.confirm("  Use feature flags (LaunchDarkly/Unleash)?", default=False)
@@ -840,6 +856,7 @@ def init():
     generator.use_cosmos = use_cosmos
     generator.use_scylla = use_scylla
     generator.use_elasticsearch = use_elasticsearch
+    generator.use_neo4j = use_neo4j
     generator.use_email = use_email
     generator.use_slack = use_slack
     generator.use_datadog = use_datadog
@@ -855,6 +872,7 @@ def init():
     generator.use_meilisearch = use_meilisearch
     generator.use_typesense = use_typesense
     generator.use_analytics = use_analytics
+    generator.use_events = use_events
     generator.use_vault = use_vault
     generator.use_aws_secrets = use_aws_secrets
     generator.use_feature_flags = use_feature_flags
@@ -1087,6 +1105,7 @@ def add_entity(entity_name: str, tests: bool):
             "dynamo",
             "cosmos",
             "elasticsearch",
+            "graph",
             "email",
             "slack",
             "datadog",
@@ -1168,6 +1187,7 @@ def add_service(service_name: str):
         "dynamo",
         "cosmos",
         "elasticsearch",
+        "graph",
         "slack",
         "datadog",
         "telemetry",
