@@ -3,7 +3,10 @@
     "enabled": false,
     "url": "amqp://guest:guest@localhost:5672//",
     "exchange": "fastmvc",
-    "default_routing_key": "events"
+    "default_routing_key": "events",
+    "management_url": "",
+    "username": "",
+    "password": ""
   },
   "sqs": {
     "enabled": false,

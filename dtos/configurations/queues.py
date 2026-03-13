@@ -17,6 +17,9 @@ class RabbitMQConfigDTO(BaseModel):
     url: Optional[str] = "amqp://guest:guest@localhost:5672//"
     exchange: str = "fastmvc"
     default_routing_key: str = "events"
+    management_url: Optional[str] = None
+    username: Optional[str] = None
+    password: Optional[str] = None
 
 
 class SQSConfigDTO(BaseModel):

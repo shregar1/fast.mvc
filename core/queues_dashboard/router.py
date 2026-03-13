@@ -34,6 +34,47 @@ _rq_registry_mod, FailedJobRegistry = optional_import("rq.registry", "FailedJobR
 router = APIRouter(prefix="/dashboard/queues", tags=["Queues Dashboard"])
 
 
+def _inspect_rabbitmq(cfg) -> Optional[Dict[str, Any]]:
+    if not (cfg.enabled and cfg.url):
+        return None
+    management_url = getattr(cfg, "management_url", None)
+    if not management_url:
+        # Management endpoint not configured; skip inspection but keep backend usable.
+        return None
+    try:
+        auth = None
+        username = getattr(cfg, "username", None)
+        password = getattr(cfg, "password", None)
+        if username and password:
+            auth = (username, password)
+        api_url = management_url.rstrip("/") + "/api/queues"
+        resp = httpx.get(api_url, auth=auth, timeout=3.0)
+        resp.raise_for_status()
+        queues = resp.json()
+        total_ready = 0
+        total_unacked = 0
+        for q in queues:
+            try:
+                total_ready += int(q.get("messages", 0))
+                total_unacked += int(q.get("messages_unacknowledged", 0))
+            except Exception:
+                continue
+        return {
+            "backend": "rabbitmq",
+            "name": management_url,
+            "messages": total_ready,
+            "inFlight": total_unacked,
+            "delayed": 0,
+        }
+    except Exception as exc:  # pragma: no cover - best effort
+        logger.warning(f"RabbitMQ inspection failed: {exc}")
+        return {
+            "backend": "rabbitmq",
+            "name": management_url or cfg.url,
+            "error": str(exc),
+        }
+
+
 def _inspect_sqs(cfg) -> Optional[Dict[str, Any]]:
     if not (cfg.enabled and cfg.queue_url and boto3 is not None):
         return None
@@ -444,6 +485,10 @@ async def queues_state() -> JSONResponse:
     """
     q_cfg = QueuesConfiguration.instance().get_config()
     queues: List[Dict[str, Any]] = []
+
+    rabbit_info = _inspect_rabbitmq(q_cfg.rabbitmq)
+    if rabbit_info is not None:
+        queues.append(rabbit_info)
 
     sqs_info = _inspect_sqs(q_cfg.sqs)
     if sqs_info is not None:
