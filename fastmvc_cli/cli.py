@@ -1230,10 +1230,197 @@ def add_service(service_name: str):
         click.secho(f"✗ Unsupported service: {service_name}", fg="red")
         sys.exit(1)
 
+    # Best-effort: update requirements.txt in the current project with
+    # compatible dependencies for the added service.
+    requirements_path = project_path / "requirements.txt"
+    if requirements_path.exists():
+        existing = requirements_path.read_text().splitlines()
+        existing_lower = {line.strip().split("==")[0].split(">=")[0].lower() for line in existing if line and not line.lstrip().startswith("#")}
+
+        def _ensure(lines: list[str], package: str) -> None:
+            name = package.split("==")[0].split(">=")[0].lower()
+            if name not in existing_lower:
+                lines.append(package)
+                existing_lower.add(name)
+
+        updated = existing[:]
+        if service_name == "mongo":
+            _ensure(updated, "pymongo>=4.6.0,<5.0.0")
+        elif service_name in {"cassandra", "scylla"}:
+            _ensure(updated, "cassandra-driver>=3.28.0,<4.0.0")
+        elif service_name in {"dynamo", "queues"} or service_name in {"payments", "storage"}:
+            _ensure(updated, "boto3>=1.28.0,<2.0.0")
+        elif service_name == "cosmos":
+            _ensure(updated, "azure-cosmos>=4.5.0,<5.0.0")
+        elif service_name == "elasticsearch":
+            _ensure(updated, "elasticsearch>=8.0.0,<9.0.0")
+        elif service_name == "graph":
+            _ensure(updated, "neo4j>=5.0.0,<6.0.0")
+        elif service_name == "queues":
+            _ensure(updated, "pika>=1.3.0,<2.0.0")
+            _ensure(updated, "nats-py>=2.0.0,<3.0.0")
+        elif service_name == "jobs":
+            _ensure(updated, "celery>=5.3.0,<6.0.0")
+        elif service_name == "storage":
+            _ensure(updated, "google-cloud-storage>=2.10.0,<3.0.0")
+            _ensure(updated, "azure-storage-blob>=12.17.0,<13.0.0")
+        elif service_name == "streams":
+            _ensure(updated, "aiokafka>=0.8.0,<1.0.0")
+        elif service_name == "email":
+            _ensure(updated, "sendgrid>=6.11.0,<7.0.0")
+        elif service_name == "datadog":
+            _ensure(updated, "ddtrace>=2.0.0,<3.0.0")
+        elif service_name == "telemetry":
+            _ensure(updated, "opentelemetry-sdk>=1.23.0,<2.0.0")
+            _ensure(updated, "opentelemetry-instrumentation-fastapi>=0.44b0,<1.0.0")
+        elif service_name == "identity":
+            _ensure(updated, "python-jose[cryptography]>=3.3.0,<4.0.0")
+
+        if updated != existing:
+            requirements_path.write_text("\n".join(updated) + "\n")
+
     click.echo()
     click.secho("✓ Service integration files added.", fg="green", bold=True)
     click.echo("  → Update the corresponding config/*/config.json to enable the service.")
     click.echo("  → No changes were made to app startup, so the server will continue to run.")
+    click.echo()
+
+
+@cli.group()
+def remove():
+    """
+    Remove integrations and scaffolding from an existing FastMVC project.
+
+    This does the inverse of some ``fastmvc add`` operations by deleting
+    config/ and DTO/configuration modules for a given service. It is
+    conservative and will not touch application code outside those assets.
+    """
+    pass
+
+
+@remove.command("service")
+@click.argument(
+    "service_name",
+    type=click.Choice(
+        [
+            "mongo",
+            "cassandra",
+            "scylla",
+            "dynamo",
+            "cosmos",
+            "elasticsearch",
+            "graph",
+            "email",
+            "slack",
+            "datadog",
+            "telemetry",
+            "payments",
+            "identity",
+            "queues",
+            "jobs",
+            "storage",
+            "streams",
+        ],
+        case_sensitive=False,
+    ),
+)
+def remove_service(service_name: str):
+    """
+    Remove an infrastructure service integration from the current project.
+
+    This command deletes config/, configuration, and DTO modules for the
+    specified service, and for some services their dedicated service
+    directories as well. It will not modify app.py startup wiring.
+    """
+
+    click.echo()
+    click.secho(f"→ Removing service integration: {service_name}", fg="blue", bold=True)
+    click.echo()
+
+    project_path = Path.cwd()
+    if not (project_path / "app.py").exists():
+        click.secho(
+            "✗ Not in a FastMVC project directory. "
+            "Run this command from your project root.",
+            fg="red",
+        )
+        sys.exit(1)
+
+    def _rm_dir(rel: str) -> None:
+        dst = project_path / rel
+        if not dst.exists():
+            return
+        shutil.rmtree(dst, ignore_errors=True)
+        click.secho(f"  ✓ Removed directory: {rel}", fg="green")
+
+    def _rm_file(rel: str) -> None:
+        dst = project_path / rel
+        if not dst.exists():
+            return
+        try:
+            dst.unlink()
+            click.secho(f"  ✓ Removed file: {rel}", fg="green")
+        except OSError:
+            click.secho(f"  • Could not remove file (skipped): {rel}", fg="yellow")
+
+    service_name = service_name.lower()
+
+    if service_name in {
+        "mongo",
+        "cassandra",
+        "scylla",
+        "dynamo",
+        "cosmos",
+        "elasticsearch",
+        "graph",
+        "slack",
+        "datadog",
+        "telemetry",
+        "payments",
+    }:
+        _rm_dir(f"config/{service_name}")
+        _rm_file(f"configurations/{service_name}.py")
+        _rm_file(f"dtos/configurations/{service_name}.py")
+    elif service_name == "identity":
+        _rm_dir("config/identity")
+        _rm_file("configurations/identity.py")
+        _rm_dir("dtos/configurations/identity")
+        _rm_dir("services/auth")
+    elif service_name == "queues":
+        _rm_dir("config/queues")
+        _rm_file("configurations/queues.py")
+        _rm_file("dtos/configurations/queues.py")
+        _rm_dir("services/queues")
+    elif service_name == "jobs":
+        _rm_dir("config/jobs")
+        _rm_file("configurations/jobs.py")
+        _rm_file("dtos/configurations/jobs.py")
+        _rm_dir("services/jobs")
+    elif service_name == "storage":
+        _rm_dir("config/storage")
+        _rm_file("configurations/storage.py")
+        _rm_file("dtos/configurations/storage.py")
+        _rm_dir("services/storage")
+    elif service_name == "streams":
+        _rm_dir("config/streams")
+        _rm_file("configurations/streams.py")
+        _rm_file("dtos/configurations/streams.py")
+        _rm_dir("services/streams")
+    elif service_name == "email":
+        _rm_dir("config/email")
+        _rm_file("configurations/email.py")
+        _rm_file("dtos/configurations/email.py")
+        # Intentionally do not remove services/communications because it may host shared clients.
+    else:  # pragma: no cover - guarded by click.Choice
+        click.secho(f"✗ Unsupported service: {service_name}", fg="red")
+        sys.exit(1)
+
+    # We intentionally do NOT try to remove dependencies from requirements.txt
+    # because other parts of the application may still rely on them.
+
+    click.echo()
+    click.secho("✓ Service integration assets removed.", fg="green", bold=True)
+    click.echo("  → Review imports and usage in your code to remove any dead references.")
     click.echo()
 
 

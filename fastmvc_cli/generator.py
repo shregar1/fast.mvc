@@ -1253,6 +1253,83 @@ if __name__ == "__main__":
 
             docker_compose_path.write_text(content)
 
+        # Update requirements.txt with optional dependencies for selected services
+        req_path = self.project_path / "requirements.txt"
+        if req_path.exists():
+            existing = req_path.read_text().splitlines()
+            existing_lower = {line.strip().split("==")[0].split(">=")[0].lower() for line in existing if line and not line.lstrip().startswith("#")}
+
+            def _ensure(lines: list[str], package: str) -> None:
+                name = package.split("==")[0].split(">=")[0].lower()
+                if name not in existing_lower:
+                    lines.append(package)
+                    existing_lower.add(name)
+
+            updated = existing[:]
+            # Datastores
+            if getattr(self, "use_mongo", False):
+                _ensure(updated, "pymongo>=4.6.0,<5.0.0")
+            if getattr(self, "use_cassandra", False) or getattr(self, "use_scylla", False):
+                _ensure(updated, "cassandra-driver>=3.28.0,<4.0.0")
+            if getattr(self, "use_dynamo", False):
+                _ensure(updated, "boto3>=1.28.0,<2.0.0")
+            if getattr(self, "use_cosmos", False):
+                _ensure(updated, "azure-cosmos>=4.5.0,<5.0.0")
+            if getattr(self, "use_elasticsearch", False):
+                _ensure(updated, "elasticsearch>=8.0.0,<9.0.0")
+            if getattr(self, "use_neo4j", False):
+                _ensure(updated, "neo4j>=5.0.0,<6.0.0")
+
+            # Search & analytics / vectors / events
+            if getattr(self, "use_meilisearch", False):
+                _ensure(updated, "meilisearch-python>=0.19.0,<1.0.0")
+            if getattr(self, "use_typesense", False):
+                _ensure(updated, "typesense>=0.18.0,<1.0.0")
+            if getattr(self, "use_analytics", False):
+                _ensure(updated, "clickhouse-connect>=0.6.0,<1.0.0")
+                _ensure(updated, "google-cloud-bigquery>=3.10.0,<4.0.0")
+            if getattr(self, "use_events", False):
+                _ensure(updated, "azure-eventhub>=5.11.0,<6.0.0")
+
+            # Queues & jobs
+            if getattr(self, "use_rabbitmq", False):
+                _ensure(updated, "pika>=1.3.0,<2.0.0")
+            if getattr(self, "use_sqs", False):
+                _ensure(updated, "boto3>=1.28.0,<2.0.0")
+            if getattr(self, "use_celery", False):
+                _ensure(updated, "celery>=5.3.0,<6.0.0")
+            # Storage
+            if getattr(self, "use_s3", False):
+                _ensure(updated, "boto3>=1.28.0,<2.0.0")
+            if getattr(self, "use_gcs", False):
+                _ensure(updated, "google-cloud-storage>=2.10.0,<3.0.0")
+            if getattr(self, "use_azure_blob", False):
+                _ensure(updated, "azure-storage-blob>=12.17.0,<13.0.0")
+
+            # Secrets & feature flags
+            if getattr(self, "use_vault", False):
+                _ensure(updated, "hvac>=1.1.0,<2.0.0")
+            if getattr(self, "use_aws_secrets", False):
+                _ensure(updated, "boto3>=1.28.0,<2.0.0")
+            if getattr(self, "use_feature_flags", False):
+                _ensure(updated, "ldclient-py>=8.0.0,<9.0.0")
+
+            # LLMs / vectors
+            if getattr(self, "use_llm", False):
+                _ensure(updated, "openai>=1.0.0,<2.0.0")
+                _ensure(updated, "anthropic>=0.34.0,<1.0.0")
+            if getattr(self, "use_pinecone", False):
+                _ensure(updated, "pinecone-client>=3.0.0,<4.0.0")
+            if getattr(self, "use_qdrant", False):
+                _ensure(updated, "qdrant-client>=1.6.0,<2.0.0")
+
+            # Streams (Kafka)
+            if getattr(self, "use_streams", False):
+                _ensure(updated, "aiokafka>=0.8.0,<1.0.0")
+
+            if updated != existing:
+                req_path.write_text("\n".join(updated) + "\n")
+
         # Update DB config for Alembic / runtime if present
         db_config_path = self.project_path / "config" / "db" / "config.json"
         if db_config_path.exists():

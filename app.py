@@ -57,12 +57,7 @@ from controllers.channels import router as ChannelsRouter
 from controllers.notifications import router as NotificationsRouter
 from controllers.user import router as UserRouter
 from controllers.webrtc import router as WebRTCRouter
-from core.health.dashboard import router as HealthDashboardRouter
-from core.api_dashboard import ApiDashboardRouter
-from core.queues_dashboard import QueuesDashboardRouter
-from core.tenants_dashboard import TenantsDashboardRouter
-from core.secrets_dashboard import SecretsDashboardRouter
-from core.workflows_dashboard import WorkflowsDashboardRouter
+from core.dashboard.router import router as DashboardRouter
 from core.websockets.router import router as WebSocketRouter
 from core.observability import configure_datadog, configure_otel
 from dtos.responses.base import BaseResponseDTO
@@ -312,12 +307,7 @@ app.include_router(UserRouter, tags=["User"])
 app.include_router(WebRTCRouter)
 app.include_router(NotificationsRouter)
 app.include_router(ChannelsRouter)
-app.include_router(HealthDashboardRouter)
-app.include_router(ApiDashboardRouter)
-app.include_router(QueuesDashboardRouter)
-app.include_router(SecretsDashboardRouter)
-app.include_router(TenantsDashboardRouter)
-app.include_router(WorkflowsDashboardRouter)
+app.include_router(DashboardRouter)
 app.include_router(WebSocketRouter)
 logger.info("Initialized routers")
 
