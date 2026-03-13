@@ -59,6 +59,9 @@ from controllers.user import router as UserRouter
 from controllers.webrtc import router as WebRTCRouter
 from core.health.dashboard import router as HealthDashboardRouter
 from core.api_dashboard import ApiDashboardRouter
+from core.queues_dashboard import QueuesDashboardRouter
+from core.tenants_dashboard import TenantsDashboardRouter
+from core.secrets_dashboard import SecretsDashboardRouter
 from core.observability import configure_datadog, configure_otel
 from dtos.responses.base import BaseResponseDTO
 from errors.unexpected_response_error import UnexpectedResponseError
@@ -309,6 +312,9 @@ app.include_router(NotificationsRouter)
 app.include_router(ChannelsRouter)
 app.include_router(HealthDashboardRouter)
 app.include_router(ApiDashboardRouter)
+app.include_router(QueuesDashboardRouter)
+app.include_router(SecretsDashboardRouter)
+app.include_router(TenantsDashboardRouter)
 logger.info("Initialized routers")
 
 

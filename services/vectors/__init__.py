@@ -8,6 +8,8 @@ from .client import (
     QdrantVectorStore,
     WeaviateVectorStore,
     PGVectorStore,
+    FaissVectorStore,
+    ChromaVectorStore,
     build_vector_store,
 )
 
@@ -17,6 +19,8 @@ __all__ = [
     "QdrantVectorStore",
     "WeaviateVectorStore",
     "PGVectorStore",
+    "FaissVectorStore",
+    "ChromaVectorStore",
     "build_vector_store",
 ]
 
