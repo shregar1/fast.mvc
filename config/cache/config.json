@@ -1,12 +1,4 @@
 {
-  "enabled": true,
-  "backend": "memory",
-  "default_ttl_seconds": 60,
-  "redis_url": "redis://localhost:6379/2",
-  "namespace": "fastmvc-cache"
-}
-
-{
     "host": "redis",
     "port": 6379,
     "password": ""
