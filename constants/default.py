@@ -54,6 +54,9 @@ class Default:
     ACCESS_TOKEN_EXPIRE_MINUTES: Final[int] = 1440
     """Default JWT access token expiry: 24 hours (1440 minutes)."""
 
+    REFRESH_TOKEN_EXPIRE_DAYS: Final[int] = 7
+    """Default JWT refresh token expiry: 7 days."""
+
     RATE_LIMIT_MAX_REQUESTS: Final[int] = 2
     """Maximum requests per rate limit window."""
 

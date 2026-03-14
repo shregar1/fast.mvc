@@ -12,7 +12,7 @@ from typing import Any, Dict
 
 from loguru import logger
 
-from configurations.feature_flags import FeatureFlagsConfiguration
+from fastmvc_core import FeatureFlagsConfiguration
 
 try:  # Optional dependencies
     import httpx

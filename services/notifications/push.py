@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from configurations.push import PushConfiguration
+from fastmvc_core import PushConfiguration
 
 
 class PushNotificationService:

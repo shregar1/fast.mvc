@@ -16,7 +16,7 @@ from typing import BinaryIO, Optional
 
 from loguru import logger
 
-from configurations.storage import StorageConfiguration
+from fastmvc_core import StorageConfiguration
 
 try:  # Optional providers
     import boto3

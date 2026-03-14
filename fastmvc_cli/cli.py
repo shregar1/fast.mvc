@@ -637,11 +637,23 @@ jobs:
         click.echo()
         click.secho("Next steps:", fg="yellow", bold=True)
         click.echo()
-        click.echo(f"  1. cd {project_name}")
-        click.echo("  2. pip install -r requirements.txt")
-        click.echo("  3. cp .env.example .env  # Configure your environment")
-        click.echo("  4. docker-compose up -d  # Start PostgreSQL and Redis (optional)")
-        click.echo("  5. python -m uvicorn app:app --reload")
+        step = 1
+        click.echo(f"  {step}. cd {project_name}")
+        step += 1
+        if venv:
+            if sys.platform == "win32":
+                click.echo(f"  {step}. .venv\\Scripts\\activate")
+            else:
+                click.echo(f"  {step}. source .venv/bin/activate")
+            step += 1
+        if not install:
+            click.echo(f"  {step}. pip install -r requirements.txt")
+            step += 1
+        click.echo(f"  {step}. cp .env.example .env  # Configure your environment")
+        step += 1
+        click.echo(f"  {step}. docker-compose up -d  # Start PostgreSQL and Redis (optional)")
+        step += 1
+        click.echo(f"  {step}. python -m uvicorn app:app --reload")
         click.echo()
         click.secho("  → Your API will be available at http://localhost:8000", fg="cyan")
         click.secho("  → API docs at http://localhost:8000/docs", fg="cyan")
@@ -984,6 +996,11 @@ def init():
         click.echo(f"  Git init:     {'yes' if init_git else 'no'}")
         click.echo(f"  Virtualenv:   {'yes' if create_venv else 'no'}")
         click.echo(f"  Install deps: {'yes' if install_deps else 'no'}")
+        if create_venv:
+            if sys.platform == "win32":
+                click.echo("  Activate:     .venv\\Scripts\\activate")
+            else:
+                click.echo("  Activate:     source .venv/bin/activate")
         click.echo()
     except Exception as e:
         click.secho(f"✗ Error generating project: {e}", fg="red")
@@ -1094,31 +1111,76 @@ def add_entity(entity_name: str, tests: bool):
         sys.exit(1)
 
 
+# Single source of truth for add/remove service: dirs, files, and requirements per service.
+_REQ = {
+    "mongo": ["pymongo>=4.6.0,<5.0.0"],
+    "cassandra": ["cassandra-driver>=3.28.0,<4.0.0"],
+    "scylla": ["cassandra-driver>=3.28.0,<4.0.0"],
+    "dynamo": ["boto3>=1.28.0,<2.0.0"],
+    "cosmos": ["azure-cosmos>=4.5.0,<5.0.0"],
+    "elasticsearch": ["elasticsearch>=8.0.0,<9.0.0"],
+    "graph": ["neo4j>=5.0.0,<6.0.0"],
+    "slack": [],
+    "datadog": ["ddtrace>=2.0.0,<3.0.0"],
+    "telemetry": ["opentelemetry-sdk>=1.23.0,<2.0.0", "opentelemetry-instrumentation-fastapi>=0.44b0,<1.0.0"],
+}
+SERVICE_SPECS: dict[str, dict] = {
+    **{
+        s: {
+            "dirs": [f"config/{s}"],
+            "files": [f"configurations/{s}.py", f"dtos/configurations/{s}.py"],
+            "requirements": _REQ.get(s, []),
+        }
+        for s in (
+            "mongo", "cassandra", "scylla", "dynamo", "cosmos", "elasticsearch",
+            "graph", "slack", "datadog", "telemetry",
+        )
+    },
+    "payments": {
+        "dirs": ["config/payments", "dtos/configurations/payments"],
+        "files": ["configurations/payments.py"],
+        "requirements": ["fastmvc_payments>=0.1.0", "boto3>=1.28.0,<2.0.0"],
+    },
+    "identity": {
+        "dirs": ["config/identity", "dtos/configurations/identity", "services/auth"],
+        "files": [],
+        "remove_files": ["configurations/identity.py"],
+        "requirements": ["fastmvc_identity>=0.1.0", "python-jose[cryptography]>=3.3.0,<4.0.0"],
+    },
+    "queues": {
+        "dirs": ["config/queues", "services/queues"],
+        "files": ["configurations/queues.py", "dtos/configurations/queues.py"],
+        "requirements": ["fastmvc_queues>=0.1.0", "pika>=1.3.0,<2.0.0", "nats-py>=2.0.0,<3.0.0", "boto3>=1.28.0,<2.0.0"],
+    },
+    "jobs": {
+        "dirs": ["config/jobs", "services/jobs"],
+        "files": ["configurations/jobs.py", "dtos/configurations/jobs.py"],
+        "requirements": ["fastmvc_jobs>=0.1.0", "celery>=5.3.0,<6.0.0"],
+    },
+    "storage": {
+        "dirs": ["config/storage", "services/storage"],
+        "files": ["configurations/storage.py", "dtos/configurations/storage.py"],
+        "requirements": ["fastmvc_storage>=0.1.0", "boto3>=1.28.0,<2.0.0", "google-cloud-storage>=2.10.0,<3.0.0", "azure-storage-blob>=12.17.0,<13.0.0"],
+    },
+    "streams": {
+        "dirs": ["config/streams", "services/streams"],
+        "files": ["configurations/streams.py", "dtos/configurations/streams.py"],
+        "requirements": ["aiokafka>=0.8.0,<1.0.0"],
+    },
+    "email": {
+        "dirs": ["config/email", "services/communications"],
+        "files": ["configurations/email.py", "dtos/configurations/email.py"],
+        "remove_dirs": ["config/email"],
+        "remove_files": ["configurations/email.py", "dtos/configurations/email.py"],
+        "requirements": ["sendgrid>=6.11.0,<7.0.0"],
+    },
+}
+
+
 @add.command("service")
 @click.argument(
     "service_name",
-    type=click.Choice(
-        [
-            "mongo",
-            "cassandra",
-            "scylla",
-            "dynamo",
-            "cosmos",
-            "elasticsearch",
-            "graph",
-            "email",
-            "slack",
-            "datadog",
-            "telemetry",
-            "payments",
-            "identity",
-            "queues",
-            "jobs",
-            "storage",
-            "streams",
-        ],
-        case_sensitive=False,
-    ),
+    type=click.Choice(list(SERVICE_SPECS.keys()), case_sensitive=False),
 )
 def add_service(service_name: str):
     """
@@ -1127,6 +1189,11 @@ def add_service(service_name: str):
     This command copies the relevant config/ and DTO/configuration modules
     from the FastMVC template into the current project without overwriting
     existing files, so the server keeps working after the addition.
+
+    Datastores (mongo, cassandra, scylla, cosmos, elasticsearch, etc.) and
+    identity/payments use fastmvc_core and optional packages (fastmvc_identity,
+    fastmvc_payments). For multi-package setups, run install_packages.sh in
+    the documented order (core → fastmvc_db → … → main).
 
     \b
     Examples:
@@ -1179,61 +1246,18 @@ def add_service(service_name: str):
         click.secho(f"  ✓ Added file: {rel}", fg="green")
 
     service_name = service_name.lower()
-
-    if service_name in {
-        "mongo",
-        "cassandra",
-        "scylla",
-        "dynamo",
-        "cosmos",
-        "elasticsearch",
-        "graph",
-        "slack",
-        "datadog",
-        "telemetry",
-        "payments",
-    }:
-        _copy_dir(f"config/{service_name}")
-        _copy_file(f"configurations/{service_name}.py")
-        _copy_file(f"dtos/configurations/{service_name}.py")
-    elif service_name == "identity":
-        _copy_dir("config/identity")
-        _copy_file("configurations/identity.py")
-        _copy_dir("dtos/configurations/identity")
-        _copy_dir("services/auth")
-    elif service_name == "queues":
-        _copy_dir("config/queues")
-        _copy_file("configurations/queues.py")
-        _copy_file("dtos/configurations/queues.py")
-        _copy_dir("services/queues")
-    elif service_name == "jobs":
-        _copy_dir("config/jobs")
-        _copy_file("configurations/jobs.py")
-        _copy_file("dtos/configurations/jobs.py")
-        _copy_dir("services/jobs")
-    elif service_name == "storage":
-        _copy_dir("config/storage")
-        _copy_file("configurations/storage.py")
-        _copy_file("dtos/configurations/storage.py")
-        _copy_dir("services/storage")
-    elif service_name == "streams":
-        _copy_dir("config/streams")
-        _copy_file("configurations/streams.py")
-        _copy_file("dtos/configurations/streams.py")
-        _copy_dir("services/streams")
-    elif service_name == "email":
-        _copy_dir("config/email")
-        _copy_file("configurations/email.py")
-        _copy_file("dtos/configurations/email.py")
-        _copy_dir("services/communications")
-    else:  # pragma: no cover - guarded by click.Choice
+    spec = SERVICE_SPECS.get(service_name)
+    if not spec:
         click.secho(f"✗ Unsupported service: {service_name}", fg="red")
         sys.exit(1)
 
-    # Best-effort: update requirements.txt in the current project with
-    # compatible dependencies for the added service.
+    for d in spec.get("dirs", []):
+        _copy_dir(d)
+    for f in spec.get("files", []):
+        _copy_file(f)
+
     requirements_path = project_path / "requirements.txt"
-    if requirements_path.exists():
+    if requirements_path.exists() and spec.get("requirements"):
         existing = requirements_path.read_text().splitlines()
         existing_lower = {line.strip().split("==")[0].split(">=")[0].lower() for line in existing if line and not line.lstrip().startswith("#")}
 
@@ -1244,44 +1268,20 @@ def add_service(service_name: str):
                 existing_lower.add(name)
 
         updated = existing[:]
-        if service_name == "mongo":
-            _ensure(updated, "pymongo>=4.6.0,<5.0.0")
-        elif service_name in {"cassandra", "scylla"}:
-            _ensure(updated, "cassandra-driver>=3.28.0,<4.0.0")
-        elif service_name in {"dynamo", "queues"} or service_name in {"payments", "storage"}:
-            _ensure(updated, "boto3>=1.28.0,<2.0.0")
-        elif service_name == "cosmos":
-            _ensure(updated, "azure-cosmos>=4.5.0,<5.0.0")
-        elif service_name == "elasticsearch":
-            _ensure(updated, "elasticsearch>=8.0.0,<9.0.0")
-        elif service_name == "graph":
-            _ensure(updated, "neo4j>=5.0.0,<6.0.0")
-        elif service_name == "queues":
-            _ensure(updated, "pika>=1.3.0,<2.0.0")
-            _ensure(updated, "nats-py>=2.0.0,<3.0.0")
-        elif service_name == "jobs":
-            _ensure(updated, "celery>=5.3.0,<6.0.0")
-        elif service_name == "storage":
-            _ensure(updated, "google-cloud-storage>=2.10.0,<3.0.0")
-            _ensure(updated, "azure-storage-blob>=12.17.0,<13.0.0")
-        elif service_name == "streams":
-            _ensure(updated, "aiokafka>=0.8.0,<1.0.0")
-        elif service_name == "email":
-            _ensure(updated, "sendgrid>=6.11.0,<7.0.0")
-        elif service_name == "datadog":
-            _ensure(updated, "ddtrace>=2.0.0,<3.0.0")
-        elif service_name == "telemetry":
-            _ensure(updated, "opentelemetry-sdk>=1.23.0,<2.0.0")
-            _ensure(updated, "opentelemetry-instrumentation-fastapi>=0.44b0,<1.0.0")
-        elif service_name == "identity":
-            _ensure(updated, "python-jose[cryptography]>=3.3.0,<4.0.0")
-
+        for pkg in spec["requirements"]:
+            _ensure(updated, pkg)
         if updated != existing:
             requirements_path.write_text("\n".join(updated) + "\n")
 
     click.echo()
     click.secho("✓ Service integration files added.", fg="green", bold=True)
     click.echo("  → Update the corresponding config/*/config.json to enable the service.")
+    if service_name in {"mongo", "cassandra", "scylla", "dynamo", "cosmos", "elasticsearch", "graph", "slack", "datadog", "telemetry"}:
+        click.echo("  → Config is provided by fastmvc_core; set FASTMVC_CONFIG_BASE to your config/ if needed.")
+    for pkg_hint in ("fastmvc_payments", "fastmvc_identity"):
+        if any(pkg_hint in r for r in spec.get("requirements", [])):
+            click.echo(f"  → Requires {pkg_hint}; config from config/{service_name}/config.json.")
+            break
     click.echo("  → No changes were made to app startup, so the server will continue to run.")
     click.echo()
 
@@ -1301,28 +1301,7 @@ def remove():
 @remove.command("service")
 @click.argument(
     "service_name",
-    type=click.Choice(
-        [
-            "mongo",
-            "cassandra",
-            "scylla",
-            "dynamo",
-            "cosmos",
-            "elasticsearch",
-            "graph",
-            "email",
-            "slack",
-            "datadog",
-            "telemetry",
-            "payments",
-            "identity",
-            "queues",
-            "jobs",
-            "storage",
-            "streams",
-        ],
-        case_sensitive=False,
-    ),
+    type=click.Choice(list(SERVICE_SPECS.keys()), case_sensitive=False),
 )
 def remove_service(service_name: str):
     """
@@ -1364,56 +1343,17 @@ def remove_service(service_name: str):
             click.secho(f"  • Could not remove file (skipped): {rel}", fg="yellow")
 
     service_name = service_name.lower()
-
-    if service_name in {
-        "mongo",
-        "cassandra",
-        "scylla",
-        "dynamo",
-        "cosmos",
-        "elasticsearch",
-        "graph",
-        "slack",
-        "datadog",
-        "telemetry",
-        "payments",
-    }:
-        _rm_dir(f"config/{service_name}")
-        _rm_file(f"configurations/{service_name}.py")
-        _rm_file(f"dtos/configurations/{service_name}.py")
-    elif service_name == "identity":
-        _rm_dir("config/identity")
-        _rm_file("configurations/identity.py")
-        _rm_dir("dtos/configurations/identity")
-        _rm_dir("services/auth")
-    elif service_name == "queues":
-        _rm_dir("config/queues")
-        _rm_file("configurations/queues.py")
-        _rm_file("dtos/configurations/queues.py")
-        _rm_dir("services/queues")
-    elif service_name == "jobs":
-        _rm_dir("config/jobs")
-        _rm_file("configurations/jobs.py")
-        _rm_file("dtos/configurations/jobs.py")
-        _rm_dir("services/jobs")
-    elif service_name == "storage":
-        _rm_dir("config/storage")
-        _rm_file("configurations/storage.py")
-        _rm_file("dtos/configurations/storage.py")
-        _rm_dir("services/storage")
-    elif service_name == "streams":
-        _rm_dir("config/streams")
-        _rm_file("configurations/streams.py")
-        _rm_file("dtos/configurations/streams.py")
-        _rm_dir("services/streams")
-    elif service_name == "email":
-        _rm_dir("config/email")
-        _rm_file("configurations/email.py")
-        _rm_file("dtos/configurations/email.py")
-        # Intentionally do not remove services/communications because it may host shared clients.
-    else:  # pragma: no cover - guarded by click.Choice
+    spec = SERVICE_SPECS.get(service_name)
+    if not spec:
         click.secho(f"✗ Unsupported service: {service_name}", fg="red")
         sys.exit(1)
+
+    remove_dirs = spec.get("remove_dirs", spec.get("dirs", []))
+    remove_files = spec.get("remove_files", spec.get("files", []))
+    for d in remove_dirs:
+        _rm_dir(d)
+    for f in remove_files:
+        _rm_file(f)
 
     # We intentionally do NOT try to remove dependencies from requirements.txt
     # because other parts of the application may still rely on them.

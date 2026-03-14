@@ -14,7 +14,7 @@ from typing import Any, Dict, Optional
 
 from loguru import logger
 
-from configurations.analytics import AnalyticsConfiguration
+from fastmvc_core import AnalyticsConfiguration
 
 try:  # Optional dependencies
     import httpx

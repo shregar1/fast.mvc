@@ -62,6 +62,7 @@ class ProjectGenerator:
         "app.py",
         "start_utils.py",
         "requirements.txt",
+        "requirements-optional.txt",
         "docker-compose.yml",
         "Dockerfile",
         "pytest.ini",
@@ -393,6 +394,21 @@ class ProjectGenerator:
                     dto_module.unlink()
                 except OSError:
                     pass
+
+        # Only keep config dirs that are required: db (always), cache (if use_redis), and enabled optionals.
+        # Remove any other config subdir (e.g. kafka, push, channels, webrtc, security, workflows, rate_limit).
+        config_dir = self.project_path / "config"
+        if config_dir.exists():
+            use_redis = getattr(self, "use_redis", True)
+            allowed = {"db"}
+            if use_redis:
+                allowed.add("cache")
+            for name, enabled in optional_services.items():
+                if enabled:
+                    allowed.add(name)
+            for subdir in list(config_dir.iterdir()):
+                if subdir.is_dir() and subdir.name not in allowed:
+                    shutil.rmtree(subdir, ignore_errors=True)
 
     def _create_env_example(self):
         """Create the .env.example file with default configuration."""
@@ -1046,8 +1062,8 @@ Production-ready FastAPI service generated from a template.
 ### 1. Setup environment
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # Windows: venv\\Scripts\\activate
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
 
 pip install -r requirements.txt
 cp .env.example .env
@@ -1417,8 +1433,8 @@ if __name__ == "__main__":
             click.secho("    ⚠ Git not found. Skipping repository initialization.", fg="yellow")
 
     def _create_venv(self):
-        """Create a Python virtual environment."""
-        venv_path = self.project_path / "venv"
+        """Create a Python virtual environment at .venv in the project."""
+        venv_path = self.project_path / ".venv"
         try:
             subprocess.run(
                 [sys.executable, "-m", "venv", str(venv_path)],
@@ -1441,9 +1457,9 @@ if __name__ == "__main__":
         # Determine pip path
         if self.create_venv:
             if sys.platform == "win32":
-                pip_path = self.project_path / "venv" / "Scripts" / "pip"
+                pip_path = self.project_path / ".venv" / "Scripts" / "pip"
             else:
-                pip_path = self.project_path / "venv" / "bin" / "pip"
+                pip_path = self.project_path / ".venv" / "bin" / "pip"
         else:
             pip_path = "pip"
 

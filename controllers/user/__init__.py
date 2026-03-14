@@ -9,6 +9,7 @@ Routes:
     POST /user/login    - User authentication
     POST /user/register - New user registration
     POST /user/logout   - User session termination
+    POST /user/refresh  - Refresh access token
 
 Usage:
     >>> from controllers.user import router
@@ -20,6 +21,7 @@ from fastapi import APIRouter
 from constants.api_lk import APILK
 from controllers.user.login import UserLoginController
 from controllers.user.logout import UserLogoutController
+from controllers.user.refresh import UserRefreshController
 from controllers.user.register import UserRegistrationController
 from start_utils import logger
 
@@ -55,3 +57,13 @@ router.add_api_route(
     name=APILK.LOGOUT,
 )
 logger.debug(f"Registered {UserLogoutController.__name__} route.")
+
+# Register refresh token route
+logger.debug(f"Registering {UserRefreshController.__name__} route.")
+router.add_api_route(
+    path="/refresh",
+    endpoint=UserRefreshController().post,
+    methods=["POST"],
+    name=APILK.REFRESH,
+)
+logger.debug(f"Registered {UserRefreshController.__name__} route.")

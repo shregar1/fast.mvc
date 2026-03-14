@@ -99,6 +99,30 @@ Your API is running at:
 
 ---
 
+## Optional FastMVC packages
+
+Generated projects depend on **fastmvc_core** by default. You can add optional features by installing extra packages:
+
+| Package | Description |
+|--------|-------------|
+| **fastmvc_dashboards** | Health, API, queues, tenants, secrets, and workflows dashboards |
+| **fastmvc_channels** | Real-time WebSocket channels hub (Redis/Kafka backends) |
+| **fastmvc_notifications** | Notifications service (long-poll, SSE) |
+| **fastmvc_kafka** | Kafka producer, consumer, and worker |
+| **fastmvc_webrtc** | WebRTC signaling service |
+
+Install only what you need:
+
+```bash
+pip install fastmvc_dashboards fastmvc_channels
+# or install all optional deps
+pip install -r requirements-optional.txt
+```
+
+The app wires these routers only when the corresponding package is installed, so a minimal project with just **fastmvc_core** runs without them.
+
+---
+
 ## ✨ Features
 
 <table>

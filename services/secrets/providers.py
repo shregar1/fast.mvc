@@ -12,7 +12,7 @@ from typing import Any, Optional
 
 from loguru import logger
 
-from configurations.secrets import SecretsConfiguration
+from fastmvc_core import SecretsConfiguration
 from core.utils.optional_imports import optional_import
 
 boto3, _ = optional_import("boto3")

@@ -17,7 +17,7 @@ from typing import Iterable, Optional
 
 from loguru import logger
 
-from configurations.email import EmailConfiguration
+from fastmvc_core import EmailConfiguration
 
 
 class EmailService:

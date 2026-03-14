@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, Tuple
 from fastapi import HTTPException, status
 from loguru import logger
 
-from configurations.rate_limit import RateLimitConfiguration
+from fastmvc_core import RateLimitConfiguration
 from core.utils.optional_imports import optional_import
 
 _redis_mod, _redis_cls = optional_import("redis.asyncio", "Redis")

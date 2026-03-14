@@ -13,7 +13,7 @@ from typing import Any, AsyncGenerator, Dict, List, Tuple
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from services.channels.presence import InMemoryPresenceBackend, PresenceService
+from fastmvc_channels import InMemoryPresenceBackend, PresenceService
 from services.streams import Tick, OrderEvent, get_market_data_hub
 
 

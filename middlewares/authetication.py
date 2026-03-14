@@ -2,7 +2,8 @@
 Authentication Middleware.
 
 Validates JWT tokens and enforces authentication on protected routes.
-Compatible with fastmiddleware's RequestContextMiddleware.
+Uses request ID/URN from fastmvc-middleware's RequestContextMiddleware
+(request.state.request_id or get_request_id()); falls back to request.state.urn if set.
 """
 
 from http import HTTPStatus
@@ -32,8 +33,7 @@ def _get_request_urn(request: Request) -> str:
     """
     Get request URN from request state.
 
-    Compatible with both local RequestContextMiddleware (sets .urn)
-    and fastmiddleware's RequestContextMiddleware (sets .request_id).
+    Uses fastmvc-middleware's request_id when available.
 
     Args:
         request: The FastAPI request object.

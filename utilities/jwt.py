@@ -7,6 +7,7 @@ from abstractions.utility import IUtility
 from start_utils import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     ALGORITHM,
+    REFRESH_TOKEN_EXPIRE_DAYS,
     SECRET_KEY,
 )
 
@@ -91,6 +92,23 @@ class JWTUtility(IUtility):
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
         return encoded_jwt
+
+    def create_refresh_token(self, data: dict) -> str:
+        """
+        Create a JWT refresh token with a longer expiration time.
+
+        Args:
+            data (dict): Data to encode (e.g. user_id, user_urn, user_email).
+
+        Returns:
+            str: Encoded JWT refresh token.
+        """
+        self.logger.info("Creating refresh token")
+        to_encode = data.copy()
+        to_encode["type"] = "refresh"
+        expire = datetime.now() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        to_encode["exp"] = expire
+        return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
     def decode_token(self, token: str) -> dict[str, str]:
         """

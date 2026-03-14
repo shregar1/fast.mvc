@@ -13,8 +13,7 @@ from typing import Any, Dict
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from fastapi import HTTPException, status
 
-from configurations.webrtc import WebRTCConfiguration
-from services.webrtc.signaling import WebRTCSignalingService
+from fastmvc_webrtc import WebRTCConfiguration, WebRTCSignalingService
 
 
 router = APIRouter(prefix="/webrtc", tags=["WebRTC"])

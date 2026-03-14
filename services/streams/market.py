@@ -15,7 +15,7 @@ from typing import Any, AsyncGenerator, Deque, Dict, List, Tuple
 
 from loguru import logger
 
-from configurations.streams import StreamsConfiguration
+from fastmvc_core import StreamsConfiguration
 from services.queues import QueueBroker
 from .abstractions import OrderEvent, Tick
 

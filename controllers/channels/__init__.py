@@ -7,7 +7,7 @@ via WebSocket and broadcast messages to all peers subscribed to that topic.
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
-from services.channels import ChannelsHub
+from fastmvc_channels import ChannelsHub
 
 
 router = APIRouter(prefix="/channels", tags=["Channels"])

@@ -148,7 +148,8 @@ class UserLoginService(IUserService):
             "user_email": user.email,
             "last_login": str(user.updated_on),
         }
-        token: str = self.jwt_utility.create_access_token(data=payload)
+        access_token: str = self.jwt_utility.create_access_token(data=payload)
+        refresh_token: str = self.jwt_utility.create_refresh_token(data=payload)
 
         return BaseResponseDTO(
             transactionUrn=self.urn,
@@ -157,7 +158,8 @@ class UserLoginService(IUserService):
             responseKey="success_user_login",
             data={
                 "status": True,
-                "token": token,
+                "token": access_token,
+                "refresh_token": refresh_token,
                 "user_urn": user.urn,
             },
         )

@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 
 from loguru import logger
 
-from configurations.workflows import WorkflowsConfiguration
+from fastmvc_core import WorkflowsConfiguration
 from core.utils.optional_imports import optional_import
 
 _temporal_mod, _temporal_client_cls = optional_import("temporalio.client", "Client")

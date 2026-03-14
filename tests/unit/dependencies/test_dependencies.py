@@ -19,16 +19,16 @@ class TestDBDependency:
         assert hasattr(DBDependency, 'derive')
         assert callable(DBDependency.derive)
 
-    @patch('dependencies.db.db_session')
-    @patch('dependencies.db.logger')
-    def test_derive_returns_session(self, mock_logger, mock_db_session):
-        """Test derive returns db_session."""
+    @patch('fastmvc_db.engine.get_db_session')
+    def test_derive_returns_session(self, mock_get_db_session):
+        """Test derive returns session from fastmvc_db."""
         from dependencies.db import DBDependency
 
-        mock_db_session.return_value = MagicMock()
+        mock_session = MagicMock()
+        mock_get_db_session.return_value = mock_session
         result = DBDependency.derive()
 
-        assert result == mock_db_session
+        assert result == mock_session
 
 
 class TestCacheDependency:

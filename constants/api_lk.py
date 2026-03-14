@@ -50,3 +50,6 @@ class APILK:
 
     LOGOUT: Final[str] = "LOGOUT"
     """Logical key for user session termination operations."""
+
+    REFRESH: Final[str] = "REFRESH"
+    """Logical key for token refresh operations."""

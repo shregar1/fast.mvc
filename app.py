@@ -39,10 +39,9 @@ from fastmiddleware import (
     CORSMiddleware,
     LoggingMiddleware,
     RateLimitConfig,
-    # Rate Limiting
     RateLimitMiddleware,
+    RequestContextMiddleware,
     SecurityHeadersConfig,
-    # Security
     SecurityHeadersMiddleware,
     TimingMiddleware,
     TrustedHostMiddleware,
@@ -51,19 +50,36 @@ from loguru import logger
 
 from constants.api_status import APIStatus
 from constants.default import Default
-from controllers.channels import router as ChannelsRouter
-from controllers.notifications import router as NotificationsRouter
 from controllers.user import router as UserRouter
-from controllers.webrtc import router as WebRTCRouter
-from core.dashboard.router import router as DashboardRouter
 from core.websockets.router import router as WebSocketRouter
 from core.observability import configure_datadog, configure_otel
+
+# Optional routers (require corresponding fastmvc_* packages)
+try:
+    from fastmvc_dashboards import DashboardRouter
+except ImportError:
+    DashboardRouter = None  # type: ignore[assignment]
+try:
+    from controllers.channels import router as ChannelsRouter
+except ImportError:
+    ChannelsRouter = None  # type: ignore[assignment]
+try:
+    from controllers.notifications import router as NotificationsRouter
+except ImportError:
+    NotificationsRouter = None  # type: ignore[assignment]
+try:
+    from controllers.webrtc import router as WebRTCRouter
+except ImportError:
+    WebRTCRouter = None  # type: ignore[assignment]
+
+# Flags for optional routers (used by tests and docs)
+DASHBOARD_ROUTER_ENABLED = DashboardRouter is not None
+
 from dtos.responses.base import BaseResponseDTO
 from errors.unexpected_response_error import UnexpectedResponseError
 
 # Custom authentication middleware (app-specific with user repository)
-from middlewares.authetication import AuthenticationMiddleware
-from middlewares.request_context import RequestContextMiddleware
+from middlewares import AuthenticationMiddleware
 
 
 def _get_int_env(name: str, default: int) -> int:
@@ -237,7 +253,7 @@ async def health_check():
 
 logger.info("Initializing middleware stack with fastmiddleware")
 
-# Request Context Middleware - URN generation and request tracking (must be first)
+# Request Context Middleware - request ID/URN and tracking (from fastmvc-middleware; must be first)
 app.add_middleware(RequestContextMiddleware)
 
 # Trusted Host Middleware - Prevents host header attacks
@@ -303,11 +319,15 @@ logger.info("Initialized middleware stack with fastmiddleware")
 
 logger.info("Initializing routers")
 app.include_router(UserRouter, tags=["User"])
-app.include_router(WebRTCRouter)
-app.include_router(NotificationsRouter)
-app.include_router(ChannelsRouter)
-app.include_router(DashboardRouter)
 app.include_router(WebSocketRouter)
+if WebRTCRouter is not None:
+    app.include_router(WebRTCRouter)
+if NotificationsRouter is not None:
+    app.include_router(NotificationsRouter)
+if ChannelsRouter is not None:
+    app.include_router(ChannelsRouter)
+if DashboardRouter is not None:
+    app.include_router(DashboardRouter)
 logger.info("Initialized routers")
 
 

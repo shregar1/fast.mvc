@@ -2,7 +2,6 @@
 FastMVC Core Module.
 
 Production-grade features for enterprise applications:
-- Health checks & readiness probes
 - Observability (logging, metrics, tracing)
 - Resilience (circuit breaker, retry)
 - Background tasks
@@ -11,9 +10,10 @@ Production-grade features for enterprise applications:
 - Multi-tenancy
 - API versioning
 - Testing utilities
+
+Health checks and dashboards are provided by the fastmvc_dashboards package.
 """
 
-from core.health import HealthCheck, HealthRouter, HealthStatus
 from core.observability import AuditLog, Metrics, StructuredLogger, Tracer
 from core.resilience import CircuitBreaker, RetryPolicy, retry
 from core.tasks import TaskQueue, task
@@ -23,10 +23,6 @@ from core.tenancy import TenantContext, get_current_tenant
 from core.versioning import APIVersion, versioned_router
 
 __all__ = [
-    # Health
-    "HealthCheck",
-    "HealthRouter",
-    "HealthStatus",
     # Observability
     "StructuredLogger",
     "Metrics",

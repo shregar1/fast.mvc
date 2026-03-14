@@ -1,12 +1,13 @@
-"""
-Queue and messaging related services.
-"""
+"""Queue and messaging services (re-exported from fastmvc_core)."""
 
-from .broker import QueueMessage, IQueueBackend, QueueBroker
+from fastmvc_core.services.queues import (
+    QueueMessage,
+    IQueueBackend,
+    QueueBroker,
+)
 
 __all__ = [
     "QueueMessage",
     "IQueueBackend",
     "QueueBroker",
 ]
-

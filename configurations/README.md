@@ -4,6 +4,8 @@
 
 The `configurations` module provides centralized configuration management for the FastMVC application. It handles loading, validating, and exposing configuration settings for database connections, cache systems, and security features.
 
+**Package-owned config (override in main repo):** DB, cache, and DynamoDB config loaders and DTOs live in **fastmvc_core**. Kafka, WebRTC, and channels live in **fastmvc_kafka**, **fastmvc_webrtc**, and **fastmvc_channels**. You override any of them by placing (or editing) files under the main repo’s **`config/`** directory; see **`config/README.md`**. The main app sets `FASTMVC_CONFIG_BASE` so packages load from `config/<name>/config.json` first.
+
 ## Purpose
 
 In software engineering, **configuration management** is critical for:

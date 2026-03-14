@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import os
 
-from configurations.datadog import DatadogConfiguration
+from fastmvc_core import DatadogConfiguration
 from start_utils import logger
 
 

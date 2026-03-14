@@ -11,7 +11,7 @@ from typing import Iterable, Optional
 
 from loguru import logger
 
-from configurations.slack import SlackConfiguration
+from fastmvc_core import SlackConfiguration
 
 
 class SlackService:

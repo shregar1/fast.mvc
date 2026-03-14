@@ -4,7 +4,16 @@
 
 FastMVC leverages the **[fastmvc-middleware](https://pypi.org/project/fastmvc-middleware/)** package - a comprehensive collection of **90+ production-ready middleware components** for FastAPI/Starlette applications.
 
-This directory also contains app-specific middlewares (like custom JWT authentication) that integrate with your application's user repository and business logic.
+This directory is a **middleware package**: app-specific middlewares (authentication, security headers, request body limit) live here and can be imported from the package:
+
+```python
+from middlewares import (
+    AuthenticationMiddleware,
+    RequestBodyLimitMiddleware,
+    SecurityHeadersConfig,
+    SecurityHeadersMiddleware,
+)
+```
 
 ## 🚀 Quick Start
 
@@ -138,7 +147,7 @@ This directory contains app-specific middlewares that require application logic:
 Custom JWT authentication that integrates with your user repository.
 
 ```python
-from middlewares.authetication import AuthenticationMiddleware
+from middlewares import AuthenticationMiddleware
 
 app.add_middleware(AuthenticationMiddleware)
 ```
@@ -160,51 +169,7 @@ app.add_middleware(AuthenticationMiddleware)
 }
 ```
 
-### RequestContextMiddleware (`request_context.py`)
-
-Local implementation for request tracking (can use fastmiddleware version instead).
-
-```python
-from middlewares.request_context import RequestContextMiddleware
-
-app.add_middleware(RequestContextMiddleware)
-```
-
-**Features:**
-- Generates ULID-based URN for each request
-- Adds `request.state.urn` for downstream access
-- Tracks request start time
-- Adds `X-Process-Time` and `X-Request-URN` response headers
-
-### RateLimitMiddleware (`rate_limit.py`)
-
-Local rate limiting implementation (can use fastmiddleware version instead).
-
-```python
-from middlewares.rate_limit import RateLimitMiddleware, RateLimitConfig
-
-config = RateLimitConfig(
-    requests_per_minute=60,
-    requests_per_hour=1000,
-    burst_limit=10
-)
-
-app.add_middleware(RateLimitMiddleware, config=config)
-```
-
-### SecurityHeadersMiddleware (`security_headers.py`)
-
-Local security headers implementation (can use fastmiddleware version instead).
-
-```python
-from middlewares.security_headers import SecurityHeadersMiddleware
-
-app.add_middleware(
-    SecurityHeadersMiddleware,
-    enable_hsts=True,
-    enable_csp=True
-)
-```
+Request context, rate limiting, and security headers are provided by **fastmvc-middleware** in `app.py`; no local copies are kept.
 
 ## 🔧 Configuration
 
@@ -266,13 +231,10 @@ callback_routes = set()  # Webhook endpoints
 middlewares/
 ├── __init__.py
 ├── README.md
-├── authetication.py       # Custom JWT auth (app-specific)
-├── rate_limit.py          # Local rate limiting
-├── request_context.py     # Local request context
-└── security_headers.py    # Local security headers
+└── authetication.py       # Custom JWT auth (app-specific)
 
-# fastmiddleware package provides 90+ additional middlewares
-# via: from fastmiddleware import ...
+# Request context, rate limit, security headers, CORS, logging, timing:
+# from fastmiddleware import RequestContextMiddleware, RateLimitMiddleware, ...
 ```
 
 ## 🔗 Resources

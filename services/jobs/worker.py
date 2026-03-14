@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, Optional
 
 from loguru import logger
 
-from configurations.jobs import JobsConfiguration
+from fastmvc_core import JobsConfiguration
 
 try:  # Optional
     from celery import Celery

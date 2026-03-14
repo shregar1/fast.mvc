@@ -1,8 +1,6 @@
-"""
-LLM provider services.
-"""
+"""LLM provider services (re-exported from fastmvc_core)."""
 
-from .base import (
+from fastmvc_core.services.llm import (
     ILLMService,
     OpenAILLMService,
     AnthropicLLMService,
@@ -17,4 +15,3 @@ __all__ = [
     "OllamaLLMService",
     "build_llm_service",
 ]
-

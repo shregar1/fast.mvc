@@ -14,7 +14,7 @@ from typing import Any, Dict, Optional
 
 from loguru import logger
 
-from configurations.events import EventsConfiguration
+from fastmvc_core import EventsConfiguration
 from core.utils.optional_imports import optional_import
 
 _boto3, _ = optional_import("boto3")
@@ -23,8 +23,8 @@ _eventhub_mod, EventHubProducerClient = optional_import(
 )
 _eventhub_data_mod, EventData = optional_import("azure.eventhub", "EventData")
 
-try:  # Kafka bridge reuses existing producer wrapper
-    from core.kafka.producer import KafkaProducer
+try:
+    from fastmvc_kafka import KafkaProducer
 except Exception:  # pragma: no cover - optional
     KafkaProducer = None  # type: ignore[assignment]
 

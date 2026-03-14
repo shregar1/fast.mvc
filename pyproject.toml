@@ -86,6 +86,10 @@ dependencies = [
     "mako>=1.2.0,<2.0.0",
     "fastmvc-middleware>=0.6.2",
     "cryptography>=41.0.0,<44.0.0",
+    "fastmvc_core",
+    "fastmvc_db",
+    "fastmvc_payments",
+    "fastmvc_identity",
 ]
 
 [project.optional-dependencies]
@@ -105,8 +109,28 @@ docs = [
     "mkdocs-material>=9.0.0",
     "mkdocstrings[python]>=0.24.0",
 ]
+channels = ["fastmvc_channels>=0.1.0"]
+dashboards = ["fastmvc_dashboards>=0.1.0"]
+notifications = ["fastmvc_notifications>=0.1.0"]
+kafka = ["fastmvc_kafka>=0.1.0"]
+webrtc = ["fastmvc_webrtc>=0.1.0"]
+payments = ["fastmvc_payments>=0.1.0"]
+identity = ["fastmvc_identity>=0.1.0"]
+queues = ["fastmvc_queues>=0.1.0"]
+jobs = ["fastmvc_jobs>=0.1.0"]
+storage = ["fastmvc_storage>=0.1.0"]
+secrets = ["fastmvc_secrets>=0.1.0"]
+feature-flags = ["fastmvc_feature_flags>=0.1.0"]
+search = ["fastmvc_search>=0.1.0"]
+analytics = ["fastmvc_analytics>=0.1.0"]
+llm = ["fastmvc_llm>=0.1.0"]
+vectors = ["fastmvc_vectors>=0.1.0"]
+tenancy = ["fastmvc_tenancy>=0.1.0"]
+admin = ["fastmvc_admin>=0.1.0"]
+webhooks = ["fastmvc_webhooks>=0.1.0"]
+media = ["fastmvc_media>=0.1.0"]
 all = [
-    "pyfastmvc[dev,docs]",
+    "pyfastmvc[dev,docs,channels,dashboards,notifications,kafka,webrtc,payments,identity,queues,jobs,storage,secrets,feature-flags,search,analytics,llm,vectors,tenancy,admin,webhooks,media]",
 ]
 
 [project.urls]
@@ -206,6 +230,8 @@ omit = [
 ]
 
 [tool.coverage.report]
+fail_under = 90
+show_missing = true
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",

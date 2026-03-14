@@ -1,0 +1,10 @@
+# Optional FastMVC packages (fastmvc_core + fastmvc_db are in requirements.txt)
+# Install only the ones you need, e.g.:
+#   pip install -r requirements-optional.txt
+#   or: pip install fastmvc_dashboards fastmvc_channels
+
+fastmvc_dashboards>=0.1.0
+fastmvc_channels>=0.1.0
+fastmvc_notifications>=0.1.0
+fastmvc_kafka>=0.1.0
+fastmvc_webrtc>=0.1.0

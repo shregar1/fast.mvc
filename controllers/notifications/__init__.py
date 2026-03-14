@@ -11,7 +11,7 @@ from typing import Any, AsyncGenerator, Dict, List, Optional
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 
-from services.notifications import NotificationsService
+from fastmvc_notifications import NotificationsService
 
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])

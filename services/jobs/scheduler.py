@@ -11,7 +11,7 @@ from typing import Any, Callable
 
 from loguru import logger
 
-from configurations.jobs import JobsConfiguration
+from fastmvc_core import JobsConfiguration
 
 try:  # Optional
     from apscheduler.schedulers.asyncio import AsyncIOScheduler

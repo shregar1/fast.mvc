@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional
 
 from loguru import logger
 
-from configurations.payments import PaymentsConfiguration
+from fastmvc_payments import PaymentsConfiguration
 from services.payments.base import CheckoutSession, IPaymentGateway
 
 

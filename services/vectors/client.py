@@ -8,7 +8,7 @@ from typing import Optional
 
 from loguru import logger
 
-from configurations.vectors import VectorsConfiguration
+from fastmvc_core import VectorsConfiguration
 from .abstraction import IVectorStore
 from .pinecone_store import PineconeVectorStore
 from .qdrant_store import QdrantVectorStore

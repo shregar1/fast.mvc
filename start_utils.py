@@ -32,18 +32,19 @@ Configuration Files:
 
 import os
 import sys
+from pathlib import Path
 from typing import Any
 
 import redis
 from dotenv import load_dotenv
 from loguru import logger
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.session import Session
 
-from configurations.cache import CacheConfiguration, CacheConfigurationDTO
-from configurations.channels import ChannelsConfiguration, ChannelsConfigurationDTO
-from configurations.db import DBConfiguration, DBConfigurationDTO
+from fastmvc_core import (
+    CacheConfiguration,
+    CacheConfigurationDTO,
+    DBConfiguration,
+    DBConfigurationDTO,
+)
 from constants.default import Default
 
 # =============================================================================
@@ -85,10 +86,21 @@ Example:
 logger.info("Loading .env file and environment variables")
 load_dotenv()
 
+# Let packages load config from main repo's config/ (override)
+os.environ.setdefault(
+    "FASTMVC_CONFIG_BASE",
+    str(Path(__file__).resolve().parent / "config"),
+)
+
 logger.info("Loading Configurations")
 cache_configuration: CacheConfigurationDTO = CacheConfiguration().get_config()
 db_configuration: DBConfigurationDTO = DBConfiguration().get_config()
-channels_configuration: ChannelsConfigurationDTO = ChannelsConfiguration().get_config()
+try:
+    from fastmvc_channels import ChannelsConfiguration, ChannelsConfigurationDTO
+
+    channels_configuration: ChannelsConfigurationDTO = ChannelsConfiguration().get_config()
+except ImportError:
+    channels_configuration = None  # type: ignore[assignment]
 logger.info("Loaded Configurations")
 
 # =============================================================================
@@ -113,6 +125,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES: int = int(
     )
 )
 """JWT token expiry in minutes (default: 1440 = 24 hours)."""
+
+REFRESH_TOKEN_EXPIRE_DAYS: int = int(
+    os.getenv(
+        "REFRESH_TOKEN_EXPIRE_DAYS",
+        str(Default.REFRESH_TOKEN_EXPIRE_DAYS),
+    )
+)
+"""JWT refresh token expiry in days (default: 7)."""
 
 RATE_LIMIT_REQUESTS_PER_MINUTE: int = int(
     os.getenv(
@@ -152,9 +172,11 @@ logger.info("Loaded environment variables")
 # DATABASE SESSION
 # =============================================================================
 
-db_session: Session = None
+from fastmvc_db import create_and_set_session
+
+db_session = create_and_set_session(db_configuration)
 """
-SQLAlchemy database session.
+SQLAlchemy database session (from fastmvc_db).
 
 Initialized at startup if database configuration is complete.
 Used throughout the application for database operations.
@@ -163,27 +185,7 @@ Example:
     >>> from start_utils import db_session
     >>> user = db_session.query(User).filter_by(id=1).first()
 """
-
-if (
-    db_configuration.user_name
-    and db_configuration.password
-    and db_configuration.host
-    and db_configuration.port
-    and db_configuration.database
-    and db_configuration.connection_string
-):
-    logger.info("Initializing PostgreSQL database connection")
-    engine = create_engine(
-        db_configuration.connection_string.format(
-            user_name=db_configuration.user_name,
-            password=db_configuration.password,
-            host=db_configuration.host,
-            port=db_configuration.port,
-            database=db_configuration.database,
-        )
-    )
-    Session = sessionmaker[Session](bind=engine)
-    db_session: Session = Session()
+if db_session:
     logger.info("Initialized PostgreSQL database connection")
 
 # =============================================================================
@@ -230,19 +232,28 @@ Global pub-sub channels backend.
 Backed by Redis or Kafka depending on configuration.
 """
 
-CHANNEL_BACKEND: str = os.getenv("CHANNEL_BACKEND", channels_configuration.backend)
+CHANNEL_BACKEND: str = (
+    os.getenv("CHANNEL_BACKEND", channels_configuration.backend)
+    if channels_configuration is not None
+    else os.getenv("CHANNEL_BACKEND", "none")
+)
 
 if CHANNEL_BACKEND == "redis" and redis_session:
     try:
-        from core.channels.redis_backend import RedisChannelBackend
+        import redis.asyncio as aioredis
 
-        channel_backend = RedisChannelBackend(redis_session)
+        from fastmvc_channels import RedisChannelBackend
+
+        redis_url = (
+            f"redis://:{cache_configuration.password or ''}@{cache_configuration.host or 'localhost'}:{cache_configuration.port or 6379}/0"
+        )
+        redis_async = aioredis.from_url(redis_url)
+        channel_backend = RedisChannelBackend(redis_async)
         logger.info("Initialized Redis channels backend")
     except Exception as exc:
         logger.error(f"Failed to initialize Redis channels backend: {exc}")
         channel_backend = None
 elif CHANNEL_BACKEND == "kafka":
-    # Placeholder for future Kafka backend initialization
     logger.info("Kafka channels backend requested but not yet implemented.")
 
 # =============================================================================
@@ -253,6 +264,7 @@ unprotected_routes: set = {
     "/health",
     "/user/login",
     "/user/register",
+    "/user/refresh",
     "/docs",
     "/redoc",
     "/openapi.json",
@@ -264,6 +276,7 @@ These routes are accessible without a valid JWT token:
     - /health: Health check endpoint
     - /user/login: Login endpoint
     - /user/register: Registration endpoint
+    - /user/refresh: Token refresh endpoint
     - /docs: Swagger UI documentation
     - /redoc: ReDoc documentation
 """

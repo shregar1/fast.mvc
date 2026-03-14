@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from configurations.search import SearchConfiguration
+from fastmvc_core import SearchConfiguration
 
 try:  # Optional dependencies
     import meilisearch

@@ -104,7 +104,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Index
 from sqlalchemy.orm import relationship
 
 from models import Base
-from constants.db.table import Table
+from fastmvc_db import Table
 
 
 class {self.entity_name}(Base):
@@ -776,7 +776,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from constants.api_status import APIStatus
-from dependencies.db import DBDependency
+from fastmvc_db import DBDependency
 from dependencies.utilities.dictionary import DictionaryUtilityDependency
 from dtos.requests.{self.entity_snake}.create import {self.entity_name}CreateRequestDTO
 from dtos.requests.{self.entity_snake}.update import {self.entity_name}UpdateRequestDTO

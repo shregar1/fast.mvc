@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from configurations.graph import GraphConfiguration
+from fastmvc_core import GraphConfiguration
 from core.utils.optional_imports import optional_import
 
 _neo4j_mod, _neo4j_driver_cls = optional_import("neo4j", "GraphDatabase")
