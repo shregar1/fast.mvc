@@ -1,3 +1,3 @@
-# PEP 561 marker file
-# This file indicates that the package supports type hints
+# Marker file for PEP 561
+# This package uses inline type hints
 
