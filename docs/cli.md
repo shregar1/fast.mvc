@@ -1,6 +1,6 @@
 ## FastMVC CLI Reference
 
-The `fastmvc` CLI is the main entry point for generating and managing FastMVC projects. It is implemented in `fastmvc_cli/cli.py` and documented here in a docs-friendly format.
+The `fastmvc` CLI is the main entry point for generating and managing FastMVC projects. It is implemented in `fast_cli/cli.py` and documented here in a docs-friendly format.
 
 ### Overview
 

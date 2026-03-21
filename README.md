@@ -9,8 +9,8 @@
 
 ## Capabilities
 
-- **CLI** — the `fastmvc` command (`fastmvc_cli.cli:main`) generates projects, resources, and migrations (see `[project.scripts]` in `pyproject.toml`).
-- **App template** — FastAPI app structure, configuration, middleware, and services expected by extension packages (`fastmvc_*`).
+- **CLI** — the `fastmvc` command (`fast_cli.cli:main`) generates projects, resources, and migrations (see `[project.scripts]` in `pyproject.toml`).
+- **App template** — FastAPI app structure, configuration, middleware, and services expected by extension packages (`fast_*`).
 - **Batteries** — FastAPI, SQLAlchemy 2, Alembic, Pydantic v2, Redis, JWT, bcrypt, etc. (full list in `pyproject.toml` `dependencies`).
 
 ## Install
@@ -32,7 +32,7 @@ pip install -e .
 
 ## Extension packages
 
-The **`fastmvc_*`** libraries in the monorepo are optional add-ons (DB, queues, LLM, storage, …). See the [parent README](../README.md) for the full package table and [`install_packages.sh`](../install_packages.sh) to install them in editable mode.
+The **`fast_*`** libraries in the monorepo are optional add-ons (DB, queues, LLM, storage, …). See the [parent README](../README.md) for the full package table and [`install_packages.sh`](../install_packages.sh) to install them in editable mode.
 
 ## Tooling
 

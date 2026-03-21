@@ -85,13 +85,22 @@ dependencies = [
     "httpx>=0.24.0,<1.0.0",
     "cachetools>=5.0.0,<6.0.0",
     "mako>=1.2.0,<2.0.0",
-    "fastmvc-middleware>=0.6.2",
+    "fast-middleware>=0.6.2",
+    "fast-errors>=0.1.0",
     "cryptography>=41.0.0,<44.0.0",
-    "fastmvc_core",
-    "fastmvc_db",
-    "fastmvc_payments",
-    "fastmvc_identity",
-    "fastmvc_queues>=0.1.0",
+    "fast_core",
+    "fast_db",
+    "fast_payments",
+    "fast_identity",
+    "fast_queues>=0.1.0",
+    "fast_tenancy>=0.1.0",
+    "fast_jobs>=0.1.0",
+    "fast_storage>=0.1.0",
+    "fast_secrets>=0.1.0",
+    "fast_search>=0.1.0",
+    "fast_vectors>=0.1.0",
+    "fast_webrtc>=0.1.0",
+    "fast_webhooks>=0.1.0",
 ]
 
 [project.optional-dependencies]
@@ -111,26 +120,26 @@ docs = [
     "mkdocs-material>=9.0.0",
     "mkdocstrings[python]>=0.24.0",
 ]
-channels = ["fastmvc_channels>=0.1.0"]
-dashboards = ["fastmvc_dashboards>=0.1.0"]
-notifications = ["fastmvc_notifications>=0.1.0"]
-kafka = ["fastmvc_kafka>=0.1.0"]
-webrtc = ["fastmvc_webrtc>=0.1.0"]
-payments = ["fastmvc_payments>=0.1.0"]
-identity = ["fastmvc_identity>=0.1.0"]
-queues = ["fastmvc_queues>=0.1.0"]
-jobs = ["fastmvc_jobs>=0.1.0"]
-storage = ["fastmvc_storage>=0.1.0"]
-secrets = ["fastmvc_secrets>=0.1.0"]
-feature-flags = ["fastmvc_feature_flags>=0.1.0"]
-search = ["fastmvc_search>=0.1.0"]
-analytics = ["fastmvc_analytics>=0.1.0"]
-llm = ["fastmvc_llm>=0.1.0"]
-vectors = ["fastmvc_vectors>=0.1.0"]
-tenancy = ["fastmvc_tenancy>=0.1.0"]
-admin = ["fastmvc_admin>=0.1.0"]
-webhooks = ["fastmvc_webhooks>=0.1.0"]
-media = ["fastmvc_media>=0.1.0"]
+channels = ["fast_channels>=0.1.0"]
+dashboards = ["fast_dashboards>=0.1.0"]
+notifications = ["fast_notifications>=0.1.0"]
+kafka = ["fast_kafka>=0.1.0"]
+webrtc = ["fast_webrtc>=0.1.0"]
+payments = ["fast_payments>=0.1.0"]
+identity = ["fast_identity>=0.1.0"]
+queues = ["fast_queues>=0.1.0"]
+jobs = ["fast_jobs>=0.1.0"]
+storage = ["fast_storage>=0.1.0"]
+secrets = ["fast_secrets>=0.1.0"]
+feature-flags = ["fast_feature_flags>=0.1.0"]
+search = ["fast_search>=0.1.0"]
+analytics = ["fast_analytics>=0.1.0"]
+llm = ["fast_llm>=0.1.0"]
+vectors = ["fast_vectors>=0.1.0"]
+tenancy = ["fast_tenancy>=0.1.0"]
+admin = ["fast_admin>=0.1.0"]
+webhooks = ["fast_webhooks>=0.1.0"]
+media = ["fast_media>=0.1.0"]
 all = [
     "pyfastmvc[dev,docs,channels,dashboards,notifications,kafka,webrtc,payments,identity,queues,jobs,storage,secrets,feature-flags,search,analytics,llm,vectors,tenancy,admin,webhooks,media]",
 ]
@@ -143,17 +152,16 @@ Issues = "https://github.com/shregar1/fastMVC/issues"
 Changelog = "https://github.com/shregar1/fastMVC/blob/main/CHANGELOG.md"
 
 [project.scripts]
-fastmvc = "fastmvc_cli.cli:main"
+fastmvc = "fast_cli.cli:main"
 
 [tool.setuptools]
 packages = [
-    "fastmvc_cli",
+    "fast_cli",
     "abstractions",
     "config",
     "config.cache",
     "config.db",
     "config.security",
-    "configurations",
     "constants",
     "constants.db",
     "controllers",
@@ -172,26 +180,32 @@ packages = [
     "dtos.requests.user",
     "dtos.requests.product",
     "dtos.responses",
-    "errors",
     "middlewares",
-    "migrations",
-    "models",
     "repositories",
     "services",
     "services.events",
     "services.streams",
     "services.user",
-    "services.product",
     "tests",
     "utilities",
     "core",
-    "core.health",
+    "core.utils",
+    "core.channels",
+    "core.datastores",
+    "core.websockets",
     "core.observability",
     "core.resilience",
     "core.tasks",
     "core.security",
     "core.features",
     "core.tenancy",
+    "core.storage",
+    "core.secrets",
+    "core.queues",
+    "core.search",
+    "core.vectors",
+    "core.webrtc",
+    "core.webhooks",
     "core.versioning",
     "core.testing",
 ]

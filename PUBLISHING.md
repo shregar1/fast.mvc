@@ -27,5 +27,5 @@ twine upload dist/*
 ```
 
 - **PyPI project name:** `pyfastmvc`
-- **Typical import:** `fastmvc_cli`
+- **Typical import:** `fast_cli`
 - **Repository / homepage:** https://github.com/shregar1/fastMVC

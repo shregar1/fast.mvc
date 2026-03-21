@@ -39,7 +39,7 @@ import redis
 from dotenv import load_dotenv
 from loguru import logger
 
-from fastmvc_core import (
+from fast_core import (
     CacheConfiguration,
     CacheConfigurationDTO,
     DBConfiguration,
@@ -96,7 +96,7 @@ logger.info("Loading Configurations")
 cache_configuration: CacheConfigurationDTO = CacheConfiguration().get_config()
 db_configuration: DBConfigurationDTO = DBConfiguration().get_config()
 try:
-    from fastmvc_channels import ChannelsConfiguration, ChannelsConfigurationDTO
+    from fast_channels import ChannelsConfiguration, ChannelsConfigurationDTO
 
     channels_configuration: ChannelsConfigurationDTO = ChannelsConfiguration().get_config()
 except ImportError:
@@ -172,11 +172,11 @@ logger.info("Loaded environment variables")
 # DATABASE SESSION
 # =============================================================================
 
-from fastmvc_db import create_and_set_session
+from fast_db import create_and_set_session
 
 db_session = create_and_set_session(db_configuration)
 """
-SQLAlchemy database session (from fastmvc_db).
+SQLAlchemy database session (from fast_db).
 
 Initialized at startup if database configuration is complete.
 Used throughout the application for database operations.
@@ -242,7 +242,7 @@ if CHANNEL_BACKEND == "redis" and redis_session:
     try:
         import redis.asyncio as aioredis
 
-        from fastmvc_channels import RedisChannelBackend
+        from fast_channels import RedisChannelBackend
 
         redis_url = (
             f"redis://:{cache_configuration.password or ''}@{cache_configuration.host or 'localhost'}:{cache_configuration.port or 6379}/0"

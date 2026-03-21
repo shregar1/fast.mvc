@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from fastmvc_cli.generator import ProjectGenerator
+from fast_cli.generator import ProjectGenerator
 
 
 @pytest.mark.slow

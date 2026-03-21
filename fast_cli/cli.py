@@ -40,16 +40,16 @@ from typing import Optional
 
 import click
 
-from fastmvc_cli import __version__
-from fastmvc_cli.alembic_utils import find_alembic_ini, run_alembic
-from fastmvc_cli.doctor import export_openapi_json, run_doctor
-from fastmvc_cli.entity_generator import EntityGenerator
-from fastmvc_cli.generator import ProjectGenerator
-from fastmvc_cli.hooks import run_post_generate, run_pre_run
-from fastmvc_cli.init_ci import run_init_ci
-from fastmvc_cli.presets import apply_template_pack
-from fastmvc_cli.project_checks import require_fastmvc_project_root
-from fastmvc_cli.scaffold_helpers import (
+from fast_cli import __version__
+from fast_cli.alembic_utils import find_alembic_ini, run_alembic
+from fast_cli.doctor import export_openapi_json, run_doctor
+from fast_cli.entity_generator import EntityGenerator
+from fast_cli.generator import ProjectGenerator
+from fast_cli.hooks import run_post_generate, run_pre_run
+from fast_cli.init_ci import run_init_ci
+from fast_cli.presets import apply_template_pack
+from fast_cli.project_checks import require_fast_project_root
+from fast_cli.scaffold_helpers import (
     write_ci_workflow,
     write_codeowners,
     write_contributing,
@@ -1017,7 +1017,7 @@ def add_entity(entity_name: str, tests: bool):
         entity_name = entity_name[0].upper() + entity_name[1:]
         click.secho(f"  Using: {entity_name}", fg="white")
 
-    project_path = require_fastmvc_project_root()
+    project_path = require_fast_project_root()
 
     try:
         generator = EntityGenerator(
@@ -1074,28 +1074,28 @@ SERVICE_SPECS: dict[str, dict] = {
     "payments": {
         "dirs": ["config/payments", "dtos/configurations/payments"],
         "files": ["configurations/payments.py"],
-        "requirements": ["fastmvc_payments>=0.1.0", "boto3>=1.28.0,<2.0.0"],
+        "requirements": ["fast_payments>=0.1.0", "boto3>=1.28.0,<2.0.0"],
     },
     "identity": {
         "dirs": ["config/identity", "dtos/configurations/identity", "services/auth"],
         "files": [],
         "remove_files": ["configurations/identity.py"],
-        "requirements": ["fastmvc_identity>=0.1.0", "python-jose[cryptography]>=3.3.0,<4.0.0"],
+        "requirements": ["fast_identity>=0.1.0", "python-jose[cryptography]>=3.3.0,<4.0.0"],
     },
     "queues": {
         "dirs": ["config/queues", "services/queues"],
         "files": ["configurations/queues.py", "dtos/configurations/queues.py"],
-        "requirements": ["fastmvc_queues>=0.1.0", "pika>=1.3.0,<2.0.0", "nats-py>=2.0.0,<3.0.0", "boto3>=1.28.0,<2.0.0"],
+        "requirements": ["fast_queues>=0.1.0", "pika>=1.3.0,<2.0.0", "nats-py>=2.0.0,<3.0.0", "boto3>=1.28.0,<2.0.0"],
     },
     "jobs": {
         "dirs": ["config/jobs", "services/jobs"],
         "files": ["configurations/jobs.py", "dtos/configurations/jobs.py"],
-        "requirements": ["fastmvc_jobs>=0.1.0", "celery>=5.3.0,<6.0.0"],
+        "requirements": ["fast_jobs>=0.1.0", "celery>=5.3.0,<6.0.0"],
     },
     "storage": {
         "dirs": ["config/storage", "services/storage"],
         "files": ["configurations/storage.py", "dtos/configurations/storage.py"],
-        "requirements": ["fastmvc_storage>=0.1.0", "boto3>=1.28.0,<2.0.0", "google-cloud-storage>=2.10.0,<3.0.0", "azure-storage-blob>=12.17.0,<13.0.0"],
+        "requirements": ["fast_storage>=0.1.0", "boto3>=1.28.0,<2.0.0", "google-cloud-storage>=2.10.0,<3.0.0", "azure-storage-blob>=12.17.0,<13.0.0"],
     },
     "streams": {
         "dirs": ["config/streams", "services/streams"],
@@ -1126,9 +1126,9 @@ def add_service(service_name: str):
     existing files, so the server keeps working after the addition.
 
     Datastores (mongo, cassandra, scylla, cosmos, elasticsearch, etc.) and
-    identity/payments use fastmvc_core and optional packages (fastmvc_identity,
-    fastmvc_payments). For multi-package setups, run install_packages.sh in
-    the documented order (core → fastmvc_db → … → main).
+    identity/payments use fast_core and optional packages (fast_identity,
+    fast_payments). For multi-package setups, run install_packages.sh in
+    the documented order (core → fast_db → … → main).
 
     \b
     Examples:
@@ -1140,7 +1140,7 @@ def add_service(service_name: str):
     click.secho(f"→ Adding service integration: {service_name}", fg="blue", bold=True)
     click.echo()
 
-    project_path = require_fastmvc_project_root()
+    project_path = require_fast_project_root()
 
     # Resolve template root using ProjectGenerator helper
     try:
@@ -1205,8 +1205,8 @@ def add_service(service_name: str):
     click.secho("✓ Service integration files added.", fg="green", bold=True)
     click.echo("  → Update the corresponding config/*/config.json to enable the service.")
     if service_name in {"mongo", "cassandra", "scylla", "dynamo", "cosmos", "elasticsearch", "graph", "slack", "datadog", "telemetry"}:
-        click.echo("  → Config is provided by fastmvc_core; set FASTMVC_CONFIG_BASE to your config/ if needed.")
-    for pkg_hint in ("fastmvc_payments", "fastmvc_identity"):
+        click.echo("  → Config is provided by fast_core; set FASTMVC_CONFIG_BASE to your config/ if needed.")
+    for pkg_hint in ("fast_payments", "fast_identity"):
         if any(pkg_hint in r for r in spec.get("requirements", [])):
             click.echo(f"  → Requires {pkg_hint}; config from config/{service_name}/config.json.")
             break
@@ -1244,7 +1244,7 @@ def remove_service(service_name: str):
     click.secho(f"→ Removing service integration: {service_name}", fg="blue", bold=True)
     click.echo()
 
-    project_path = require_fastmvc_project_root()
+    project_path = require_fast_project_root()
 
     def _rm_dir(rel: str) -> None:
         dst = project_path / rel
@@ -1570,7 +1570,7 @@ def info():
     click.echo()
     click.secho("Ecosystem packages:", fg="yellow", bold=True)
     click.secho("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", fg="white", dim=True)
-    click.echo("  fastmvc_core, fastmvc_db, fastmvc_middleware — core stack (see pyproject optional deps)")
+    click.echo("  fast_core, fast_db, fast_middleware — core stack (see pyproject optional deps)")
     click.echo()
 
 
@@ -1584,7 +1584,7 @@ def version(check_pypi: bool):
     """Display the FastMVC version; optional PyPI latest for update hints."""
     click.echo(f"FastMVC v{__version__}")
     if check_pypi or os.environ.get("FASTMVC_CHECK_PYPI") == "1":
-        from fastmvc_cli.pypi_version import fetch_pypi_latest_version
+        from fast_cli.pypi_version import fetch_pypi_latest_version
 
         latest = fetch_pypi_latest_version()
         if latest:

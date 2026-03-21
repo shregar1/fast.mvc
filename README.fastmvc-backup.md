@@ -8,7 +8,7 @@
 | **Python** | ≥ 3.10 |
 | **License** | MIT (see package metadata) |
 
-This directory is the **main CLI and framework template** that ties the optional `fastmvc_*` packages together. The rest of the monorepo provides integrations (DB, queues, storage, …); **`pyfastmvc`** is what you install to **create and evolve** applications.
+This directory is the **main CLI and framework template** that ties the optional `fast_*` packages together. The rest of the monorepo provides integrations (DB, queues, storage, …); **`pyfastmvc`** is what you install to **create and evolve** applications.
 
 ---
 
@@ -39,12 +39,12 @@ pyfastmvc --help
 
 ---
 
-## Relationship to `fastmvc_*` packages
+## Relationship to `fast_*` packages
 
 - **`pyfastmvc`** scaffolds the app shell and patterns.
-- **`fastmvc_core`**, **`fastmvc_db`**, **`fastmvc_db_models`**, etc. are **optional libraries** you add to `pyproject.toml` / `requirements.txt` when your generated app needs them.
+- **`fast_core`**, **`fast_db`**, **`fast_db_models`**, etc. are **optional libraries** you add to `pyproject.toml` / `requirements.txt` when your generated app needs them.
 
-The monorepo’s [`install_packages.sh`](../install_packages.sh) installs `fastmvc_core` through `fastmvc_media` (and more) plus `pyfastmvc` for local integration testing.
+The monorepo’s [`install_packages.sh`](../install_packages.sh) installs `fast_core` through `fast_media` (and more) plus `pyfastmvc` for local integration testing.
 
 ---
 

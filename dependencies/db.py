@@ -1,7 +1,7 @@
 """
 Database Dependency Module.
 
-Re-exports DBDependency from fastmvc_db for backward compatibility.
+Re-exports DBDependency from fast_db for backward compatibility.
 
 Usage:
     >>> from fastapi import Depends
@@ -11,6 +11,6 @@ Usage:
     ...     users = session.query(User).all()
 """
 
-from fastmvc_db import DBDependency
+from fast_db import DBDependency
 
 __all__ = ["DBDependency"]

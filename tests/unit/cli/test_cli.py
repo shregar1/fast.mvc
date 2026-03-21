@@ -4,7 +4,7 @@ Tests for FastMVC CLI module.
 
 from click.testing import CliRunner
 
-from fastmvc_cli.cli import cli, main
+from fast_cli.cli import cli, main
 
 
 class TestCLIMain:

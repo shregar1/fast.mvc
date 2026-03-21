@@ -13,7 +13,7 @@ _DEFAULT_MSG = (
 )
 
 
-def require_fastmvc_project_root(msg: str | None = None) -> Path:
+def require_fast_project_root(msg: str | None = None) -> Path:
     """Return cwd if ``app.py`` exists; otherwise print *msg* and exit."""
     project_path = Path.cwd()
     if not (project_path / "app.py").is_file():

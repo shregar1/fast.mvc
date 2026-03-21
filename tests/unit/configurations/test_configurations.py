@@ -1,17 +1,17 @@
 """
 Tests for main-repo configuration aggregators (DatastoresConfiguration, CommunicationsConfiguration).
 
-Loader and DTO tests for DB, Cache, Security, etc. live in fastmvc_core.
+Loader and DTO tests for DB, Cache, Security, etc. live in fast_core.
 """
 
 from unittest.mock import patch
 
 
-@patch("fastmvc_core.config.resolver.load_config_json")
+@patch("fast_core.config.resolver.load_config_json")
 def test_datastores_configuration_get_config(mock_load):
-    """DatastoresConfiguration.get_config() returns grouped DTO from fastmvc_core and main configs."""
+    """DatastoresConfiguration.get_config() returns grouped DTO from fast_core and main configs."""
     mock_load.return_value = {}
-    from fastmvc_core import DatastoresConfiguration
+    from fast_core import DatastoresConfiguration
     # Reset singleton for test
     DatastoresConfiguration._instance = None
     cfg = DatastoresConfiguration().get_config()
@@ -20,11 +20,11 @@ def test_datastores_configuration_get_config(mock_load):
     assert cfg.cache is not None
 
 
-@patch("fastmvc_core.config.resolver.load_config_json")
+@patch("fast_core.config.resolver.load_config_json")
 def test_communications_configuration_get_config(mock_load):
     """CommunicationsConfiguration.get_config() returns grouped DTO."""
     mock_load.return_value = {}
-    from fastmvc_core import CommunicationsConfiguration
+    from fast_core import CommunicationsConfiguration
     CommunicationsConfiguration._instance = None
     cfg = CommunicationsConfiguration().get_config()
     assert cfg is not None

@@ -130,7 +130,7 @@ Default endpoints:
 
 ## 3. CLI Reference
 
-The `fastmvc` CLI is the main entry point for generating and managing FastMVC projects. It is implemented in `fastmvc_cli/cli.py`.
+The `fastmvc` CLI is the main entry point for generating and managing FastMVC projects. It is implemented in `fast_cli/cli.py`.
 
 ### 3.1 Overview
 
@@ -374,7 +374,7 @@ Repositories:
 
 ### 4.2 Middleware Pipeline
 
-FastMVC uses `fastmvc-middleware` to run a chain of middlewares for every request:
+FastMVC uses `fast-middleware` to run a chain of middlewares for every request:
 
 - RequestContextMiddleware – per-request URN and context.
 - TimingMiddleware – adds processing time headers.
@@ -629,7 +629,7 @@ and adjust values as needed.
 
 ### 6.2 CLI Package
 
-- `fastmvc_cli/`:
+- `fast_cli/`:
   - Implementation of the `fastmvc` CLI:
     - `generate` and `init` for project creation.
     - `add entity` and `add service` for scaffolding.

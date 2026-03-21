@@ -23,7 +23,7 @@ See `README.md` for detailed ASCII diagrams of the full stack and MVC interactio
 
 ### Middleware Pipeline
 
-FastMVC uses the `fastmvc-middleware` collection (90+ middlewares) to wrap every request with:
+FastMVC uses the `fast-middleware` collection (90+ middlewares) to wrap every request with:
 
 - **Request context** – per-request URN for traceability.
 - **Timing** – adds processing time headers.

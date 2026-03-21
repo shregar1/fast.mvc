@@ -2,8 +2,8 @@
 
 import pytest
 
-from fastmvc_cli.generator import ProjectGenerator
-from fastmvc_cli.presets import apply_template_pack
+from fast_cli.generator import ProjectGenerator
+from fast_cli.presets import apply_template_pack
 
 
 def test_apply_minimal_disables_redis_and_docker():

@@ -12,7 +12,7 @@ from typing import Any
 
 from fastapi import FastAPI
 
-from fastmvc_core import TelemetryConfiguration
+from fast_core import TelemetryConfiguration
 from start_utils import logger
 
 

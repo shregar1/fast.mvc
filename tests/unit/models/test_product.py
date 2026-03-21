@@ -4,7 +4,7 @@ Tests for Product model.
 
 from datetime import datetime
 
-from fastmvc_db_models.product import Product
+from fast_db_models.product import Product
 
 
 class TestProductModel:

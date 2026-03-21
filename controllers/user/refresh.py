@@ -14,13 +14,13 @@ from constants.api_lk import APILK
 from constants.api_status import APIStatus
 from controllers.user.abstraction import IUserController
 from dependencies.services.user.refresh import UserRefreshServiceDependency
-from dependencies.fastmvc_utilities.dictionary import DictionaryUtilityDependency
+from dependencies.fast_utilities.dictionary import DictionaryUtilityDependency
 from dependencies.utilities.jwt import JWTUtilityDependency
 from dtos.requests.user.refresh import UserRefreshRequestDTO
 from dtos.responses.base import BaseResponseDTO
-from fastmvc_errors.bad_input_error import BadInputError
-from fastmvc_utilities.dictionary import DictionaryUtility
-from fastmvc_utilities.jwt import JWTUtility
+from fast_errors.bad_input_error import BadInputError
+from fast_utilities.dictionary import DictionaryUtility
+from fast_utilities.jwt import JWTUtility
 
 
 class UserRefreshController(IUserController):

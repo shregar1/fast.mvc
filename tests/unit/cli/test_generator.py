@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from fastmvc_cli.generator import ProjectGenerator
+from fast_cli.generator import ProjectGenerator
 
 
 class TestProjectGenerator:
@@ -110,7 +110,7 @@ class TestSanitizeName:
             project_name="@#$%",
             output_dir="/tmp"
         )
-        assert generator.project_name == "fastmvc_project"
+        assert generator.project_name == "fast_project"
 
     def test_sanitize_name_alphanumeric(self):
         """Test alphanumeric names are preserved."""
@@ -190,7 +190,7 @@ class TestGetTemplatePath:
 class TestGenerate:
     """Tests for project generation."""
 
-    @patch('fastmvc_cli.generator.click')
+    @patch('fast_cli.generator.click')
     def test_generate_raises_on_existing_directory(self, mock_click):
         """Test generate raises error if directory exists."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -206,7 +206,7 @@ class TestGenerate:
             with pytest.raises(FileExistsError):
                 generator.generate()
 
-    @patch('fastmvc_cli.generator.click')
+    @patch('fast_cli.generator.click')
     def test_step_outputs_message(self, mock_click):
         """Test _step method outputs message."""
         generator = ProjectGenerator(
@@ -221,7 +221,7 @@ class TestCopyTemplate:
     """Tests for template copying."""
 
     @patch('shutil.copy2')
-    @patch('fastmvc_cli.generator.ProjectGenerator._copy_directory')
+    @patch('fast_cli.generator.ProjectGenerator._copy_directory')
     def test_copy_template_calls_copy(self, mock_copy_dir, mock_copy2):
         """Test _copy_template copies files and directories."""
         with tempfile.TemporaryDirectory() as tmpdir:

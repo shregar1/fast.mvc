@@ -1,7 +1,7 @@
 """
-Re-export ChannelBackend from fastmvc_channels for optional third-party backends.
+Re-export ChannelBackend from fast_channels for optional third-party backends.
 """
 
-from fastmvc_channels import ChannelBackend
+from fast_channels import ChannelBackend
 
 __all__ = ["ChannelBackend"]

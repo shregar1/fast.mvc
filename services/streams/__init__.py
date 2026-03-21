@@ -1,5 +1,13 @@
-from .abstractions import Tick, OrderEvent, IMarketDataFeed, IEventStream
-from .market import MarketDataHub, get_market_data_hub
+"""Backward-compatible re-exports; implementation is ``fast_core.services.streams``."""
+
+from fast_core.services.streams import (
+    IEventStream,
+    IMarketDataFeed,
+    MarketDataHub,
+    OrderEvent,
+    Tick,
+    get_market_data_hub,
+)
 
 __all__ = [
     "Tick",
@@ -9,4 +17,3 @@ __all__ = [
     "MarketDataHub",
     "get_market_data_hub",
 ]
-

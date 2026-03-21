@@ -1,12 +1,12 @@
 """
-Datastore client implementations for FastMVC.
+Concrete ``IDataStore`` / search adapters for Redis, Mongo, Cassandra, Dynamo, etc.
 
-This package contains concrete implementations of the generic datastore
-interfaces defined in `abstractions.datastore` for specific technologies
-such as Redis, MongoDB, Cassandra, DynamoDB, Cosmos DB, and ScyllaDB.
+**Also use the dedicated packages (do not duplicate their concerns here):**
 
-All clients are intentionally thin wrappers around the underlying drivers
-so that they are easy to extend or replace in user projects.
+- **SQLAlchemy / relational:** ``fast_db`` (engines, sessions, FastAPI dependencies).
+- **Object storage (S3, GCS, Azure Blob):** ``fast_storage`` (``build_storage_backend``, …).
+
+This package only holds thin driver wrappers that implement ``abstractions.datastore``.
 """
 
 from .redis_kv import RedisKeyValueStore  # noqa: F401

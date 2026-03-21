@@ -1,34 +1,52 @@
 """
-Background Tasks Module.
+Background jobs — re-exported from ``fast_jobs``.
 
-Provides a Redis-backed task queue for background job processing.
+Prefer importing from the library directly in new code::
 
-Features:
-- Async task execution
-- Retry with exponential backoff
-- Task scheduling (delayed execution)
-- Priority queues
-- Task status tracking
+    from fast_jobs import enqueue, JobsConfiguration, cancel_job
 
-Usage:
-    from core.tasks import TaskQueue, task
-
-    queue = TaskQueue(redis_url="redis://localhost:6379")
-
-    @task(queue="emails", retry=3)
-    async def send_email(to: str, subject: str):
-        pass
-
-    # Enqueue task
-    await send_email.delay(to="user@example.com", subject="Welcome!")
+The previous Redis ``TaskQueue`` / ``@task`` helpers were removed; use ``enqueue`` with
+Celery / RQ / Dramatiq per ``config/jobs/config.json`` (see ``fast_jobs`` docs).
 """
 
-from core.tasks.queue import Task, TaskQueue, TaskResult, TaskStatus, task
+from fast_jobs import (
+    CancelJobResult,
+    CronScheduleDTO,
+    JobEnqueueResult,
+    JobStatus,
+    JobStatusSnapshot,
+    JobsConfiguration,
+    JobsConfigurationDTO,
+    cancel_job,
+    celery_crontab_schedule,
+    dramatiq_periodiq_cron,
+    enqueue,
+    get_celery_app_if_enabled,
+    get_job_status,
+    get_queue_timeouts,
+    make_celery_app,
+    parse_cron_fields,
+    resolve_job_timeout_seconds,
+    rq_scheduler_cron,
+)
 
 __all__ = [
-    "TaskQueue",
-    "Task",
-    "TaskStatus",
-    "TaskResult",
-    "task",
+    "CancelJobResult",
+    "CronScheduleDTO",
+    "JobEnqueueResult",
+    "JobStatus",
+    "JobStatusSnapshot",
+    "JobsConfiguration",
+    "JobsConfigurationDTO",
+    "cancel_job",
+    "celery_crontab_schedule",
+    "dramatiq_periodiq_cron",
+    "enqueue",
+    "get_celery_app_if_enabled",
+    "get_job_status",
+    "get_queue_timeouts",
+    "make_celery_app",
+    "parse_cron_fields",
+    "resolve_job_timeout_seconds",
+    "rq_scheduler_cron",
 ]

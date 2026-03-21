@@ -111,7 +111,7 @@ class ProjectGenerator:
         "dist",
         "build",
         ".pytest_cache",
-        "fastmvc_cli",  # Don't copy CLI into generated projects
+        "fast_cli",  # Don't copy CLI into generated projects
     ]
 
     def __init__(
@@ -162,7 +162,7 @@ class ProjectGenerator:
             sanitized = "_" + sanitized
         # Use a neutral default if nothing valid remains
         # Keep this in sync with tests in tests/unit/cli/test_generator.py
-        return sanitized or "fastmvc_project"
+        return sanitized or "fast_project"
 
     def _get_template_path(self) -> Path:
         """
@@ -184,8 +184,8 @@ class ProjectGenerator:
 
         # If not found, try the installed package location
         try:
-            import fastmvc_cli
-            package_path = Path(fastmvc_cli.__file__).parent.parent
+            import fast_cli
+            package_path = Path(fast_cli.__file__).parent.parent
             if (package_path / "app.py").exists():
                 return package_path
         except ImportError:
@@ -1308,7 +1308,7 @@ if __name__ == "__main__":
             content = docker_compose_path.read_text()
 
             # Network and image names
-            content = content.replace("fastmvc_net", f"{self.project_name}_net")
+            content = content.replace("fast_net", f"{self.project_name}_net")
             content = content.replace("fastmvc:", f"{self.project_name}:")
             content = content.replace('POSTGRES_DB: fastmvc', f'POSTGRES_DB: {self.project_name}')
 

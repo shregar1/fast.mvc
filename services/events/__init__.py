@@ -1,6 +1,6 @@
-"""Cloud event bus helpers (used by ``services.streams``); configuration via ``fastmvc_core``."""
+"""Backward-compatible re-exports; implementation is ``fast_core.services.events``."""
 
-from .bus import (
+from fast_core.services.events import (
     IEventBus,
     INotificationBus,
     build_event_bus,

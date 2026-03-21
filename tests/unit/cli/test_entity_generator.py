@@ -6,7 +6,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from fastmvc_cli.entity_generator import EntityGenerator
+from fast_cli.entity_generator import EntityGenerator
 
 
 class TestEntityGenerator:
@@ -111,7 +111,7 @@ class TestToCamelCase:
 class TestGenerateModel:
     """Tests for model generation."""
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_model_creates_file(self, mock_click):
         """Test _generate_model creates model file."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -129,7 +129,7 @@ class TestGenerateModel:
             model_file = models_dir / "product.py"
             assert model_file.exists()
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_model_contains_class(self, mock_click):
         """Test generated model contains class definition."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -152,7 +152,7 @@ class TestGenerateModel:
 class TestGenerateRepository:
     """Tests for repository generation."""
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_repository_creates_file(self, mock_click):
         """Test _generate_repository creates repository file."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -169,7 +169,7 @@ class TestGenerateRepository:
             repo_file = repos_dir / "product.py"
             assert repo_file.exists()
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_repository_contains_class(self, mock_click):
         """Test generated repository contains class definition."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -192,7 +192,7 @@ class TestGenerateRepository:
 class TestGenerateDTOs:
     """Tests for DTO generation."""
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_dtos_creates_directory(self, mock_click):
         """Test _generate_dtos creates DTO directory."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -208,7 +208,7 @@ class TestGenerateDTOs:
             product_dto_dir = dtos_dir / "product"
             assert product_dto_dir.exists()
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_dtos_creates_create_dto(self, mock_click):
         """Test _generate_dtos creates create DTO."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -224,7 +224,7 @@ class TestGenerateDTOs:
             create_dto = dtos_dir / "product" / "create.py"
             assert create_dto.exists()
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_dtos_creates_update_dto(self, mock_click):
         """Test _generate_dtos creates update DTO."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -244,7 +244,7 @@ class TestGenerateDTOs:
 class TestGenerateService:
     """Tests for service generation."""
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_service_creates_directory(self, mock_click):
         """Test _generate_service creates service directory."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -260,7 +260,7 @@ class TestGenerateService:
             product_service_dir = services_dir / "product"
             assert product_service_dir.exists()
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_service_creates_abstraction(self, mock_click):
         """Test _generate_service creates abstraction file."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -276,7 +276,7 @@ class TestGenerateService:
             abstraction = services_dir / "product" / "abstraction.py"
             assert abstraction.exists()
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_service_creates_crud(self, mock_click):
         """Test _generate_service creates CRUD file."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -296,7 +296,7 @@ class TestGenerateService:
 class TestGenerateController:
     """Tests for controller generation."""
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_controller_creates_directory(self, mock_click):
         """Test _generate_controller creates controller directory."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -316,7 +316,7 @@ class TestGenerateController:
 class TestGenerateDependencies:
     """Tests for dependency generation."""
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_dependencies_creates_repo_dependency(self, mock_click):
         """Test _generate_dependencies creates repository dependency."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -336,7 +336,7 @@ class TestGenerateDependencies:
 class TestGenerateTests:
     """Tests for test generation."""
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_tests_creates_model_test(self, mock_click):
         """Test _generate_tests creates model test file."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -357,7 +357,7 @@ class TestGenerateTests:
 class TestUpdateInitFiles:
     """Tests for __init__.py updates."""
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_update_init_files_exists(self, mock_click):
         """Test _update_init_files method exists."""
         generator = EntityGenerator(
@@ -371,7 +371,7 @@ class TestUpdateInitFiles:
 class TestFullGeneration:
     """Tests for full entity generation."""
 
-    @patch('fastmvc_cli.entity_generator.click')
+    @patch('fast_cli.entity_generator.click')
     def test_generate_creates_all_files(self, mock_click):
         """Test generate creates all necessary files."""
         with tempfile.TemporaryDirectory() as tmpdir:

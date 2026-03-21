@@ -1,7 +1,7 @@
 """
 Tests for middleware classes.
 
-Uses fastmvc-middleware package for request context, security headers, rate limit,
+Uses fast-middleware package for request context, security headers, rate limit,
 CORS, logging, timing, and trusted host. AuthenticationMiddleware remains app-specific.
 """
 

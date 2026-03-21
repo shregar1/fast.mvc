@@ -1,5 +1,5 @@
 """
-App-specific wiring for :class:`JWTBearerAuthMiddleware` from ``fastmvc_middleware``.
+App-specific wiring for :class:`JWTBearerAuthMiddleware` from ``fast_middleware``.
 
 JWT decode and user session lookup use this application's repositories and DTOs.
 """
@@ -10,10 +10,10 @@ from fastapi.responses import JSONResponse
 
 from constants.api_status import APIStatus
 from dtos.responses.base import BaseResponseDTO
-from fastmvc_middleware import ErrorKind, JWTBearerAuthMiddleware
-from fastmvc_db_models.models.user import UserRepository
+from fast_middleware import ErrorKind, JWTBearerAuthMiddleware
+from fast_db_models.models.user import UserRepository
 from start_utils import callback_routes, db_session, logger, unprotected_routes
-from fastmvc_utilities.jwt import JWTUtility
+from fast_utilities.jwt import JWTUtility
 
 
 def _decode_bearer(token: str, urn: str) -> dict:
@@ -78,7 +78,7 @@ def _build_error(urn: str, kind: ErrorKind, _exc: BaseException | None) -> JSONR
 
 
 class AuthenticationMiddleware(JWTBearerAuthMiddleware):
-    """JWT auth for this app; see ``fastmvc_middleware.jwt_bearer_auth`` for the generic base."""
+    """JWT auth for this app; see ``fast_middleware.jwt_bearer_auth`` for the generic base."""
 
     def __init__(self, app) -> None:
         super().__init__(

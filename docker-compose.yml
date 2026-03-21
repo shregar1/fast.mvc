@@ -2,7 +2,7 @@
 version: '3.8'
 
 networks:
-  fastmvc_net:
+  fast_net:
     driver: bridge
 
 services:
@@ -15,7 +15,7 @@ services:
     ports:
       - 6379:6379
     networks:
-      - fastmvc_net
+      - fast_net
 
   postgres:
     image: postgres:16-alpine
@@ -28,7 +28,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - fastmvc_net
+      - fast_net
 
   fastapi:
     image: fastmvc:latest
@@ -43,7 +43,7 @@ services:
       - postgres
       - redis
     networks:
-      - fastmvc_net
+      - fast_net
 
 volumes:
   postgres_data:

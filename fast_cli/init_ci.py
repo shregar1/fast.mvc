@@ -14,10 +14,10 @@ from pathlib import Path
 
 import click
 
-from fastmvc_cli.generator import ProjectGenerator
-from fastmvc_cli.hooks import run_post_generate
-from fastmvc_cli.presets import apply_template_pack
-from fastmvc_cli.scaffold_helpers import (
+from fast_cli.generator import ProjectGenerator
+from fast_cli.hooks import run_post_generate
+from fast_cli.presets import apply_template_pack
+from fast_cli.scaffold_helpers import (
     write_ci_workflow,
     write_contributing,
     write_license,

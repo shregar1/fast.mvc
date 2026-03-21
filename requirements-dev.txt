@@ -3,10 +3,10 @@
 #   pip install -r requirements-dev.txt
 # Or from repo root: ./install_packages.sh
 
--e ../fastmvc_core
--e ../fastmvc_db
--e ../fastmvc_kafka
--e ../fastmvc_channels
--e ../fastmvc_notifications
--e ../fastmvc_webrtc
--e ../fastmvc_dashboards
+-e ../fast_core
+-e ../fast_db
+-e ../fast_kafka
+-e ../fast_channels
+-e ../fast_notifications
+-e ../fast_webrtc
+-e ../fast_dashboards

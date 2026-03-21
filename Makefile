@@ -10,22 +10,22 @@ install-dev:
 	pre-commit install || true
 
 test:
-	pytest tests/ -v --cov=fastmvc_cli --cov-report=term-missing || pytest -v
+	pytest tests/ -v --cov=fast_cli --cov-report=term-missing || pytest -v
 
 test-fast:
 	pytest tests/ -v -x --tb=short -q || true
 
 lint:
-	ruff check fastmvc_cli tests || true
+	ruff check fast_cli tests || true
 
 format:
-	ruff format fastmvc_cli tests || true
+	ruff format fast_cli tests || true
 
 type-check:
-	mypy fastmvc_cli --ignore-missing-imports || true
+	mypy fast_cli --ignore-missing-imports || true
 
 security:
-	bandit -r fastmvc_cli -q || true
+	bandit -r fast_cli -q || true
 
 clean:
 	rm -rf build dist *.egg-info .pytest_cache .mypy_cache .ruff_cache htmlcov .coverage coverage.xml

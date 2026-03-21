@@ -19,9 +19,9 @@ class TestDBDependency:
         assert hasattr(DBDependency, 'derive')
         assert callable(DBDependency.derive)
 
-    @patch('fastmvc_db.engine.get_db_session')
+    @patch('fast_db.engine.get_db_session')
     def test_derive_returns_session(self, mock_get_db_session):
-        """Test derive returns session from fastmvc_db."""
+        """Test derive returns session from fast_db."""
         from dependencies.db import DBDependency
 
         mock_session = MagicMock()
@@ -122,25 +122,25 @@ class TestDictionaryUtilityDependency:
 
     def test_import(self):
         """Test DictionaryUtilityDependency can be imported."""
-        from dependencies.fastmvc_utilities.dictionary import DictionaryUtilityDependency
+        from dependencies.fast_utilities.dictionary import DictionaryUtilityDependency
         assert DictionaryUtilityDependency is not None
 
     def test_has_derive_method(self):
         """Test DictionaryUtilityDependency has derive method."""
-        from dependencies.fastmvc_utilities.dictionary import DictionaryUtilityDependency
+        from dependencies.fast_utilities.dictionary import DictionaryUtilityDependency
         assert hasattr(DictionaryUtilityDependency, 'derive')
 
     def test_derive_returns_factory(self):
         """Test derive returns a factory function."""
-        from dependencies.fastmvc_utilities.dictionary import DictionaryUtilityDependency
+        from dependencies.fast_utilities.dictionary import DictionaryUtilityDependency
 
         result = DictionaryUtilityDependency.derive()
         assert callable(result)
 
     def test_factory_returns_utility(self):
         """Test factory returns DictionaryUtility instance."""
-        from dependencies.fastmvc_utilities.dictionary import DictionaryUtilityDependency
-        from fastmvc_utilities.dictionary import DictionaryUtility
+        from dependencies.fast_utilities.dictionary import DictionaryUtilityDependency
+        from fast_utilities.dictionary import DictionaryUtility
 
         factory = DictionaryUtilityDependency.derive()
         util = factory(
@@ -175,7 +175,7 @@ class TestJWTUtilityDependency:
     def test_factory_returns_utility(self):
         """Test factory returns JWTUtility instance."""
         from dependencies.utilities.jwt import JWTUtilityDependency
-        from fastmvc_utilities.jwt import JWTUtility
+        from fast_utilities.jwt import JWTUtility
 
         factory = JWTUtilityDependency.derive()
         util = factory(

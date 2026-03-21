@@ -1,41 +1,55 @@
 """
-Multi-Tenancy Module.
+Multi-tenancy — re-exported from ``fast_tenancy``.
 
-Provides multi-tenancy support for SaaS applications:
-- Tenant context management
-- Automatic query scoping
-- Tenant-aware middleware
-- Tenant isolation
+Prefer importing from the library directly in new code::
 
-Usage:
-    from core.tenancy import TenantContext, get_current_tenant
-
-    # In middleware, set tenant context
-    async def tenant_middleware(request: Request, call_next):
-        tenant = await resolve_tenant(request)
-        with TenantContext(tenant):
-            return await call_next(request)
-
-    # In services/repositories
-    tenant = get_current_tenant()
-    users = await repo.get_all(tenant_id=tenant.id)
+    from fast_tenancy import TenantContext, TenantMiddleware, HeaderTenantResolver
 """
 
-from core.tenancy.context import (
+from fast_tenancy import (
+    ChainedTenantResolver,
+    HeaderTenantResolver,
+    InMemoryTenantStore,
+    JWTTenantResolver,
+    PathTenantResolver,
+    ResolutionStrategy,
+    ResolverSpec,
+    SubdomainTenantResolver,
     Tenant,
+    TenantConfig,
     TenantContext,
+    TenantMiddleware,
+    TenantResolver,
+    TenantResolverRegistry,
+    TenantStore,
+    clear_current_tenant,
+    default_registry,
     get_current_tenant,
     get_current_tenant_id,
     set_current_tenant,
+    subdomain_then_header,
 )
-from core.tenancy.middleware import TenantMiddleware, TenantResolver
 
 __all__ = [
+    "ChainedTenantResolver",
+    "HeaderTenantResolver",
+    "InMemoryTenantStore",
+    "JWTTenantResolver",
+    "PathTenantResolver",
+    "ResolutionStrategy",
+    "ResolverSpec",
+    "SubdomainTenantResolver",
     "Tenant",
+    "TenantConfig",
     "TenantContext",
+    "TenantMiddleware",
+    "TenantResolver",
+    "TenantResolverRegistry",
+    "TenantStore",
+    "clear_current_tenant",
+    "default_registry",
     "get_current_tenant",
     "get_current_tenant_id",
     "set_current_tenant",
-    "TenantMiddleware",
-    "TenantResolver",
+    "subdomain_then_header",
 ]

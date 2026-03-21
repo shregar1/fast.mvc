@@ -97,7 +97,7 @@ def run_doctor(
     if _can_import("fastmiddleware"):
         _ok("import fastmiddleware")
     else:
-        _warn("import fastmiddleware — optional; install fastmvc-middleware stack if you use bundled middlewares")
+        _warn("import fastmiddleware — optional; install fast-middleware stack if you use bundled middlewares")
 
     # Project-ish layout
     app_py = root / "app.py"

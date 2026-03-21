@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `services` package in this app holds **domain services** used by controllers (user auth, product CRUD), plus **streams** (market/WebSocket demo) and **events** (cloud event-bus wiring for stream fan-out). Stubs for payments, vectors, storage, search, jobs, and other integrations were removed; use the published **`fastmvc_*`** libraries from PyPI (see root `pyproject.toml` optional-dependencies) instead of duplicating them here.
+The `services` package in this app holds **domain services** used by controllers (user auth, product CRUD), plus thin **re-exports** for **streams** (market/WebSocket hub) and **events** (cloud event-bus wiring). Implementations live in **`fast_core.services.streams`** and **`fast_core.services.events`**; importing `services.streams` / `services.events` keeps app paths stable. Stubs for payments, vectors, storage, search, jobs, and other integrations were removed; use the published **`fast_*`** libraries from PyPI (see root `pyproject.toml` optional-dependencies) instead of duplicating them here.
 
 The `services` module contains the business logic layer of the FastMVC application. Services encapsulate domain rules, coordinate between repositories and external systems, and return structured responses.
 
@@ -176,8 +176,8 @@ class UserLoginService(IUserService):
 Services raise custom errors that controllers catch:
 
 ```python
-from fastmvc_errors.not_found_error import NotFoundError
-from fastmvc_errors.bad_input_error import BadInputError
+from fast_errors.not_found_error import NotFoundError
+from fast_errors.bad_input_error import BadInputError
 
 # In service
 if not user:
@@ -201,12 +201,9 @@ if not password_matches:
 services/
 ├── __init__.py
 ├── README.md
-├── apis/
-│   ├── __init__.py
-│   ├── abstraction.py
-│   └── v1/
-│       ├── __init__.py
-│       └── abstraction.py
+├── events/                  # re-exports fast_core.services.events
+├── streams/                 # re-exports fast_core.services.streams
+├── product/
 └── user/
     ├── __init__.py
     ├── abstraction.py       # IUserService base class

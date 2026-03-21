@@ -1,7 +1,7 @@
 """
 Database table name constants.
 
-Re-exports Table from fastmvc_db for backward compatibility.
+Re-exports Table from fast_db for backward compatibility.
 
 Usage:
     >>> from constants.db.table import Table
@@ -9,6 +9,6 @@ Usage:
     ...     __tablename__ = Table.USER
 """
 
-from fastmvc_db import Table
+from fast_db import Table
 
 __all__ = ["Table"]

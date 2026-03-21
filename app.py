@@ -34,7 +34,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-# Import middlewares from fastmvc-middleware package
+# Import middlewares from fast-middleware package
 from fastmiddleware import (
     CORSMiddleware,
     LoggingMiddleware,
@@ -54,9 +54,9 @@ from controllers.user import router as UserRouter
 from core.websockets.router import router as WebSocketRouter
 from core.observability import configure_datadog, configure_otel
 
-# Optional routers (require corresponding fastmvc_* packages)
+# Optional routers (require corresponding fast_* packages)
 try:
-    from fastmvc_dashboards import DashboardRouter
+    from fast_dashboards import DashboardRouter
 except ImportError:
     DashboardRouter = None  # type: ignore[assignment]
 try:
@@ -76,7 +76,7 @@ except ImportError:
 DASHBOARD_ROUTER_ENABLED = DashboardRouter is not None
 
 from dtos.responses.base import BaseResponseDTO
-from fastmvc_errors.unexpected_response_error import UnexpectedResponseError
+from fast_errors.unexpected_response_error import UnexpectedResponseError
 
 # Custom authentication middleware (app-specific with user repository)
 from middlewares import AuthenticationMiddleware
@@ -248,12 +248,12 @@ async def health_check():
 
 
 # =============================================================================
-# MIDDLEWARE CONFIGURATION (using fastmvc-middleware package)
+# MIDDLEWARE CONFIGURATION (using fast-middleware package)
 # =============================================================================
 
 logger.info("Initializing middleware stack with fastmiddleware")
 
-# Request Context Middleware - request ID/URN and tracking (from fastmvc-middleware; must be first)
+# Request Context Middleware - request ID/URN and tracking (from fast-middleware; must be first)
 app.add_middleware(RequestContextMiddleware)
 
 # Trusted Host Middleware - Prevents host header attacks
@@ -348,7 +348,7 @@ async def on_startup():
     """
     logger.info("Application startup event triggered")
     logger.info(f"FastMVC API starting on {HOST}:{PORT}")
-    logger.info("Using fastmvc-middleware for request processing")
+    logger.info("Using fast-middleware for request processing")
 
 
 @app.on_event("shutdown")

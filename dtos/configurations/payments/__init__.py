@@ -1,8 +1,8 @@
 """
-Payment provider DTOs. Re-exports from fastmvc_payments for backward compatibility.
+Payment provider DTOs. Re-exports from fast_payments for backward compatibility.
 """
 
-from fastmvc_payments import (
+from fast_payments import (
     LinkConfigDTO,
     PayUConfigDTO,
     PaypalConfigDTO,

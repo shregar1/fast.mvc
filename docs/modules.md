@@ -26,7 +26,7 @@ FastMVC ships with rich, package-level documentation in the repository itself. T
   Custom exception hierarchy (e.g. `BadInputError`, `NotFoundError`) used across services and controllers.
 
 - **Middlewares** (`middlewares/README.md`):  
-  Extra application-level middlewares on top of `fastmvc-middleware` (authentication hooks, additional logging, etc.).
+  Extra application-level middlewares on top of `fast-middleware` (authentication hooks, additional logging, etc.).
 
 - **Migrations** (`migrations/README.md`):  
   Alembic configuration and migration scripts, wired to the `fastmvc migrate` CLI commands.
@@ -48,7 +48,7 @@ FastMVC ships with rich, package-level documentation in the repository itself. T
 
 ### CLI Package
 
-- **CLI** (`fastmvc_cli/README.md`):  
+- **CLI** (`fast_cli/README.md`):  
   Documentation for the `fastmvc` command-line interface, including:
   - `generate` and `init` for project creation.
   - `add entity` and `add service` for scaffolding into existing projects.

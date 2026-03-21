@@ -1,7 +1,7 @@
 """
 Tests for new FastMVC dashboards: queues, tenants, and secrets.
 
-These tests run only when fastmvc_dashboards is installed and the
+These tests run only when fast_dashboards is installed and the
 DashboardRouter is registered (optional package).
 """
 
@@ -14,7 +14,7 @@ from start_utils import unprotected_routes
 
 @pytest.mark.skipif(
     not DASHBOARD_ROUTER_ENABLED,
-    reason="Dashboard router not registered (install fastmvc_dashboards to run)",
+    reason="Dashboard router not registered (install fast_dashboards to run)",
 )
 class TestNewDashboards:
     """Smoke tests to ensure new dashboards are wired and respond."""

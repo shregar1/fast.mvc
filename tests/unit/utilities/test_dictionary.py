@@ -4,7 +4,7 @@ Tests for DictionaryUtility class.
 
 import pytest
 
-from fastmvc_utilities.dictionary import DictionaryUtility
+from fast_utilities.dictionary import DictionaryUtility
 
 
 class TestDictionaryUtility:

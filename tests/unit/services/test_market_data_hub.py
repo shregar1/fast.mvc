@@ -5,11 +5,39 @@ Tests for MarketDataHub behaviour (snapshot + incremental streaming).
 import asyncio
 import time
 
+import pytest
+
+from fast_core.config.dto_extras import StreamsConfigurationDTO
 from services.streams import MarketDataHub, Tick, OrderEvent
 
 
-def test_market_data_hub_ticks_snapshot_and_updates():
-    hub = MarketDataHub()
+@pytest.fixture
+def enabled_hub(monkeypatch):
+    """Streams config in repo has enabled=false; hub tests need an enabled profile."""
+    dto = StreamsConfigurationDTO(
+        enabled=True,
+        tick_history=200,
+        fanout_queue_backend=None,
+        backpressure_mode="immediate",
+    )
+
+    class _FakeStreams:
+        @classmethod
+        def instance(cls):
+            return cls()
+
+        def get_config(self):
+            return dto
+
+    monkeypatch.setattr(
+        "fast_core.services.streams.market.StreamsConfiguration",
+        _FakeStreams,
+    )
+    return MarketDataHub()
+
+
+def test_market_data_hub_ticks_snapshot_and_updates(enabled_hub):
+    hub = enabled_hub
 
     async def scenario():
         # Publish a couple of ticks
@@ -31,8 +59,8 @@ def test_market_data_hub_ticks_snapshot_and_updates():
     asyncio.run(scenario())
 
 
-def test_market_data_hub_orders_snapshot_and_updates():
-    hub = MarketDataHub()
+def test_market_data_hub_orders_snapshot_and_updates(enabled_hub):
+    hub = enabled_hub
 
     async def scenario():
         tenant_id = "t1"
@@ -70,4 +98,3 @@ def test_market_data_hub_orders_snapshot_and_updates():
         assert payload2.status == "filled"
 
     asyncio.run(scenario())
-

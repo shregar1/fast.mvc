@@ -6,10 +6,10 @@ from http import HTTPStatus
 
 from constants.api_status import APIStatus
 from dtos.responses.base import BaseResponseDTO
-from fastmvc_errors.bad_input_error import BadInputError
+from fast_errors.bad_input_error import BadInputError
 from jwt import PyJWTError
 from services.user.abstraction import IUserService
-from fastmvc_utilities.jwt import JWTUtility
+from fast_utilities.jwt import JWTUtility
 
 
 class UserRefreshService(IUserService):

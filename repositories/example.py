@@ -9,7 +9,7 @@ from loguru import logger
 from sqlalchemy.orm import Session
 
 from abstractions.repository import IRepository
-from fastmvc_db_models.example import Example
+from fast_db_models.example import Example
 
 
 class ExampleRepository(IRepository):

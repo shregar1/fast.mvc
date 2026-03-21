@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
 from app import app
-from fastmvc_errors.unexpected_response_error import UnexpectedResponseError
+from fast_errors.unexpected_response_error import UnexpectedResponseError
 
 
 class TestAppConfiguration:
