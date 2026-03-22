@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from fast_platform.config.dto_extras import StreamsConfigurationDTO
+from config.dto_extras import StreamsConfigurationDTO
 from services.streams import MarketDataHub, Tick, OrderEvent
 
 
