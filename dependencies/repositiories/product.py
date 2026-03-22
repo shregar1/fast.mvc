@@ -7,7 +7,7 @@ Provides dependency injection for ProductRepository.
 from sqlalchemy.orm import Session
 
 from abstractions.dependency import IDependency
-from fast_repositories.product import ProductRepository
+from fast_database.repositories.product import ProductRepository
 
 
 class ProductRepositoryDependency(IDependency):
