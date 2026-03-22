@@ -176,7 +176,7 @@ from sqlalchemy.orm import Session
 from loguru import logger
 
 from abstractions.repository import IRepository
-from fast_db_models.{self.entity_snake} import {self.entity_name}
+from models.{self.entity_snake} import {self.entity_name}
 
 
 class {self.entity_name}Repository(IRepository):
@@ -527,7 +527,7 @@ from dtos.requests.{self.entity_snake}.update import {self.entity_name}UpdateReq
 from dtos.responses.base import BaseResponseDTO
 from fast_errors.not_found_error import NotFoundError
 from fast_errors.bad_input_error import BadInputError
-from fast_db_models.{self.entity_snake} import {self.entity_name}
+from models.{self.entity_snake} import {self.entity_name}
 from fast_repositories.{self.entity_snake} import {self.entity_name}Repository
 from services.{self.entity_snake}.abstraction import I{self.entity_name}Service
 
@@ -1172,7 +1172,7 @@ Tests for {self.entity_name} model.
 import pytest
 from datetime import datetime
 
-from fast_db_models.{self.entity_snake} import {self.entity_name}
+from models.{self.entity_snake} import {self.entity_name}
 
 
 class Test{self.entity_name}Model:
@@ -1232,7 +1232,7 @@ class Test{self.entity_name}Model:
         models_init = self.project_path / "models" / "__init__.py"
         if models_init.exists():
             content = models_init.read_text()
-            import_line = f"from fast_db_models.{self.entity_snake} import {self.entity_name}"
+            import_line = f"from models.{self.entity_snake} import {self.entity_name}"
             if import_line not in content:
                 content += f"\n{import_line}\n"
                 models_init.write_text(content)

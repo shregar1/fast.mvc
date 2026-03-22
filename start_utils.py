@@ -39,7 +39,7 @@ import redis
 from dotenv import load_dotenv
 from loguru import logger
 
-from fast_core import (
+from fast_platform import (
     CacheConfiguration,
     CacheConfigurationDTO,
     DBConfiguration,

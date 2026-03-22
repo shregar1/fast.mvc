@@ -9,7 +9,7 @@ from dtos.requests.user.login import UserLoginRequestDTO
 from dtos.responses.base import BaseResponseDTO
 from fast_errors.bad_input_error import BadInputError
 from fast_errors.not_found_error import NotFoundError
-from fast_db_models.user import User
+from fast_database.models.user import User
 from fast_repositories.user import UserRepository
 from services.user.abstraction import IUserService
 from fast_utilities.jwt import JWTUtility

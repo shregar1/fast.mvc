@@ -142,7 +142,7 @@ def retrieve_record_by_email(self, email, is_deleted=False):
 
 ```python
 from fast_repositories.user import UserRepository
-from fast_db_models.user import User
+from fast_database.user import User
 
 # In a service
 class UserLoginService(IService):

@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from fast_core.config.dto_extras import StreamsConfigurationDTO
+from fast_platform.config.dto_extras import StreamsConfigurationDTO
 from services.streams import MarketDataHub, Tick, OrderEvent
 
 
@@ -30,7 +30,7 @@ def enabled_hub(monkeypatch):
             return dto
 
     monkeypatch.setattr(
-        "fast_core.services.streams.market.StreamsConfiguration",
+        "fast_platform.services.streams.market.StreamsConfiguration",
         _FakeStreams,
     )
     return MarketDataHub()

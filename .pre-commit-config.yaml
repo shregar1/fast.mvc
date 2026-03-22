@@ -39,7 +39,7 @@ repos:
           - starlette>=0.27.0
           - types-requests
         args: [--ignore-missing-imports]
-        exclude: ^tests/
+        exclude: ^src/tests/
 
   # Security scanning
   - repo: https://github.com/PyCQA/bandit
@@ -48,7 +48,7 @@ repos:
       - id: bandit
         args: [-c, pyproject.toml]
         additional_dependencies: ["bandit[toml]"]
-        exclude: ^tests/
+        exclude: ^src/tests/
 
   # Markdown linting
   - repo: https://github.com/igorshubovych/markdownlint-cli

@@ -10,7 +10,7 @@ from constants.api_status import APIStatus
 from dtos.requests.user.registration import UserRegistrationRequestDTO
 from dtos.responses.base import BaseResponseDTO
 from fast_errors.bad_input_error import BadInputError
-from fast_db_models.user import User
+from fast_database.models.user import User
 from fast_repositories.user import UserRepository
 from services.user.abstraction import IUserService
 

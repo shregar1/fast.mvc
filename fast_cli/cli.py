@@ -1126,7 +1126,7 @@ def add_service(service_name: str):
     existing files, so the server keeps working after the addition.
 
     Datastores (mongo, cassandra, scylla, cosmos, elasticsearch, etc.) and
-    identity/payments use fast_core and optional packages (fast_identity,
+    identity/payments use fast_platform and optional packages (fast_identity,
     fast_payments). For multi-package setups, run install_packages.sh in
     the documented order (core → fast_db → … → main).
 
@@ -1205,7 +1205,7 @@ def add_service(service_name: str):
     click.secho("✓ Service integration files added.", fg="green", bold=True)
     click.echo("  → Update the corresponding config/*/config.json to enable the service.")
     if service_name in {"mongo", "cassandra", "scylla", "dynamo", "cosmos", "elasticsearch", "graph", "slack", "datadog", "telemetry"}:
-        click.echo("  → Config is provided by fast_core; set FASTMVC_CONFIG_BASE to your config/ if needed.")
+        click.echo("  → Config is provided by fast_platform; set FASTMVC_CONFIG_BASE to your config/ if needed.")
     for pkg_hint in ("fast_payments", "fast_identity"):
         if any(pkg_hint in r for r in spec.get("requirements", [])):
             click.echo(f"  → Requires {pkg_hint}; config from config/{service_name}/config.json.")
@@ -1570,7 +1570,7 @@ def info():
     click.echo()
     click.secho("Ecosystem packages:", fg="yellow", bold=True)
     click.secho("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", fg="white", dim=True)
-    click.echo("  fast_core, fast_db, fast_middleware — core stack (see pyproject optional deps)")
+    click.echo("  fast_platform, fast_db, fast_middleware — core stack (see pyproject optional deps)")
     click.echo()
 
 

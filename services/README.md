@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `services` package in this app holds **domain services** used by controllers (user auth, product CRUD), plus thin **re-exports** for **streams** (market/WebSocket hub) and **events** (cloud event-bus wiring). Implementations live in **`fast_core.services.streams`** and **`fast_core.services.events`**; importing `services.streams` / `services.events` keeps app paths stable. Stubs for payments, vectors, storage, search, jobs, and other integrations were removed; use the published **`fast_*`** libraries from PyPI (see root `pyproject.toml` optional-dependencies) instead of duplicating them here.
+The `services` package in this app holds **domain services** used by controllers (user auth, product CRUD), plus thin **re-exports** for **streams** (market/WebSocket hub) and **events** (cloud event-bus wiring). Implementations live in **`fast_platform.services.streams`** and **`fast_platform.services.events`**; importing `services.streams` / `services.events` keeps app paths stable. Stubs for payments, vectors, storage, search, jobs, and other integrations were removed; use the published **`fast_*`** libraries from PyPI (see root `pyproject.toml` optional-dependencies) instead of duplicating them here.
 
 The `services` module contains the business logic layer of the FastMVC application. Services encapsulate domain rules, coordinate between repositories and external systems, and return structured responses.
 
@@ -201,8 +201,8 @@ if not password_matches:
 services/
 ├── __init__.py
 ├── README.md
-├── events/                  # re-exports fast_core.services.events
-├── streams/                 # re-exports fast_core.services.streams
+├── events/                  # re-exports fast_platform.services.events
+├── streams/                 # re-exports fast_platform.services.streams
 ├── product/
 └── user/
     ├── __init__.py

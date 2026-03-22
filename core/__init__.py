@@ -2,8 +2,8 @@
 Application core integration layer (FastAPI wiring, observability, security, etc.).
 
 Shared configuration DTOs, optional-import helpers, OTLP bridge utilities, cache/queue
-streams, and other framework primitives live in the ``fast_core`` package — import
-from ``fast_core`` (or ``fast_core.services.*``) for those instead of duplicating them
+streams, and other framework primitives live in the ``fast_platform`` package — import
+from ``fast_platform`` (or ``fast_platform.services.*``) for those instead of duplicating them
 here.
 
 Multi-tenancy is delegated to ``fast_tenancy`` (re-exported under ``core.tenancy``).
@@ -17,11 +17,17 @@ Integration libraries are also re-exported under stable ``core.*`` paths for con
 - ``core.search`` → ``fast_search``
 - ``core.vectors`` → ``fast_vectors``
 - ``core.webrtc`` → ``fast_webrtc``
-- ``core.webhooks`` → ``fast_webhooks`` (outbound signing/delivery; inbound verification lives in ``core.security.webhooks``)
+- ``core.webhooks`` → ``fast_webhooks`` (outbound signing/delivery; inbound verification → ``fast_security`` / ``core.security``)
+- ``core.resilience`` → ``fast_resilience``
+- ``core.versioning`` → ``fast_versioning``
+- ``core.features`` → ``fast_features`` (in-app flags; SDK-style flags → ``fast_feature_flags``)
+- ``core.security`` → ``fast_security`` (API keys, inbound webhooks, field encryption)
+- ``core.channels`` → ``fast_channels``
+- ``core.observability`` → ``fast_observability``
+- ``core.datastores`` → ``fast_datastores`` (protocols in ``fast_datastores.interfaces``; ``abstractions.datastore`` re-exports them)
 
-Relational DB access uses ``fast_db``. This ``core`` package holds app-specific glue:
-``configure_otel`` / Datadog, local ``IDataStore`` adapters under ``core.datastores``,
-security helpers, feature flags, and WebSocket/versioning routes tied to this repo.
+Relational DB access uses ``fast_db``. This ``core`` package holds app-specific glue
+(WebSocket routes and similar wiring tied to this repo).
 """
 
 from core.observability import AuditLog, Metrics, StructuredLogger, Tracer

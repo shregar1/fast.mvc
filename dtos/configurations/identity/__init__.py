@@ -1,5 +1,5 @@
-"""Identity providers DTOs: provided by fast_core."""
+"""Identity providers DTOs: provided by fast_platform."""
 
-from fast_core import IdentityProvidersConfigurationDTO
+from fast_platform import IdentityProvidersConfigurationDTO
 
 __all__ = ["IdentityProvidersConfigurationDTO"]

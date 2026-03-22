@@ -10,22 +10,22 @@ install-dev:
 	pre-commit install || true
 
 test:
-	pytest tests/ -v --cov=fast_cli --cov-report=term-missing || pytest -v
+	pytest src/tests/ -v --cov=fast_cli --cov-report=term-missing || pytest -v
 
 test-fast:
-	pytest tests/ -v -x --tb=short -q || true
+	pytest src/tests/ -v -x --tb=short -q || true
 
 lint:
-	ruff check fast_cli tests || true
+	ruff check src/fast_cli src/tests || true
 
 format:
-	ruff format fast_cli tests || true
+	ruff format src/fast_cli src/tests || true
 
 type-check:
-	mypy fast_cli --ignore-missing-imports || true
+	mypy src/fast_cli --ignore-missing-imports || true
 
 security:
-	bandit -r fast_cli -q || true
+	bandit -r src/fast_cli -q || true
 
 clean:
 	rm -rf build dist *.egg-info .pytest_cache .mypy_cache .ruff_cache htmlcov .coverage coverage.xml

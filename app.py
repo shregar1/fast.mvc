@@ -5,10 +5,10 @@ This is the main FastAPI application module that initializes the web server,
 configures middleware, registers routes, and handles application lifecycle events.
 
 Usage:
-    Run directly:
-        python app.py
+    Run directly (from repo root, or set ``PYTHONPATH=src``):
+        python src/app.py
 
-    Or with uvicorn:
+    Or with uvicorn (after ``pip install -e .`` or with ``PYTHONPATH=src``):
         uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 
 Environment Variables:

@@ -86,21 +86,8 @@ dependencies = [
     "cachetools>=5.0.0,<6.0.0",
     "mako>=1.2.0,<2.0.0",
     "fast-middleware>=0.6.2",
-    "fast-errors>=0.1.0",
     "cryptography>=41.0.0,<44.0.0",
-    "fast_core",
-    "fast_db",
-    "fast_payments",
-    "fast_identity",
-    "fast_queues>=0.1.0",
-    "fast_tenancy>=0.1.0",
-    "fast_jobs>=0.1.0",
-    "fast_storage>=0.1.0",
-    "fast_secrets>=0.1.0",
-    "fast_search>=0.1.0",
-    "fast_vectors>=0.1.0",
-    "fast_webrtc>=0.1.0",
-    "fast_webhooks>=0.1.0",
+    "fast-platform>=0.12.0",
 ]
 
 [project.optional-dependencies]
@@ -120,26 +107,26 @@ docs = [
     "mkdocs-material>=9.0.0",
     "mkdocstrings[python]>=0.24.0",
 ]
-channels = ["fast_channels>=0.1.0"]
+channels = ["fast-platform>=0.12.0"]
 dashboards = ["fast_dashboards>=0.1.0"]
-notifications = ["fast_notifications>=0.1.0"]
-kafka = ["fast_kafka>=0.1.0"]
-webrtc = ["fast_webrtc>=0.1.0"]
-payments = ["fast_payments>=0.1.0"]
-identity = ["fast_identity>=0.1.0"]
-queues = ["fast_queues>=0.1.0"]
-jobs = ["fast_jobs>=0.1.0"]
-storage = ["fast_storage>=0.1.0"]
-secrets = ["fast_secrets>=0.1.0"]
+notifications = ["fast-platform>=0.12.0"]
+kafka = ["fast-platform>=0.12.0"]
+webrtc = ["fast-platform>=0.12.0"]
+payments = ["fast-platform>=0.12.0"]
+identity = ["fast-platform>=0.12.0"]
+queues = ["fast-platform>=0.12.0"]
+jobs = ["fast-platform>=0.12.0"]
+storage = ["fast-platform>=0.12.0"]
+secrets = ["fast-platform>=0.12.0"]
 feature-flags = ["fast_feature_flags>=0.1.0"]
-search = ["fast_search>=0.1.0"]
-analytics = ["fast_analytics>=0.1.0"]
-llm = ["fast_llm>=0.1.0"]
-vectors = ["fast_vectors>=0.1.0"]
-tenancy = ["fast_tenancy>=0.1.0"]
+search = ["fast-platform>=0.12.0"]
+analytics = ["fast-platform>=0.12.0"]
+llm = ["fast-platform>=0.12.0"]
+vectors = ["fast-platform>=0.12.0"]
+tenancy = ["fast-platform>=0.12.0"]
 admin = ["fast_admin>=0.1.0"]
-webhooks = ["fast_webhooks>=0.1.0"]
-media = ["fast_media>=0.1.0"]
+webhooks = ["fast-platform>=0.12.0"]
+media = ["fast-platform>=0.12.0"]
 all = [
     "pyfastmvc[dev,docs,channels,dashboards,notifications,kafka,webrtc,payments,identity,queues,jobs,storage,secrets,feature-flags,search,analytics,llm,vectors,tenancy,admin,webhooks,media]",
 ]
@@ -155,61 +142,12 @@ Changelog = "https://github.com/shregar1/fastMVC/blob/main/CHANGELOG.md"
 fastmvc = "fast_cli.cli:main"
 
 [tool.setuptools]
-packages = [
-    "fast_cli",
-    "abstractions",
-    "config",
-    "config.cache",
-    "config.db",
-    "config.security",
-    "constants",
-    "constants.db",
-    "controllers",
-    "controllers.apis",
-    "controllers.apis.v1",
-    "controllers.user",
-    "controllers.product",
-    "dependencies",
-    "dependencies.repositiories",
-    "dependencies.services",
-    "dependencies.services.user",
-    "dependencies.utilities",
-    "dtos",
-    "dtos.configurations",
-    "dtos.requests",
-    "dtos.requests.user",
-    "dtos.requests.product",
-    "dtos.responses",
-    "middlewares",
-    "repositories",
-    "services",
-    "services.events",
-    "services.streams",
-    "services.user",
-    "tests",
-    "utilities",
-    "core",
-    "core.utils",
-    "core.channels",
-    "core.datastores",
-    "core.websockets",
-    "core.observability",
-    "core.resilience",
-    "core.tasks",
-    "core.security",
-    "core.features",
-    "core.tenancy",
-    "core.storage",
-    "core.secrets",
-    "core.queues",
-    "core.search",
-    "core.vectors",
-    "core.webrtc",
-    "core.webhooks",
-    "core.versioning",
-    "core.testing",
-]
 include-package-data = true
+py-modules = ["app", "start_utils"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["tests*", "docs*", "scripts*", "dist*", "htmlcov*"]
 
 [tool.setuptools.package-data]
 "*" = [
@@ -227,6 +165,7 @@ include-package-data = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 python_classes = ["Test*"]

@@ -1,12 +1,12 @@
 # Component Rules: Tests
 
-This file defines rules for writing tests in `tests/**`.
+This file defines rules for writing tests in `src/tests/**`.
 
 ## Where tests belong
 
-1. Unit tests: `tests/unit/**` for deterministic logic (DTO validation, service behavior, controller streaming helpers).
-2. Integration tests: `tests/integration/**` for multi-component flows with a DB (as applicable).
-3. E2E tests: `tests/e2e/**` for contract-level API behavior.
+1. Unit tests: `src/tests/unit/**` for deterministic logic (DTO validation, service behavior, controller streaming helpers).
+2. Integration tests: `src/tests/integration/**` for multi-component flows with a DB (as applicable).
+3. E2E tests: `src/tests/e2e/**` for contract-level API behavior.
 
 ## Core principles
 

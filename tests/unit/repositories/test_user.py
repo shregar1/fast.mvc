@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from fast_db_models.user import User
+from fast_database.models.user import User
 from fast_repositories.user import UserRepository
 
 

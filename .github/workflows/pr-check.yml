@@ -71,7 +71,7 @@ jobs:
           JWT_SECRET_KEY: test-secret-key
           BCRYPT_SALT: "$2b$12$LQv3c1yqBWVHxkd0LHAkCO"
         run: |
-          uv run pytest tests/ -v --tb=short --cov=. --cov-report=term-missing --cov-fail-under=69
+          uv run pytest src/tests/ -v --tb=short --cov=src --cov-report=term-missing --cov-fail-under=69
 
       - name: Test Summary
         if: always()

@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from fast_db_models.product import Product
+from fast_database.models.product import Product
 from fast_repositories.product import ProductRepository
 
 

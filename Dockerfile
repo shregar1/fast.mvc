@@ -49,4 +49,4 @@ RUN mkdir -p /app/temp
 RUN chmod -R 777 /app/temp
 
 # Run with 3.11 so we use only pip-installed packages (avoid system /usr/lib/python3/dist-packages)
-CMD ["python3.11", "app.py"]
+CMD ["python3.11", "src/app.py"]
