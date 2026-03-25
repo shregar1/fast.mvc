@@ -7,7 +7,7 @@ This module defines the request DTO for creating new products.
 
 from pydantic import field_validator
 
-from dtos.base import EnhancedBaseModel
+from dtos.base import EnhancedBaseModel, enhanced_config
 from dtos.requests.abstraction import IRequestDTO
 
 
@@ -21,11 +21,10 @@ class ProductCreateRequestDTO(IRequestDTO, EnhancedBaseModel):
         description (str): Optional description.
     """
 
+    model_config = enhanced_config(title="ProductCreateRequestDTO")
+
     name: str
     description: str | None = None
-
-    class Config:
-        extra = "forbid"
 
     @field_validator("name")
     @classmethod

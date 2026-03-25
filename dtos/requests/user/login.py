@@ -15,14 +15,14 @@ Request Body:
     }
 """
 
-from pydantic import EmailStr, field_validator
+from pydantic import EmailStr
 
 from dtos.base import EnhancedBaseModel
 from dtos.requests.abstraction import IRequestDTO
-from fast_utilities.validation import ValidationUtility
+from dtos.requests.user.validators import CredentialValidatorMixin
 
 
-class UserLoginRequestDTO(IRequestDTO, EnhancedBaseModel):
+class UserLoginRequestDTO(IRequestDTO, CredentialValidatorMixin, EnhancedBaseModel):
     """
     Request DTO for user login/authentication.
 
@@ -41,18 +41,8 @@ class UserLoginRequestDTO(IRequestDTO, EnhancedBaseModel):
             - Validated for password strength requirements
 
     Validation Rules:
-        email:
-            - Must be valid email format
-            - Automatically normalized (lowercase, trimmed)
-
-        password:
-            - Cannot be empty
-            - Must meet strength requirements:
-                - Minimum 8 characters
-                - At least one uppercase letter
-                - At least one lowercase letter
-                - At least one digit
-                - At least one special character
+        email and password validators are supplied by
+        :class:`~dtos.requests.user.validators.CredentialValidatorMixin`.
 
     Example:
         >>> from dtos.requests.user.login import UserLoginRequestDTO
@@ -75,51 +65,3 @@ class UserLoginRequestDTO(IRequestDTO, EnhancedBaseModel):
 
     password: str
     """User's password (validated for strength, never logged)."""
-
-    @field_validator('password')
-    @classmethod
-    def validate_password(cls, v: str) -> str:
-        """
-        Validate password is non-empty and meets strength requirements.
-
-        Args:
-            v (str): The password to validate.
-
-        Returns:
-            str: The validated password.
-
-        Raises:
-            ValueError: If password is empty or doesn't meet strength requirements.
-        """
-        if not v or not v.strip():
-            raise ValueError('Password cannot be empty.')
-
-        validation_result = ValidationUtility.validate_password_strength(v)
-        if not validation_result['is_valid']:
-            issues = ', '.join(validation_result['issues'])
-            message = f"Password validation failed: {issues}"
-            raise ValueError(message)
-
-        return v
-
-    @field_validator('email')
-    @classmethod
-    def validate_email(cls, v: str) -> str:
-        """
-        Validate and normalize email address.
-
-        Args:
-            v (str): The email to validate.
-
-        Returns:
-            str: The normalized email (lowercased, trimmed).
-
-        Raises:
-            ValueError: If email format is invalid.
-        """
-        validation_result = ValidationUtility.validate_email_format(v)
-        if not validation_result['is_valid']:
-            raise ValueError(
-                f"Invalid email format: {validation_result['error']}"
-            )
-        return validation_result['normalized_email']

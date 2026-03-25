@@ -13,11 +13,12 @@ Example:
 """
 
 from abc import ABC
+from typing import Any
 
-from start_utils import logger
+from core.utils.context import ContextMixin
 
 
-class IController(ABC):
+class IController(ABC, ContextMixin):
     """
     Abstract base class for all API controllers.
 
@@ -49,6 +50,7 @@ class IController(ABC):
         user_urn: str = None,
         api_name: str = None,
         user_id: str = None,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize the controller with request context.
@@ -58,63 +60,15 @@ class IController(ABC):
             user_urn (str, optional): User's unique resource name. Defaults to None.
             api_name (str, optional): Name of the API endpoint. Defaults to None.
             user_id (str, optional): Database ID of the user. Defaults to None.
+            **kwargs: Additional arguments for parent classes.
         """
-        super().__init__()
-        self._urn = urn
-        self._user_urn = user_urn
-        self._api_name = api_name
-        self._user_id = user_id
-        self._logger = logger.bind(urn=self._urn)
-
-    @property
-    def urn(self) -> str:
-        """str: Get the Unique Request Number."""
-        return self._urn
-
-    @urn.setter
-    def urn(self, value: str) -> None:
-        """Set the Unique Request Number."""
-        self._urn = value
-
-    @property
-    def user_urn(self) -> str:
-        """str: Get the user's unique resource name."""
-        return self._user_urn
-
-    @user_urn.setter
-    def user_urn(self, value: str) -> None:
-        """Set the user's unique resource name."""
-        self._user_urn = value
-
-    @property
-    def api_name(self) -> str:
-        """str: Get the API endpoint name."""
-        return self._api_name
-
-    @api_name.setter
-    def api_name(self, value: str) -> None:
-        """Set the API endpoint name."""
-        self._api_name = value
-
-    @property
-    def user_id(self) -> str:
-        """str: Get the user's database identifier."""
-        return self._user_id
-
-    @user_id.setter
-    def user_id(self, value: str) -> None:
-        """Set the user's database identifier."""
-        self._user_id = value
-
-    @property
-    def logger(self):
-        """loguru.Logger: Get the structured logger instance."""
-        return self._logger
-
-    @logger.setter
-    def logger(self, value) -> None:
-        """Set the structured logger instance."""
-        self._logger = value
+        super().__init__(
+            urn=urn,
+            user_urn=user_urn,
+            api_name=api_name,
+            user_id=user_id,
+            **kwargs,
+        )
 
     async def validate_request(
         self,

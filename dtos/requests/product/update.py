@@ -7,7 +7,7 @@ This module defines the request DTO for updating products.
 
 from pydantic import field_validator
 
-from dtos.base import EnhancedBaseModel
+from dtos.base import EnhancedBaseModel, enhanced_config
 from dtos.requests.abstraction import IRequestDTO
 
 
@@ -22,12 +22,11 @@ class ProductUpdateRequestDTO(IRequestDTO, EnhancedBaseModel):
         is_active (bool): Optional active status.
     """
 
+    model_config = enhanced_config(title="ProductUpdateRequestDTO")
+
     name: str | None = None
     description: str | None = None
     is_active: bool | None = None
-
-    class Config:
-        extra = "forbid"
 
     @field_validator("name")
     @classmethod

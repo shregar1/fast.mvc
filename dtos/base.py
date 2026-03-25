@@ -1,148 +1,95 @@
 """
 Enhanced Base Model Module.
 
-This module provides an enhanced Pydantic BaseModel with additional
-security validation, input sanitization, and configuration options.
-All request DTOs should inherit from EnhancedBaseModel for consistent
-security validation.
+Provides :class:`EnhancedBaseModel` (Pydantic v2) plus :func:`enhanced_config` so
+subclasses can extend defaults with any :class:`~pydantic.ConfigDict` options
+(``title``, ``str_strip_whitespace``, ``populate_by_name``, ``frozen``, …).
+
+Serialization ``include`` / ``exclude`` are not global model settings in Pydantic v2;
+pass them to :meth:`~pydantic.BaseModel.model_dump` / :meth:`~pydantic.BaseModel.model_dump_json`.
+
+Subclass :class:`EnhancedBaseModel`, call :func:`enhanced_config` with extra keys, or add
+``model_validator`` / ``computed_field`` / ``Field`` for richer schemas.
 
 Usage:
-    >>> from dtos.base import EnhancedBaseModel
+    >>> from dtos.base import EnhancedBaseModel, enhanced_config
     >>>
     >>> class MyRequestDTO(EnhancedBaseModel):
     ...     name: str
-    ...     email: str
+    >>>
+    >>> class StrictDTO(EnhancedBaseModel):
+    ...     model_config = enhanced_config(title="StrictDTO", str_strip_whitespace=True)
 """
+
+from __future__ import annotations
 
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, validator
+from loguru import logger
+from pydantic import BaseModel, ConfigDict, field_validator
 
-from start_utils import logger
 from fast_utilities.validation import SecurityValidators, ValidationUtility
+
+__all__ = ["EnhancedBaseModel", "enhanced_config"]
+
+_ENHANCED_DEFAULTS: dict[str, Any] = {
+    "extra": "forbid",
+    "validate_assignment": True,
+    "use_enum_values": True,
+}
+
+
+def enhanced_config(**overrides: Any) -> ConfigDict:
+    """
+    Build a :class:`~pydantic.ConfigDict` by merging *overrides* into the
+    defaults used by :class:`EnhancedBaseModel`.
+
+    Common overrides: ``title``, ``str_strip_whitespace``, ``populate_by_name``,
+    ``frozen``, ``validate_default``, ``json_schema_extra``, etc.
+    """
+    merged = {**_ENHANCED_DEFAULTS, **overrides}
+    return ConfigDict(**merged)
 
 
 class EnhancedBaseModel(BaseModel):
     """
-    Enhanced Pydantic BaseModel with security features.
+    Pydantic v2 base for request DTOs: sanitization, security checks, strict extras.
 
-    This base model extends Pydantic's BaseModel to provide:
-        - Automatic string sanitization on all inputs
-        - Security validation (SQL injection, XSS, path traversal)
-        - Strict field validation (rejects extra fields)
-        - Custom JSON encoders for datetime
-
-    All request DTOs that handle user input should inherit from this
-    class to ensure consistent security measures.
-
-    Configuration:
-        - extra = "forbid": Reject fields not defined in the model
-        - validate_assignment = True: Validate on attribute assignment
-        - use_enum_values = True: Use enum values in serialization
-        - json_encoders: Custom datetime ISO format encoding
-
-    Example:
-        >>> class UserInputDTO(EnhancedBaseModel):
-        ...     username: str
-        ...     bio: str
-        ...
-        >>> # Input is automatically sanitized
-        >>> dto = UserInputDTO(username="  john  ", bio="Hello <script>alert(1)</script>")
-        >>> dto.username  # "john" (trimmed)
-        >>>
-        >>> # Security validation
-        >>> result = dto.validate_security()
-        >>> if not result['is_valid']:
-        ...     print(result['issues'])  # ["Potential XSS in field 'bio'"]
-
-    Security Features:
-        - SQL injection pattern detection
-        - XSS attack pattern detection
-        - Path traversal attempt detection
-        - String sanitization (trimming, normalization)
+    Subclasses may set ``model_config = enhanced_config(...)`` to add options
+    without re-specifying defaults.
     """
 
-    class Config:
-        """Pydantic model configuration."""
+    model_config = enhanced_config()
 
-        extra = "forbid"
-        """Reject any fields not explicitly defined in the model."""
-
-        validate_assignment = True
-        """Re-validate the model when attributes are assigned."""
-
-        use_enum_values = True
-        """Use enum values instead of enum instances in serialization."""
-
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
-        """Custom JSON encoders for specific types."""
-
-    @validator('*', pre=True)
-    def sanitize_strings(cls, v):
-        """
-        Sanitize all string inputs before validation.
-
-        This pre-validator runs on every field before other validators.
-        It sanitizes strings by trimming whitespace and applying
-        security-safe transformations.
-
-        Args:
-            v: The field value to sanitize.
-
-        Returns:
-            The sanitized value (strings are cleaned, others pass through).
-        """
-        logger.debug("Sanitizing all string inputs in EnhancedBaseModel")
+    @field_validator("*", mode="before")
+    @classmethod
+    def sanitize_strings(cls, v: Any) -> Any:
+        """Trim and normalize string inputs before field validation."""
+        logger.debug("Sanitizing string inputs in EnhancedBaseModel")
         if isinstance(v, str):
             return ValidationUtility.sanitize_string(v)
         return v
 
     def validate_security(self) -> dict[str, Any]:
         """
-        Perform comprehensive security validation on all string fields.
-
-        Checks all string fields for potential security threats including
-        SQL injection, XSS attacks, and path traversal attempts.
+        Scan string fields for SQL injection, XSS, and path traversal patterns.
 
         Returns:
-            dict: Validation result with:
-                - is_valid (bool): True if no security issues found
-                - issues (list): List of security issue descriptions
-
-        Example:
-            >>> dto = MyDTO(user_input="SELECT * FROM users")
-            >>> result = dto.validate_security()
-            >>> if not result['is_valid']:
-            ...     for issue in result['issues']:
-            ...         logger.warning(issue)
-            ...     raise SecurityError("Malicious input detected")
+            ``{"is_valid": bool, "issues": list[str]}``
         """
         logger.debug("Performing security validation on EnhancedBaseModel")
-        issues = []
+        issues: list[str] = []
 
-        for field_name, field_value in self.dict().items():
+        for field_name, field_value in self.model_dump().items():
             if isinstance(field_value, str):
-                if not SecurityValidators.validate_sql_injection_prevention(
-                    field_value,
-                ):
-                    issues.append(
-                        f"Potential SQL injection in field '{field_name}'"
-                    )
+                if not SecurityValidators.validate_sql_injection_prevention(field_value):
+                    issues.append(f"Potential SQL injection in field '{field_name}'")
 
                 if not SecurityValidators.validate_xss_prevention(field_value):
                     issues.append(f"Potential XSS in field '{field_name}'")
 
-                if not SecurityValidators.validate_path_traversal_prevention(
-                    field_value,
-                ):
-                    issues.append(
-                        f"Potential path traversal in field '{field_name}'"
-                    )
+                if not SecurityValidators.validate_path_traversal_prevention(field_value):
+                    issues.append(f"Potential path traversal in field '{field_name}'")
 
-        return {
-            'is_valid': len(issues) == 0,
-            'issues': issues
-        }
+        return {"is_valid": len(issues) == 0, "issues": issues}

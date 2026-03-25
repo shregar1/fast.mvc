@@ -5,7 +5,7 @@ Tests for EnhancedBaseModel class.
 import pytest
 from pydantic import ValidationError
 
-from dtos.base import EnhancedBaseModel
+from dtos.base import EnhancedBaseModel, enhanced_config
 
 
 class SampleDTO(EnhancedBaseModel):
@@ -79,6 +79,15 @@ class TestEnhancedBaseModel:
         result = dto.validate_security()
         assert result["is_valid"] is False
         assert len(result["issues"]) >= 2
+
+    def test_enhanced_config_title_in_json_schema(self):
+        """Subclass can merge options via enhanced_config (e.g. title)."""
+
+        class Titled(EnhancedBaseModel):
+            model_config = enhanced_config(title="MyTitledDTO")
+            x: int
+
+        assert Titled.model_json_schema().get("title") == "MyTitledDTO"
 
     # Tests for Config
     def test_config_validate_assignment(self):

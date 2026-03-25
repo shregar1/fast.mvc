@@ -9,16 +9,28 @@ Example:
     >>> generator.generate()
 
 This creates:
-    - models/product.py
-    - repositories/product.py
-    - services/product/
-    - controllers/product/
-    - dtos/requests/product/
+    - models/mixins.py (once, if missing) — reusable SQLAlchemy mixins
+    - models/product.py — composes mixins + :class:`~models.Base`
+    - repositories/product.py — override hooks for queries
+    - services/product/ — override hooks for create/update mapping
+    - controllers/product/ — router knobs (dependencies, include_router)
+    - dtos/requests/product/ — Pydantic extension points
     - dependencies/repositories/product.py
-    - dependencies/services/product/
+    - dependencies/services/product.py
     - tests/unit/*/test_product.py
+
+Extension points (subclass or override in generated files)
+---------------------------------------------------------
+- **Model**: extra ``Mapped`` columns, ``__table_args__``, mixins from
+  ``models/mixins.py`` or your own module.
+- **Repository**: ``extend_list_query``, ``extend_get_query``, ``_entity_query``.
+- **Service**: ``build_create_payload``, ``apply_update_to_record``.
+- **Controller**: ``router.dependencies``, ``include_router`` for extra routes.
+- **DTOs**: ``model_validator``, ``computed_field``, ``enhanced_config(...)``.
 """
 
+import os
+import subprocess
 from pathlib import Path
 
 import click
@@ -89,25 +101,42 @@ class EntityGenerator:
         click.secho("  ● Updating __init__.py files...", fg="white")
         self._update_init_files()
 
+        click.secho("  ● Generating Alembic migration (autogenerate)...", fg="white")
+        self._run_alembic_autogenerate()
+
     def _generate_model(self):
         """Generate SQLAlchemy model."""
+        self._ensure_models_package()
+        self._ensure_mixins_module()
+
         model_content = f'''"""
 {self.entity_name} Database Model.
 
 This module defines the SQLAlchemy ORM model for {self.entity_name} entities.
+
+Extending this model
+--------------------
+- **Mixins**: Shared columns come from :mod:`models.mixins` (soft delete, audit,
+  timestamps). Add project mixins in that module and list them before ``Base``.
+- **More columns**: add :class:`~sqlalchemy.orm.Mapped` fields in the
+  ``# --- Add more columns`` section, then ``alembic revision --autogenerate``.
+- **Indexes / constraints**: extend ``__table_args__`` with :class:`~sqlalchemy.Index`,
+  :class:`~sqlalchemy.UniqueConstraint`, :class:`~sqlalchemy.ForeignKeyConstraint`, etc.
+- **Triggers**: use ``op.execute(text(...))`` in Alembic, or :mod:`sqlalchemy.event`.
 """
 
-from datetime import datetime
-from typing import Optional
+from __future__ import annotations
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Index
-from sqlalchemy.orm import relationship
+from typing import Any, Optional
+
+from sqlalchemy import Index, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
 
 from models import Base
-from fast_db import Table
+from models.mixins import AuditActorMixin, SoftDeleteMixin, TimestampMixin
 
 
-class {self.entity_name}(Base):
+class {self.entity_name}(SoftDeleteMixin, AuditActorMixin, TimestampMixin, Base):
     """
     {self.entity_name} database model.
 
@@ -118,7 +147,7 @@ class {self.entity_name}(Base):
         urn (str): Unique resource name (ULID).
         name (str): {self.entity_name} name.
         description (str): Optional description.
-        is_active (bool): Whether the {self.entity_lower} is active.
+        is_active (bool): Whether the {self.entity_lower} is active (see ``SoftDeleteMixin``).
         is_deleted (bool): Soft delete flag.
         created_by (int): ID of user who created this record.
         created_on (datetime): Creation timestamp.
@@ -128,26 +157,33 @@ class {self.entity_name}(Base):
 
     __tablename__ = "{self.entity_snake}s"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    urn = Column(String(26), unique=True, nullable=False, index=True)
-    name = Column(String(255), nullable=False)
-    description = Column(Text, nullable=True)
-    is_active = Column(Boolean, default=True, nullable=False)
-    is_deleted = Column(Boolean, default=False, nullable=False)
-    created_by = Column(Integer, nullable=False)
-    created_on = Column(DateTime, default=datetime.now, nullable=False)
-    updated_by = Column(Integer, nullable=True)
-    updated_on = Column(DateTime, nullable=True, onupdate=datetime.now)
+    # --- Primary key
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    # --- Identity / business fields (shared columns live in models.mixins)
+    urn: Mapped[str] = mapped_column(String(26), unique=True, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # --- Add more columns (then: alembic revision --autogenerate)
+    # Example:
+    # slug: Mapped[Optional[str]] = mapped_column(String(128), unique=True, nullable=True)
+    # sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     __table_args__ = (
+        # Single- and multi-column indexes (add more as needed)
         Index("ix_{self.entity_snake}_name", "name"),
-        Index("ix_{self.entity_snake}_active", "is_active", "is_deleted"),
+        Index("ix_{self.entity_snake}_active", "is_deleted", "is_active"),
+        # Composite unique keys, e.g. per-tenant names:
+        # UniqueConstraint("tenant_id", "name", name="uq_{self.entity_snake}_tenant_name"),
+        # PostgreSQL-only options (keep in migrations if not portable):
+        # Index("ix_{self.entity_snake}_name_pattern", "name", postgresql_ops={{"name": "text_pattern_ops"}}),
     )
 
     def __repr__(self) -> str:
         return f"<{self.entity_name}(id={{self.id}}, name={{self.name}})>"
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert model to dictionary."""
         return {{
             "id": self.id,
@@ -158,6 +194,16 @@ class {self.entity_name}(Base):
             "created_on": str(self.created_on) if self.created_on else None,
             "updated_on": str(self.updated_on) if self.updated_on else None,
         }}
+
+
+# -----------------------------------------------------------------------------
+# Database triggers (optional)
+# -----------------------------------------------------------------------------
+# Triggers are not created from SQLAlchemy models. Typical workflow:
+# 1. Create a new Alembic revision.
+# 2. In upgrade(): from sqlalchemy import text; op.execute(text("CREATE TRIGGER ..."))
+# 3. In downgrade(): op.execute(text("DROP TRIGGER ... ON ..."))
+# -----------------------------------------------------------------------------
 '''
         model_path = self.project_path / "models" / f"{self.entity_snake}.py"
         model_path.write_text(model_content)
@@ -168,6 +214,9 @@ class {self.entity_name}(Base):
 {self.entity_name} Repository.
 
 This module provides data access operations for {self.entity_name} entities.
+
+Extension: subclass and override ``_entity_query``, ``extend_list_query``, or
+``extend_get_query`` for tenant scoping, joins, and default ordering.
 """
 
 from typing import List, Optional
@@ -207,6 +256,29 @@ class {self.entity_name}Repository(IRepository):
     def session(self, value: Session):
         self._session = value
 
+    def _entity_query(self):
+        """
+        Base query scoped to non-deleted rows.
+
+        Override in a subclass to add tenant filters, default joins, etc.
+        """
+        return (
+            self.session.query({self.entity_name})
+            .filter({self.entity_name}.is_deleted == False)
+        )
+
+    def extend_list_query(self, query):
+        """
+        Hook for list/count queries: ordering, joins, extra WHERE clauses.
+
+        Override in a subclass; must return a Query object.
+        """
+        return query
+
+    def extend_get_query(self, query):
+        """Hook for single-row fetches (get by id / urn). Override as needed."""
+        return query
+
     def create_record(self, record: {self.entity_name}) -> {self.entity_name}:
         """
         Create a new {self.entity_lower} record.
@@ -235,12 +307,9 @@ class {self.entity_name}Repository(IRepository):
             {self.entity_name} instance or None if not found.
         """
         self.logger.debug(f"Retrieving {self.entity_lower} by ID: {{record_id}}")
-        return (
-            self.session.query({self.entity_name})
-            .filter({self.entity_name}.id == record_id)
-            .filter({self.entity_name}.is_deleted == False)
-            .first()
-        )
+        q = self._entity_query().filter({self.entity_name}.id == record_id)
+        q = self.extend_get_query(q)
+        return q.first()
 
     def retrieve_record_by_urn(self, urn: str) -> Optional[{self.entity_name}]:
         """
@@ -253,12 +322,9 @@ class {self.entity_name}Repository(IRepository):
             {self.entity_name} instance or None if not found.
         """
         self.logger.debug(f"Retrieving {self.entity_lower} by URN: {{urn}}")
-        return (
-            self.session.query({self.entity_name})
-            .filter({self.entity_name}.urn == urn)
-            .filter({self.entity_name}.is_deleted == False)
-            .first()
-        )
+        q = self._entity_query().filter({self.entity_name}.urn == urn)
+        q = self.extend_get_query(q)
+        return q.first()
 
     def retrieve_all_records(
         self,
@@ -278,11 +344,12 @@ class {self.entity_name}Repository(IRepository):
             List of {self.entity_name} instances.
         """
         self.logger.debug(f"Retrieving {self.entity_lower}s: skip={{skip}}, limit={{limit}}")
-        query = self.session.query({self.entity_name}).filter({self.entity_name}.is_deleted == False)
+        query = self._entity_query()
 
         if active_only:
             query = query.filter({self.entity_name}.is_active == True)
 
+        query = self.extend_list_query(query)
         return query.offset(skip).limit(limit).all()
 
     def update_record(self, record: {self.entity_name}) -> {self.entity_name}:
@@ -334,11 +401,12 @@ class {self.entity_name}Repository(IRepository):
         Returns:
             Total count.
         """
-        query = self.session.query({self.entity_name}).filter({self.entity_name}.is_deleted == False)
+        query = self._entity_query()
 
         if active_only:
             query = query.filter({self.entity_name}.is_active == True)
 
+        query = self.extend_list_query(query)
         return query.count()
 '''
         repo_path = self.project_path / "repositories" / f"{self.entity_snake}.py"
@@ -375,7 +443,7 @@ from typing import Optional
 from pydantic import field_validator
 
 from dtos.requests.abstraction import IRequestDTO
-from dtos.base import EnhancedBaseModel
+from dtos.base import EnhancedBaseModel, enhanced_config
 
 
 class {self.entity_name}CreateRequestDTO(IRequestDTO, EnhancedBaseModel):
@@ -388,11 +456,12 @@ class {self.entity_name}CreateRequestDTO(IRequestDTO, EnhancedBaseModel):
         description (str): Optional description.
     """
 
+    model_config = enhanced_config(
+        title="{self.entity_name}CreateRequestDTO",
+    )
+
     name: str
     description: Optional[str] = None
-
-    class Config:
-        extra = "forbid"
 
     @field_validator("name")
     @classmethod
@@ -403,6 +472,9 @@ class {self.entity_name}CreateRequestDTO(IRequestDTO, EnhancedBaseModel):
         if len(v) > 255:
             raise ValueError("Name cannot exceed 255 characters")
         return v.strip()
+
+    # Extension points: @model_validator(mode="after"), computed_field,
+    # Field(..., json_schema_extra={...}), or merge model_config via enhanced_config(...)
 '''
         (dto_dir / "create.py").write_text(create_dto_content)
 
@@ -417,7 +489,7 @@ from typing import Optional
 from pydantic import field_validator
 
 from dtos.requests.abstraction import IRequestDTO
-from dtos.base import EnhancedBaseModel
+from dtos.base import EnhancedBaseModel, enhanced_config
 
 
 class {self.entity_name}UpdateRequestDTO(IRequestDTO, EnhancedBaseModel):
@@ -431,12 +503,13 @@ class {self.entity_name}UpdateRequestDTO(IRequestDTO, EnhancedBaseModel):
         is_active (bool): Optional active status.
     """
 
+    model_config = enhanced_config(
+        title="{self.entity_name}UpdateRequestDTO",
+    )
+
     name: Optional[str] = None
     description: Optional[str] = None
     is_active: Optional[bool] = None
-
-    class Config:
-        extra = "forbid"
 
     @field_validator("name")
     @classmethod
@@ -449,6 +522,8 @@ class {self.entity_name}UpdateRequestDTO(IRequestDTO, EnhancedBaseModel):
         if len(v) > 255:
             raise ValueError("Name cannot exceed 255 characters")
         return v.strip()
+
+    # Extension points: @model_validator(mode="after"), computed_field, Field aliases
 '''
         (dto_dir / "update.py").write_text(update_dto_content)
 
@@ -475,6 +550,9 @@ __all__ = ["{self.entity_name}CRUDService"]
 {self.entity_name} Service Abstraction.
 
 This module defines the base interface for {self.entity_name} services.
+
+Extend :class:`{self.entity_name}CRUDService` and override ``build_create_payload`` /
+``apply_update_to_record`` for custom mapping logic.
 """
 
 from abstractions.service import IService
@@ -517,7 +595,7 @@ This module provides CRUD operations for {self.entity_name} entities.
 
 from datetime import datetime
 from http import HTTPStatus
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from ulid import ULID
 
@@ -541,6 +619,8 @@ class {self.entity_name}CRUDService(I{self.entity_name}Service):
     Attributes:
         repository ({self.entity_name}Repository): Data access repository.
         user_id (int): Current user ID.
+
+    Override ``build_create_payload`` / ``apply_update_to_record`` to extend behaviour.
     """
 
     def __init__(
@@ -568,6 +648,41 @@ class {self.entity_name}CRUDService(I{self.entity_name}Service):
     def user_id(self) -> int:
         return self._user_id
 
+    def build_create_payload(self, request_dto: {self.entity_name}CreateRequestDTO) -> dict[str, Any]:
+        """
+        Map create DTO to ORM ``__init__`` kwargs.
+
+        Override when you add columns to the model or need derived values.
+        """
+        return {{
+            "urn": str(ULID()),
+            "name": request_dto.name,
+            "description": request_dto.description,
+            "is_active": True,
+            "is_deleted": False,
+            "created_by": self._user_id or 1,
+            "created_on": datetime.now(),
+        }}
+
+    def apply_update_to_record(
+        self,
+        record: {self.entity_name},
+        request_dto: {self.entity_name}UpdateRequestDTO,
+    ) -> None:
+        """
+        Apply update DTO fields to a loaded ORM row.
+
+        Override when you add fields to the model or need side effects.
+        """
+        if request_dto.name is not None:
+            record.name = request_dto.name
+        if request_dto.description is not None:
+            record.description = request_dto.description
+        if request_dto.is_active is not None:
+            record.is_active = request_dto.is_active
+        record.updated_by = self._user_id
+        record.updated_on = datetime.now()
+
     async def create(self, request_dto: {self.entity_name}CreateRequestDTO) -> BaseResponseDTO:
         """
         Create a new {self.entity_lower}.
@@ -580,15 +695,7 @@ class {self.entity_name}CRUDService(I{self.entity_name}Service):
         """
         self.logger.debug(f"Creating {self.entity_lower}: {{request_dto.name}}")
 
-        record = {self.entity_name}(
-            urn=str(ULID()),
-            name=request_dto.name,
-            description=request_dto.description,
-            is_active=True,
-            is_deleted=False,
-            created_by=self._user_id or 1,
-            created_on=datetime.now(),
-        )
+        record = {self.entity_name}(**self.build_create_payload(request_dto))
 
         record = self.repository.create_record(record)
 
@@ -694,16 +801,7 @@ class {self.entity_name}CRUDService(I{self.entity_name}Service):
                 httpStatusCode=HTTPStatus.NOT_FOUND,
             )
 
-        # Update fields if provided
-        if request_dto.name is not None:
-            record.name = request_dto.name
-        if request_dto.description is not None:
-            record.description = request_dto.description
-        if request_dto.is_active is not None:
-            record.is_active = request_dto.is_active
-
-        record.updated_by = self._user_id
-        record.updated_on = datetime.now()
+        self.apply_update_to_record(record, request_dto)
 
         record = self.repository.update_record(record)
 
@@ -761,6 +859,8 @@ class {self.entity_name}CRUDService(I{self.entity_name}Service):
 This package contains API route handlers for {self.entity_name} operations.
 Provides RESTful CRUD endpoints.
 
+Extend ``router`` (``dependencies``, ``include_router``, ``prefix``) or wrap handlers as needed.
+
 Routes:
     POST   /{self.entity_snake}         - Create new {self.entity_lower}
     GET    /{self.entity_snake}         - List all {self.entity_lower}s
@@ -796,7 +896,12 @@ except ImportError:
 
 logger.debug("Registering {self.entity_name} routes.")
 
-router = APIRouter(prefix="/{self.entity_snake}", tags=["{self.entity_name}"])
+router = APIRouter(
+    prefix="/{self.entity_snake}",
+    tags=["{self.entity_name}"],
+    dependencies=[],
+)
+# Extra routes: router.include_router(other_router, prefix="/extra")
 
 
 def get_{self.entity_snake}_repository(
@@ -1226,14 +1331,92 @@ class Test{self.entity_name}Model:
         if not init_path.exists():
             init_path.write_text("")
 
+    def _ensure_models_package(self) -> None:
+        """Ensure ``models/`` exists with a declarative :class:`Base`."""
+        models_dir = self.project_path / "models"
+        models_dir.mkdir(parents=True, exist_ok=True)
+        init_path = models_dir / "__init__.py"
+        if not init_path.exists():
+            init_path.write_text(
+                '''"""
+SQLAlchemy models package.
+
+Import concrete model modules so Alembic autogenerate discovers tables.
+"""
+
+from sqlalchemy.orm import DeclarativeBase
+
+__all__ = ["Base"]
+
+
+class Base(DeclarativeBase):
+    """Declarative base for application ORM models."""
+
+'''
+            )
+
+    def _ensure_mixins_module(self) -> None:
+        """Create ``models/mixins.py`` from the framework template if missing."""
+        mixins_path = self.project_path / "models" / "mixins.py"
+        if mixins_path.exists():
+            return
+        template = Path(__file__).resolve().parent.parent / "models" / "mixins.py"
+        if template.is_file():
+            mixins_path.write_text(template.read_text(encoding="utf-8"))
+            return
+        click.secho(
+            "  ⚠ Could not copy models/mixins.py from the framework; "
+            "add models/mixins.py manually (see FastMVC models/mixins.py).",
+            fg="yellow",
+        )
+
+    def _run_alembic_autogenerate(self) -> None:
+        """Run ``alembic revision --autogenerate`` for the new entity table."""
+        ini = self.project_path / "alembic.ini"
+        migrations = self.project_path / "migrations"
+        if not ini.is_file() or not migrations.is_dir():
+            click.secho(
+                "  ⚠ Skipping Alembic: alembic.ini or migrations/ not found in project.",
+                fg="yellow",
+            )
+            return
+
+        env = os.environ.copy()
+        env.setdefault("PYTHONPATH", str(self.project_path))
+
+        cmd = [
+            "alembic",
+            "revision",
+            "--autogenerate",
+            "-m",
+            f"add_{self.entity_snake}_table",
+        ]
+        result = subprocess.run(
+            cmd,
+            cwd=self.project_path,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            click.secho(
+                "  ⚠ Alembic autogenerate failed — run manually after configuring DATABASE_URL:\n"
+                f"    alembic revision --autogenerate -m \"add_{self.entity_snake}_table\"\n"
+                f"{result.stderr}",
+                fg="yellow",
+            )
+        else:
+            click.secho("  ● Alembic migration generated", fg="green")
+
     def _update_init_files(self):
         """Update __init__.py files to include new entity."""
+        self._ensure_models_package()
+
         # Update models/__init__.py
         models_init = self.project_path / "models" / "__init__.py"
-        if models_init.exists():
-            content = models_init.read_text()
-            import_line = f"from models.{self.entity_snake} import {self.entity_name}"
-            if import_line not in content:
-                content += f"\n{import_line}\n"
-                models_init.write_text(content)
+        content = models_init.read_text()
+        import_line = f"from models.{self.entity_snake} import {self.entity_name}"
+        if import_line not in content:
+            content += f"\n{import_line}\n"
+            models_init.write_text(content)
 
