@@ -91,6 +91,7 @@ nav:
     - Configuration: guide/configuration.md
     - API Documentation: guide/api-docs.md
     - Database Migrations: guide/database.md
+    - Testing: guide/testing.md
     - CI/CD: guide/ci-cd.md
   - API Reference:
     - Overview: api/overview.md

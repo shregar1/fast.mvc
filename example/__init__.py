@@ -35,6 +35,21 @@ from example.dtos.item_dtos import (
     ItemListResponse,
 )
 
+# Testing utilities (optional import)
+try:
+    from example.testing import (
+        ItemFactory,
+        item_client,
+        item_db,
+        mock_auth,
+        mock_user,
+        test_item,
+        test_items,
+    )
+    _TESTING_AVAILABLE = True
+except ImportError:
+    _TESTING_AVAILABLE = False
+
 __all__ = [
     # Entity
     "ItemEntity",
@@ -51,3 +66,15 @@ __all__ = [
     "ItemResponse",
     "ItemListResponse",
 ]
+
+# Add testing exports if available
+if _TESTING_AVAILABLE:
+    __all__.extend([
+        "ItemFactory",
+        "item_client",
+        "item_db",
+        "mock_auth",
+        "mock_user",
+        "test_item",
+        "test_items",
+    ])

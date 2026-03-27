@@ -40,6 +40,41 @@ fastmvc generate --name my-api --author "John Doe" --venv-name .venv
 fastmvc generate --name my-api --non-interactive
 ```
 
+### `fastmvc db`
+
+Database migration commands using Alembic.
+
+```bash
+# Create a new migration
+fastmvc db migrate -m "Add users table"
+
+# Apply migrations
+fastmvc db upgrade
+
+# Rollback migrations
+fastmvc db downgrade
+
+# Reset database (⚠️ destructive)
+fastmvc db reset
+
+# Check status
+fastmvc db status
+
+# View history
+fastmvc db history --verbose
+```
+
+**Subcommands:**
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `migrate` | Create new migration | `fastmvc db migrate -m "Add users"` |
+| `upgrade` | Apply migrations | `fastmvc db upgrade --revision head` |
+| `downgrade` | Rollback migrations | `fastmvc db downgrade --revision -1` |
+| `reset` | Drop & recreate database | `fastmvc db reset --seed` |
+| `status` | Check migration status | `fastmvc db status` |
+| `history` | Show migration history | `fastmvc db history --verbose` |
+
 ### `fastmvc quickstart`
 
 Quick project generation with defaults.

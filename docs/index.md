@@ -7,6 +7,7 @@ A production-grade MVC framework for FastAPI with clean architecture, powerful a
 - **Clean MVC Architecture**: Separate concerns with clear abstractions
 - **Interactive CLI**: Generate projects with beautiful terminal UI
 - **Database Migration CLI**: Manage Alembic migrations with simple commands
+- **Testing Framework**: Factories, fixtures, and utilities for comprehensive testing
 - **Rich VS Code Integration**: 15+ tasks, 6 debug configs, recommended extensions
 - **Environment Validation**: Fail-fast config validation with clear error messages
 - **Dark-themed API Docs**: FastMVC-branded Swagger UI and ReDoc
@@ -83,5 +84,6 @@ make docs-serve
 - [Configuration](guide/configuration.md) - Environment variables and validation
 - [API Documentation](guide/api-docs.md) - Swagger UI and ReDoc
 - [Database Migrations](guide/database.md) - Manage database schema changes
+- [Testing](guide/testing.md) - Testing framework and best practices
 - [CI/CD](guide/ci-cd.md) - GitHub Actions workflows and deployment
 - [Project Structure](guide/project-structure.md) - Understanding the layout
