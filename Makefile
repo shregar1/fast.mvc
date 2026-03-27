@@ -206,15 +206,38 @@ clean-all: clean
 ## docker-build: Build Docker image
 docker-build:
 	@echo "$(BLUE)🐳 Building Docker image...$(RESET)"
-	@docker build -t $(PROJECT_NAME):latest .
-	@echo "$(GREEN)✓ Docker image built: $(PROJECT_NAME):latest$(RESET)"
+	@docker-compose build
+	@echo "$(GREEN)✓ Docker image built$(RESET)"
 
-## docker-up: Start services with Docker Compose
+## docker-up: Start full stack with Docker Compose
 docker-up:
-	@echo "$(BLUE)🐳 Starting Docker services...$(RESET)"
+	@echo "$(BLUE)🐳 Starting FastMVC full stack...$(RESET)"
 	@docker-compose up -d
-	@echo "$(GREEN)✓ Services started$(RESET)"
-	@echo "$(YELLOW)API: http://localhost:8000$(RESET)"
+	@echo "$(GREEN)✓ Stack started successfully!$(RESET)"
+	@echo ""
+	@echo "$(CYAN)Services:$(RESET)"
+	@echo "  API:       http://localhost:8000"
+	@echo "  Docs:      http://localhost:8000/docs"
+	@echo "  Health:    http://localhost:8000/health"
+	@echo "  Postgres:  localhost:5432"
+	@echo "  Redis:     localhost:6379"
+
+## docker-up-dev: Start with development tools (PgAdmin, Redis Insight)
+docker-up-dev:
+	@echo "$(BLUE)🐳 Starting stack with development tools...$(RESET)"
+	@docker-compose --profile dev up -d
+	@echo "$(GREEN)✓ Stack started with dev tools!$(RESET)"
+	@echo ""
+	@echo "$(CYAN)Services:$(RESET)"
+	@echo "  API:          http://localhost:8000"
+	@echo "  PgAdmin:      http://localhost:5050"
+	@echo "  Redis Insight: http://localhost:5540"
+
+## docker-up-full: Start with workers and nginx
+docker-up-full:
+	@echo "$(BLUE)🐳 Starting full stack with all services...$(RESET)"
+	@docker-compose --profile full up -d
+	@echo "$(GREEN)✓ Full stack started!$(RESET)"
 
 ## docker-down: Stop Docker services
 docker-down:
@@ -222,15 +245,53 @@ docker-down:
 	@docker-compose down
 	@echo "$(GREEN)✓ Services stopped$(RESET)"
 
+## docker-down-v: Stop and remove volumes (⚠️ deletes data)
+docker-down-v:
+	@echo "$(RED)⚠️  This will delete all database data!$(RESET)"
+	@read -p "Are you sure? [y/N] " confirm && [ $$confirm = y ] || exit 1
+	@docker-compose down -v --remove-orphans
+	@echo "$(GREEN)✓ Services and volumes removed$(RESET)"
+
 ## docker-logs: Show Docker logs
 docker-logs:
 	@docker-compose logs -f
 
-## docker-clean: Remove Docker containers and volumes
+## docker-logs-app: Show app logs only
+docker-logs-app:
+	@docker-compose logs -f app
+
+## docker-ps: Show running containers
+docker-ps:
+	@docker-compose ps
+
+## docker-shell: Open shell in app container
+docker-shell:
+	@docker-compose exec app /bin/sh
+
+## docker-db-shell: Open PostgreSQL shell
+docker-db-shell:
+	@docker-compose exec postgres psql -U postgres -d fastmvc
+
+## docker-redis-shell: Open Redis CLI
+docker-redis-shell:
+	@docker-compose exec redis redis-cli
+
+## docker-migrate: Run database migrations
+docker-migrate:
+	@echo "$(BLUE)📊 Running migrations...$(RESET)"
+	@docker-compose run --rm migrations
+
+## docker-restart: Restart all services
+docker-restart:
+	@echo "$(BLUE)🔄 Restarting services...$(RESET)"
+	@docker-compose restart
+	@echo "$(GREEN)✓ Services restarted$(RESET)"
+
+## docker-clean: Remove containers, images and volumes (⚠️ destructive)
 docker-clean:
-	@echo "$(RED)🐳 Removing Docker containers and volumes...$(RESET)"
+	@echo "$(RED)🐳 Cleaning up Docker resources...$(RESET)"
 	@docker-compose down -v --remove-orphans
-	@docker rmi $(PROJECT_NAME):latest 2>/dev/null || true
+	@docker system prune -f
 	@echo "$(GREEN)✓ Docker cleanup complete$(RESET)"
 
 ## venv: Create virtual environment only

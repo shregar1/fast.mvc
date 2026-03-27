@@ -8,6 +8,7 @@ A production-grade MVC framework for FastAPI with clean architecture, powerful a
 - **Interactive CLI**: Generate projects with beautiful terminal UI
 - **Database Migration CLI**: Manage Alembic migrations with simple commands
 - **Testing Framework**: Factories, fixtures, and utilities for comprehensive testing
+- **Docker Compose Stack**: One command for full stack (Postgres, Redis, FastAPI)
 - **Rich VS Code Integration**: 15+ tasks, 6 debug configs, recommended extensions
 - **Environment Validation**: Fail-fast config validation with clear error messages
 - **Dark-themed API Docs**: FastMVC-branded Swagger UI and ReDoc
@@ -85,5 +86,6 @@ make docs-serve
 - [API Documentation](guide/api-docs.md) - Swagger UI and ReDoc
 - [Database Migrations](guide/database.md) - Manage database schema changes
 - [Testing](guide/testing.md) - Testing framework and best practices
+- [Docker](guide/docker.md) - Docker Compose stack and deployment
 - [CI/CD](guide/ci-cd.md) - GitHub Actions workflows and deployment
 - [Project Structure](guide/project-structure.md) - Understanding the layout

@@ -14,9 +14,18 @@
 - **VS Code integration** — Pre-configured debug profiles, tasks, and recommended extensions
 - **Makefile** — Common development commands (dev, test, lint, migrate, docker)
 - **Entity generation** — Scaffold controllers, services, repositories, and DTOs
-- **Alembic migrations** — Database migration management
+- **Alembic migrations** — Database migration management via CLI
 - **App template** — FastAPI app structure, configuration, middleware, and services expected by extension packages (`fast_*`)
-- **Batteries** — FastAPI, SQLAlchemy 2, Alembic, Pydantic v2, Redis, JWT, bcrypt, etc. (full list in `pyproject.toml` `dependencies`)
+- **Batteries** — FastAPI, SQLAlchemy 2, Alembic, Pydantic v2, Redis, JWT, bcrypt, etc.
+
+### New Features
+
+- **Database Migration CLI** — `fastmvc db migrate/upgrade/downgrade/reset`
+- **Testing Framework** — ItemFactory, pytest fixtures, auth mocks
+- **Docker Compose Stack** — One-command full setup (Postgres + Redis + FastAPI)
+- **GitHub Actions CI/CD** — Auto-generated workflows for every project
+- **Dark-themed API Docs** — FastMVC-branded Swagger UI with dark mode
+- **Production Health Checks** — Kubernetes-ready endpoints
 
 ## Install
 
@@ -75,6 +84,79 @@ make docker-up        # Start with Docker
 # Using VS Code
 # Press F5 to debug or Cmd/Ctrl+Shift+P → "Tasks: Run Task"
 ```
+
+## Feature Details
+
+### Database Migration CLI
+
+Manage database migrations directly from the CLI:
+
+```bash
+# Create migration from model changes
+fastmvc db migrate -m "Add users table"
+
+# Apply migrations
+fastmvc db upgrade
+
+# Rollback one migration
+fastmvc db downgrade
+
+# Reset database (development only)
+fastmvc db reset --seed
+
+# Check status
+fastmvc db status
+```
+
+### Docker Compose Stack
+
+One command starts the full stack:
+
+```bash
+# Start everything (Postgres, Redis, FastAPI + migrations)
+make docker-up
+
+# Start with development tools (PgAdmin, Redis Insight)
+make docker-up-dev
+
+# Access points:
+# - API: http://localhost:8000
+# - Docs: http://localhost:8000/docs
+# - PgAdmin: http://localhost:5050
+# - Redis Insight: http://localhost:5540
+```
+
+### Testing Framework
+
+Generated projects include comprehensive testing utilities:
+
+```python
+from example.testing import ItemFactory, item_client
+
+# Generate fake test data
+item = ItemFactory.create(name="Test Item")
+payload = ItemFactory.create_dict(completed=True)
+
+# Use fixtures in tests
+def test_create_item(item_client, create_item_payload, mock_auth):
+    with mock_auth:
+        response = item_client.post("/items", json=create_item_payload)
+        assert response.status_code == 201
+```
+
+### GitHub Actions CI/CD
+
+Auto-generated workflows include:
+
+- **CI/CD workflow** — Test, lint, build Docker images
+- **PR Checks** — Fast validation and test runs
+- **Release workflow** — Build and push on version tags
+
+### API Documentation
+
+- Dark-themed Swagger UI at `/docs`
+- FastMVC branding with cyan/fuchsia color scheme
+- Kubernetes health endpoints at `/health`, `/health/live`, `/health/ready`
 
 ## Links
 

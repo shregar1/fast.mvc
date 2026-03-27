@@ -1,52 +1,66 @@
-# Use Ubuntu as the base image
-FROM ubuntu:22.04
+# =============================================================================
+# FastMVC Production Dockerfile
+# =============================================================================
 
-# Set environment variables to avoid interaction prompts
-ENV DEBIAN_FRONTEND=noninteractive
-# Set the time zone
-ENV TZ=Asia/Kolkata
+# Stage 1: Builder
+FROM python:3.11-slim as builder
 
-# Install necessary dependencies
-RUN apt-get update && \
-    apt-get install -y \
-    ntp \
-    curl \
-    wget \
-    gcc \
-    g++ \
-    libsqlite3-dev \
-    libpq-dev \
-    software-properties-common && \
-    rm -rf /var/lib/apt/lists/*
-
-# Add deadsnakes PPA to install Python 3.11
-RUN add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
-    apt-get install -y python3.11 python3.11-venv python3.11-dev python3.11-distutils && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set python3 to 3.11 and ensure pip is for 3.11 only (avoid system site-packages)
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
-
-# Copy the requirements.txt first to leverage Docker layer caching
-COPY requirements.txt /app/requirements.txt
-
-# Install Python dependencies with 3.11 explicitly so cryptography/cffi go to 3.11 site-packages
-RUN python3.11 -m pip install --no-cache-dir --upgrade pip && \
-    python3.11 -m pip install --no-cache-dir -r /app/requirements.txt
-
-# Copy the FastAPI application code to the container
-COPY . /app
-
-# Set the working directory
 WORKDIR /app
 
-# Create a temporary directory for uploads, if needed
-RUN mkdir -p /app/temp
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set permissions for the temp directory
-RUN chmod -R 777 /app/temp
+# Install Python dependencies
+COPY requirements.txt requirements-dev.txt ./
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Run with 3.11 so we use only pip-installed packages (avoid system /usr/lib/python3/dist-packages)
-CMD ["python3.11", "src/app.py"]
+# Stage 2: Production
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONFAULTHANDLER=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONPATH=/app \
+    PATH=/root/.local/bin:$PATH
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    curl \
+    postgresql-client \
+    redis-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory
+WORKDIR /app
+
+# Copy Python packages from builder
+COPY --from=builder /root/.local /root/.local
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/temp /app/logs /app/static
+
+# Make entrypoint executable
+RUN chmod +x /app/docker-entrypoint.sh
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health/live || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Set entrypoint
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+
+# Default command (can be overridden)
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
