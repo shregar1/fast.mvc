@@ -16,3 +16,9 @@ class ExampleUpdateRequestDTO(IRequestExampleDTO):
 
     name: str | None = Field(None, description="Updated name")
     description: str | None = Field(None, description="Updated description")
+
+
+class ExampleDeleteRequestDTO(IRequestExampleDTO):
+    """Example delete request (correlation / reference only)."""
+
+    pass

@@ -5,7 +5,7 @@ subclasses can extend defaults with any :class:`~pydantic.ConfigDict` options
 (``title``, ``str_strip_whitespace``, ``populate_by_name``, ``frozen``, …).
 
 Serialization ``include`` / ``exclude`` are not global model settings in Pydantic v2;
-pass them to :meth:`~pydantic.IModel.model_dump` / :meth:`~pydantic.IModel.model_dump_json`.
+pass them to :meth:`~pydantic.BaseModel.model_dump` / :meth:`~pydantic.BaseModel.model_dump_json`.
 
 Subclass :class:`EnhancedIModel`, call :func:`enhanced_config` with extra keys, or add
 ``model_validator`` / ``computed_field`` / ``Field`` for richer schemas.
@@ -26,7 +26,7 @@ from datetime import datetime
 from typing import Any
 
 from loguru import logger
-from pydantic import IModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 # Optional fast_utilities (requires pyfastmvc[platform])
 try:
@@ -55,7 +55,7 @@ def enhanced_config(**overrides: Any) -> ConfigDict:
     return ConfigDict(**merged)
 
 
-class EnhancedIModel(IModel):
+class EnhancedIModel(BaseModel):
     """Pydantic v2 Interface for request DTOs: sanitization, security checks, strict extras.
 
     Subclasses may set ``model_config = enhanced_config(...)`` to add options

@@ -46,7 +46,7 @@ fi
 
 if [ "${RUN_SEED:-false}" = "true" ]; then
     echo "🌱 Running seed data..."
-    python scripts/seed.py || echo "⚠️  Seed script failed or not found"
+    python _maint/scripts/seed.py || echo "⚠️  Seed script failed or not found"
 fi
 
 # =============================================================================

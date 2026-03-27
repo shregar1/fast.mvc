@@ -1,5 +1,11 @@
 # Middlewares
 
+## What this module does
+
+The **`middlewares`** package holds **application-specific** FastAPI/Starlette middleware **subclasses** and glue code. **Generic** middleware (CORS, rate limit, request ID, security headers, etc.) usually lives in **`fast-middleware`** / **`fastmiddleware`**; this folder is for behavior that **must** integrate with **this** app’s auth, repositories, or DTOs (e.g. JWT validation with your user store).
+
+Middleware runs **around** every matching request: order of registration matters (outermost added first, depending on Starlette behavior).
+
 ## Overview
 
 Generic HTTP middleware (request ID, security headers, rate limiting, CORS, timing, body-size limits, etc.) comes from **`fast-middleware`** on PyPI (`fast_middleware` imports) and, in full templates, the extended **`fastmiddleware`** stack used in `app.py`.

@@ -1,3 +1,13 @@
+# Config
+
+## What this module does
+
+The **`config`** package stores **environment-specific and override configuration** for FastMVC and optional ecosystem packages (database, cache, Kafka, etc.). Values here are typically **JSON** files merged with defaults from libraries, or loaded via **`FASTMVC_*_CONFIG_PATH`** and related env vars set during startup (`start_utils`).
+
+Use this tree when you need **per-deployment** tuning (connection strings, feature flags in config files) **without** hard-coding secrets in Python. Secrets themselves should still come from **environment variables** or a secrets manager; `config/` holds **structure** and non-secret defaults where appropriate.
+
+---
+
 # Config override (main repo)
 
 Config is loaded from this directory so you can **override package defaults** without changing package code.

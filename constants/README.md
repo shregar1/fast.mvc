@@ -1,5 +1,11 @@
 # Constants
 
+## What this module does
+
+The **`constants`** package is the **single source of truth** for magic strings and numbers that would otherwise be duplicated across controllers, services, and DTOs: **API logical keys** (`APILK`), **response status labels**, **default limits**, **regex** for validation, **payload type** names, and **database table** identifiers. Centralizing these values avoids typos, makes refactors safe, and gives IDEs autocompletion.
+
+Anything that is **fixed for the whole application** (or a major version) and **not** user configuration belongs here rather than in `config/` JSON.
+
 ## Overview
 
 The `constants` module provides centralized, type-safe constant definitions used throughout the FastMVC application. Constants prevent magic strings/numbers, enable IDE autocompletion, and make refactoring easier.

@@ -11,6 +11,10 @@ Usage:
     def test_something(item_client, test_item):
         # item_client and test_item are automatically injected
         pass
+
+    def test_factories(fetch_example_request_payload):
+        # Top-level factories package (see factories/README.md)
+        assert "reference_number" in fetch_example_request_payload
 """
 
 import os
@@ -160,3 +164,16 @@ def captured_logs(caplog):
 
     caplog.set_level(logging.DEBUG)
     return caplog
+
+
+# =============================================================================
+# TOP-LEVEL FACTORIES (see factories/README.md)
+# =============================================================================
+
+from factories import ExampleFetchRequestFactory
+
+
+@pytest.fixture
+def fetch_example_request_payload() -> dict:
+    """Valid ``FetchUserRequestDTO`` body fields as a dict (includes ``reference_number``)."""
+    return ExampleFetchRequestFactory.build()

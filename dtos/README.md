@@ -1,5 +1,11 @@
 # Data Transfer Objects (DTOs)
 
+## What this module does
+
+The **`dtos`** package defines **Pydantic models** for **HTTP request bodies**, **query parameters**, and **response envelopes**. It is the **contract** between clients and the API: validation, OpenAPI schema generation, and safe defaults happen here before code reaches **controllers** and **services**.
+
+Request DTOs often inherit from **`IRequestDTO`** (reference numbers, shared validators); responses use **`BaseResponseDTO`** / **`IResponseDTO`** for a consistent **`transactionUrn`**, **`status`**, **`data`**, and **`errors`** shape.
+
 ## Overview
 
 The `dtos` module contains Pydantic models for data validation, serialization, and documentation. DTOs ensure type-safe data transfer between layers of the application.

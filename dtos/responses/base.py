@@ -17,10 +17,10 @@ Usage:
     ... )
 """
 
-from pydantic import IModel
+from pydantic import BaseModel
 
 
-class IResponseDTO(IModel):
+class IResponseDTO(BaseModel):
     """Standard response DTO for all API endpoints.
 
     This DTO defines the consistent response structure used across

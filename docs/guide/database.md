@@ -106,7 +106,7 @@ fastmvc db reset --seed
 **What it does:**
 1. Rollback all migrations (drop all tables)
 2. Re-apply all migrations (recreate tables)
-3. Optionally run `scripts/seed.py` to populate initial data
+3. Optionally run `_maint/scripts/seed.py` to populate initial data
 
 ### Check Status
 

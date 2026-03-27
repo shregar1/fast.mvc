@@ -18,17 +18,21 @@ pip install -r requirements-dev.txt
 
 ## Test Structure
 
+The **`tests/`** tree **mirrors** the application layout (controllers, services, dtos, factories, middlewares, repositories, etc.). Put each test module next to the same path as the code under test (for example, `tests/example/` for the sample app, `tests/factories/apis/v1/example/` for factory tests).
+
 ```
 my-project/
 ├── tests/
-│   ├── conftest.py           # Shared fixtures
-│   ├── test_example_item.py  # Example API tests
-│   ├── unit/                 # Unit tests
-│   └── integration/          # Integration tests
-└── example/testing/          # Testing utilities
+│   ├── conftest.py                    # Shared fixtures
+│   ├── example/
+│   │   └── test_example_item.py       # Example API tests
+│   ├── factories/apis/v1/example/
+│   │   └── test_factories_example.py
+│   └── …                              # abstractions, controllers, services, …
+└── example/testing/                   # Testing utilities
     ├── __init__.py
-    ├── factories.py          # Data factories
-    └── fixtures.py           # Pytest fixtures
+    ├── factories.py                   # Data factories
+    └── fixtures.py                    # Pytest fixtures
 ```
 
 ## Factories
@@ -211,13 +215,13 @@ pytest --cov=. --cov-report=html
 
 ```bash
 # Run specific file
-pytest tests/test_example_item.py
+pytest tests/example/test_example_item.py
 
 # Run specific test class
-pytest tests/test_example_item.py::TestItemCreate
+pytest tests/example/test_example_item.py::TestItemCreate
 
 # Run specific test method
-pytest tests/test_example_item.py::TestItemCreate::test_create_item_success
+pytest tests/example/test_example_item.py::TestItemCreate::test_create_item_success
 
 # Run by marker
 pytest -m unit          # Only unit tests

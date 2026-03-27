@@ -1,9 +1,9 @@
 """Example Response Data DTO."""
 
-from pydantic import IModel
+from pydantic import BaseModel
 
 
-class ExampleResponseDataDTO(IModel):
+class ExampleResponseDataDTO(BaseModel):
     """Example response payload data."""
 
     id: str

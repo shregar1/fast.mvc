@@ -27,6 +27,12 @@ pre-commit install
 
 Canonical repository URL from `pyproject.toml`: `https://github.com/shregar1/fastMVC`.
 
+## `_maint` (do not touch casually)
+
+The **`_maint/`** directory is **critical infrastructure** (Docker nginx, DB `init-scripts`, seed/tooling scripts). It is **not** part of the application feature tree. **Do not rename, relocate, or edit** it without updating every reference (`docker-compose.yml`, `docker-entrypoint.sh`, `.pre-commit-config.yaml`, docs) and without maintainer review.
+
+Authoritative doc: `docs/guide/maint-folder.md` (also published under **Getting Started** in MkDocs).
+
 To copy EditorConfig, pre-commit config, and other shared files from `fast_middleware/` into every package:
 
 ```bash

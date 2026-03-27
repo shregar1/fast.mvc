@@ -192,9 +192,9 @@ Access at http://localhost:5540
 docker-compose --profile nginx up -d
 ```
 
-Place SSL certificates in `nginx/ssl/`:
+Place SSL certificates in `_maint/nginx/ssl/`:
 ```
-nginx/
+_maint/nginx/
 ├── nginx.conf
 └── ssl/
     ├── cert.pem
@@ -360,7 +360,7 @@ open http://localhost:5540           # Redis Insight
 make docker-migrate
 
 # 7. Create test data
-docker-compose exec app python scripts/seed.py
+docker-compose exec app python _maint/scripts/seed.py
 
 # 8. When done
 make docker-down

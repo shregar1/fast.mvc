@@ -66,6 +66,9 @@ my-project/
 │   ├── controller.py         # Item controller
 │   └── __init__.py
 │
+├── factories/                 # Test/tooling factories (mirror apis/… and dtos/requests/apis/…)
+│   └── apis/v1/example/     # fetch, create, patch, put, update, delete, common
+│
 ├── middlewares/               # FastAPI middleware
 │   ├── request_logging.py    # Request logging
 │   ├── error_handling.py     # Error handling
@@ -76,13 +79,16 @@ my-project/
 ├── static/                    # Static files
 │   └── swagger.html          # Custom Swagger UI
 │
-├── scripts/                   # Utility scripts
-│   └── setup.sh
+├── _maint/                    # CRITICAL — see guide/maint-folder.md (do not move/rename casually)
+│   ├── init-scripts/
+│   ├── nginx/
+│   └── scripts/
 │
-├── tests/                     # Test suite
+├── tests/                     # Test suite (mirrors app: controllers, services, dtos, …)
 │   ├── conftest.py           # Pytest configuration
-│   ├── test_example.py       # Example tests
-│   └── utils/
+│   ├── example/              # Tests for example/ sample app
+│   ├── factories/            # Tests for factories/ (same subpaths as prod)
+│   └── …                     # abstractions, apis, config, middlewares, repositories, …
 │
 └── .vscode/                   # VS Code settings
     ├── settings.json
@@ -90,6 +96,9 @@ my-project/
     ├── tasks.json
     └── extensions.json
 ```
+
+!!! warning "`_maint` is infrastructure, not app code"
+    The **`_maint`** folder holds Docker/nginx, DB bootstrap SQL, seeds, and hook scripts. **Do not change it** in routine feature work without reading [**The `_maint` folder (critical)**](maint-folder.md). Misplaced edits break compose, entrypoints, and pre-commit.
 
 ## Layer Explanation
 

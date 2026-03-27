@@ -1,5 +1,11 @@
 # Abstractions
 
+## What this module does
+
+The **`abstractions`** package is the **framework’s contract layer**: interfaces and pattern implementations (`IController`, `IService`, `IRepository`, CQRS, entities, results, etc.) that **application code** implements. It encodes **how** layers talk to each other without tying you to a single database or HTTP detail.
+
+Everything in **`controllers/`**, **`services/`**, **`repositories/`** should ultimately **depend on types exported from here** (or thin subclasses in those packages), so you can swap implementations and test in isolation.
+
 ## Overview
 
 The `abstractions` module provides a comprehensive collection of design pattern implementations and I classes that define the architectural contracts for the FastMVC framework. These abstractions enforce consistent patterns across all layers of the application while following **SOLID principles**.

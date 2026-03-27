@@ -1,5 +1,26 @@
 # Dependencies
 
+## What this module does
+
+The **`dependencies`** package defines **FastAPI `Depends()` factories**: callables that produce **database sessions**, **cache clients**, **repositories**, **services**, and **utilities** scoped to a request or shared across requests. Controllers and routers declare `Depends(SomeDependency.derive)` instead of constructing objects manually, which keeps construction **testable** and **consistent**.
+
+This layer **wires** the hexagonal architecture: it connects **`abstractions`** (interfaces) to concrete classes in **`repositories`**, **`services`**, and **`core`**.
+
+## Layout (conceptual)
+
+```
+dependencies/
+├── repositories/           # Repository factories (e.g. example/example_repository_dependency.py)
+├── services/               # Service factories, often versioned
+│   └── v1/
+│       ├── user/           # e.g. fetch.py — FetchUserServiceDependency
+│       └── example/       # e.g. example_service_dependency.py — ExampleServiceDependency
+├── auth.py, cache.py, db.py, …
+└── utilities/
+```
+
+Each injectable is a **class** with a `derive` (or similar) entry point—no loose module-level DI functions.
+
 ## Overview
 
 The `dependencies` module provides FastAPI dependency injection components for the FastMVC application. Dependencies are reusable components that can be injected into route handlers, enabling clean separation of concerns and easy testing.

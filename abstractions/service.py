@@ -18,9 +18,9 @@ Example:
 
 from abc import ABC, abstractmethod
 
-from pydantic import IModel
-
 from typing import Any
+
+from pydantic import BaseModel
 from core.utils.context import ContextMixin
 
 
@@ -89,14 +89,14 @@ class IService(ABC, ContextMixin):
         )
 
     @abstractmethod
-    def run(self, request_dto: IModel) -> dict:
+    def run(self, request_dto: BaseModel) -> dict:
         """Execute the service's main business logic.
 
         This is the primary entry point for the service. Subclasses must
         implement this method to define their specific business operations.
 
         Args:
-            request_dto (IModel): Pydantic model containing request data.
+            request_dto (BaseModel): Pydantic model containing request data.
 
         Returns:
             dict: Result of the business operation, typically containing
