@@ -72,9 +72,9 @@ except ImportError:
     TenantContext = None  # type: ignore
     get_current_tenant = None  # type: ignore
 
-# Versioning (fast_platform.versioning)
+# Versioning (fast_platform.utils.versioning)
 try:
-    from core.versioning import APIVersion, versioned_router
+    from utils.versioning import APIVersion, versioned_router
 except ImportError:
     APIVersion = None  # type: ignore
     versioned_router = None  # type: ignore

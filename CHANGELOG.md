@@ -1,21 +1,25 @@
-# Changelog
+# 📜 Changelog
 
-All notable changes to **pyfastmvc** will be documented in this file.
+All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.5.0] - 2026-03-27
 
 ### Added
+- **Vertical Slice Scaffolding:** Added `fastmvc add resource` for per-operation (e.g., `create`, `fetch`) scaffolding with versioning support (`-v`).
+- **One-Command Auth:** Added `fastmvc add auth` to scaffold a complete JWT-based authentication stack (Login, Register, Repositories, Middleware, and Dependencies).
+- **Middleware Scaffolding:** Added `fastmvc add middleware` with specialized templates for `request_logger`, `rate_limiter`, and `cors_config`.
+- **Test Generation:** Added `fastmvc add test` to automatically generate async Pytests for resource operations with `httpx` and mock support.
+- **Background Tasks:** Added `fastmvc add task` to scaffold background worker logic (Celery/FastAPI compatible) and service layer triggering patterns.
+- **Infrastructure:** Added `fastmvc dockerize` to generate production-ready `Dockerfile` and `docker-compose.yml` (App, DB, Redis, Migrations).
+- **Auto-Docs:** Added `fastmvc docs generate` to automatically crawl `apis/` and `dtos/` to build a complete MkDocs API Reference using `mkdocstrings`.
+- **Enhanced .env:** Added `.env` generation from `.env.example` with automatic `SECRET_KEY` and `JWT_SECRET_KEY` generation during project creation and `fastmvc add env`.
 
-- `fastmvc doctor` — Python version, core imports, project `.env` hints, optional `--check-db`.
-- `fastmvc generate`: `--template-pack minimal|standard|full`, `--with-docker-compose` / `--no-docker-compose`, `--export-openapi`.
-- `fastmvc init`: template pack prompt, docker-compose toggle, optional `openapi.json` export, license/CODEOWNERS prompts (with shared scaffold helpers); `--ci` non-interactive profile; optional `docker-compose.health.yml` when Docker assets are included.
-- Hooks: `post_generate` / `pre_run` from `fastmvc.toml` or `[tool.fastmvc.hooks]` in `pyproject.toml`, plus `FASTMVC_HOOKS_PATH` for extra plugin paths.
-- `fastmvc version --check-pypi` (or `FASTMVC_CHECK_PYPI=1`) for optional PyPI latest vs installed.
-- `fastmvc lint` — `ruff check .` from project root; `mypy` when `[tool.mypy]` exists in `pyproject.toml`.
-- `fastmvc run` — runs `pre_run` hooks then `python -m uvicorn` (defaults: `app:app`, `--reload`).
-- `fastmvc migrate *` — resolves `alembic.ini` by walking up from cwd and runs Alembic with `-c` and correct working directory.
-- Tooling aligned with the FastMVC monorepo (`Makefile`, pre-commit, Ruff, etc.).
+### Changed
+- **CLI Architecture:** Refactored CLI to use a nested `add` command group for better discoverability.
+- **Project Structure:** Updated generated projects to follow a per-version, per-operation folder structure by default.
 
+### Fixed
+- **CLI Help Text:** Corrected overlapping docstrings and misplaced command group registration in the CLI.

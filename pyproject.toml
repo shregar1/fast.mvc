@@ -88,7 +88,8 @@ dependencies = [
     "mako>=1.2.0,<2.0.0",
     "fast-middleware>=0.6.2",
     "cryptography>=41.0.0,<44.0.0",
-    # Note: fast-platform is now optional - install pyfastmvc[platform] for all services
+    "fast-platform>=0.13.0",
+    "fast-database>=0.1.0",
 ]
 
 [project.optional-dependencies]
@@ -111,8 +112,8 @@ docs = [
 interactive = [
     "questionary>=2.0.0",
 ]
-# Core platform services - install pyfastmvc[platform] for all services
-platform = ["fast-platform>=0.13.0"]
+# Core platform services - always included, kept for backward compatibility
+platform = []
 # Individual service categories (all depend on fast-platform)
 notifications = ["fast-platform[notifications]>=0.13.0"]
 storage = ["fast-platform[storage]>=0.13.0"]

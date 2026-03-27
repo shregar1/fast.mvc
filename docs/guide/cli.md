@@ -1,232 +1,120 @@
-# CLI Reference
+# 🧭 CLI Reference
 
-FastMVC provides an interactive CLI for project generation and management.
+FastMVC provides a high-performance interactive CLI for project generation, vertical slice scaffolding, and infrastructure management.
 
-## Commands
+---
+
+## 🏗️ Project Lifecycle
 
 ### `fastmvc generate`
-
-Interactive project generation wizard.
+The interactive wizard to start a new project from scratch. It handles project structure, dependencies, `.env` files, and virtual environments.
 
 ```bash
 fastmvc generate [OPTIONS]
 ```
 
-**Options:**
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--name` | Project name | Prompt |
-| `--output` | Output directory | Current directory |
-| `--author` | Author name | Git config or prompt |
-| `--email` | Author email | Git config or prompt |
-| `--description` | Project description | Prompt |
-| `--venv / --no-venv` | Create virtual environment | `True` |
-| `--venv-name` | Virtual environment name | `.venv` |
-| `--install-deps / --no-install-deps` | Install dependencies | `True` |
-| `--pre-commit / --no-pre-commit` | Install pre-commit hooks | `True` |
-| `--non-interactive` | Skip interactive prompts | `False` |
-
-**Examples:**
-
-```bash
-# Interactive mode
-fastmvc generate
-
-# With all options
-fastmvc generate --name my-api --author "John Doe" --venv-name .venv
-
-# Non-interactive
-fastmvc generate --name my-api --non-interactive
-```
-
-### `fastmvc db`
-
-Database migration commands using Alembic.
-
-```bash
-# Create a new migration
-fastmvc db migrate -m "Add users table"
-
-# Apply migrations
-fastmvc db upgrade
-
-# Rollback migrations
-fastmvc db downgrade
-
-# Reset database (⚠️ destructive)
-fastmvc db reset
-
-# Check status
-fastmvc db status
-
-# View history
-fastmvc db history --verbose
-```
-
-**Subcommands:**
-
-| Command | Description | Example |
-|---------|-------------|---------|
-| `migrate` | Create new migration | `fastmvc db migrate -m "Add users"` |
-| `upgrade` | Apply migrations | `fastmvc db upgrade --revision head` |
-| `downgrade` | Rollback migrations | `fastmvc db downgrade --revision -1` |
-| `reset` | Drop & recreate database | `fastmvc db reset --seed` |
-| `status` | Check migration status | `fastmvc db status` |
-| `history` | Show migration history | `fastmvc db history --verbose` |
-
 ### `fastmvc quickstart`
-
-Quick project generation with defaults.
-
-```bash
-fastmvc quickstart <project_name> [OPTIONS]
-```
-
-**Arguments:**
-
-| Argument | Description |
-|----------|-------------|
-| `project_name` | Name of the project (required) |
-
-**Options:**
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--output` | Output directory | Current directory |
-| `--venv-name` | Virtual environment name | `.venv` |
-| `--no-venv` | Skip virtual environment creation | `False` |
-| `--no-install` | Skip dependency installation | `False` |
-| `--no-pre-commit` | Skip pre-commit setup | `False` |
-
-**Examples:**
+Instantly create a project with all defaults.
 
 ```bash
-# Quick start with defaults
-fastmvc quickstart my-project
-
-# With custom options
-fastmvc quickstart my-project --venv-name env --no-pre-commit
+fastmvc quickstart <project_name>
 ```
 
-### `fastmvc --version`
+---
 
-Show version information.
+## ➕ Scaffolding Subcommands (`fastmvc add`)
+
+The `add` group is the heart of FastMVC's development efficiency. It scaffolds complete "vertical slices" following architectural patterns.
+
+### `fastmvc add resource`
+Scaffolds a new versioned operation (e.g., `create`, `fetch`, `delete`) with full isolation.
 
 ```bash
-fastmvc --version
+fastmvc add resource -f <folder> -r <operation> -v <version>
 ```
+**Example:** `fastmvc add resource -f user -r create -v v1`
+**Generates:**
+- `apis/v1/user/create.py` (Controller)
+- `services/user/create.py` (Business Logic)
+- `repositories/user/create.py` (Data Logic)
+- `dependencies/services/v1/user/create.py` (Wired DI)
+- `dtos/requests/apis/v1/user/create.py` (Request Schema)
+- `dtos/responses/apis/v1/user/create.py` (Response Schema)
 
-## Makefile Commands
-
-Generated projects include a `Makefile` with common development tasks:
-
-### Setup
+### `fastmvc add auth`
+Scaffolds a complete **Zero-to-Hero** authentication stack in one command.
 
 ```bash
-make install          # Install dependencies and setup project
-make venv             # Create virtual environment only
-make install-dev      # Install development dependencies
+fastmvc add auth [--version v1]
 ```
+**Includes:**
+- **Security:** JWT token generation/decoding and Bcrypt hashing.
+- **Operations:** Login and Registration API endpoints.
+- **Middleware:** `AuthMiddleware` for token extraction and session injection.
+- **Dependencies:** `get_current_user_id` for protecting any subsequent route.
 
-### Development
+### `fastmvc add middleware`
+Generates framework-compliant Middlewares with specialized templates.
 
 ```bash
-make dev              # Run with hot reload (default)
-make dev-no-reload    # Run without reload
-make prod             # Run production server (4 workers)
+fastmvc add middleware <name>
 ```
+**Templates:**
+- `request_logger`: Logs paths and timings (`X-Process-Time`).
+- `rate_limiter`: In-memory sliding window limiter.
+- `cors_config`: Pre-configured CORS module.
 
-### Testing
+---
+
+## 🧪 Testing & Tasks
+
+### `fastmvc add test`
+Generates an async Pytest boilerplate for a specific resource operation.
 
 ```bash
-make test             # Run tests
-make test-verbose     # Run with verbose output
-make test-coverage    # Run with coverage report
-make test-watch       # Run continuously on file changes
+fastmvc add test -f <folder> -r <operation> -v <version>
 ```
+**Features:** Includes `AsyncClient` setup and examples of mocking your services and repositories.
 
-### Code Quality
+### `fastmvc add task`
+Scaffolds a background worker task.
 
 ```bash
-make lint             # Run linter
-make lint-fix         # Run linter with auto-fix
-make format           # Format code
-make lint-format      # Run linter and format
-make type-check       # Run type checking
-make check            # Run all checks (lint + test)
-make ci               # Run CI pipeline locally
+fastmvc add task <name>
 ```
+**Execution:** Works with FastAPI `BackgroundTasks` out of the box and is ready for Celery/TaskIQ `@task` decorators.
 
-### Database (if using Alembic)
+---
+
+## 🐳 Infrastructure & Docs
+
+### `fastmvc dockerize`
+Generates production-grade containerization configuration.
 
 ```bash
-make migrate          # Create new migration (make migrate msg="description")
-make migrate-empty    # Create empty migration
-make upgrade          # Apply all pending migrations
-make downgrade        # Rollback last migration
-make downgrade-all    # Rollback all migrations
-make db-reset         # Reset database
-make db-status        # Show migration status
+fastmvc dockerize
 ```
+**Outputs:**
+- `Dockerfile`: Multistage slim image.
+- `docker-compose.yml`: Wires App, Postgres, Redis, and Migrations.
+- `docker-entrypoint.sh`: Startup coordination.
 
-### Documentation
+### `fastmvc docs generate`
+Automatically discover your code and build a complete API Reference.
 
 ```bash
-make docs-install     # Install documentation dependencies
-make docs-serve       # Serve documentation locally
-make docs-build       # Build static documentation
-make docs-deploy      # Deploy to GitHub Pages
+fastmvc docs generate
 ```
+**Refreshes:** Scans your `apis/` and `dtos/` folders to update `docs/api/endpoints.md` using `mkdocstrings`.
 
-### Docker
+---
+
+## 🗄️ Database Management (`fastmvc db`)
+
+Wrapper around Alembic commands for easier migration management.
 
 ```bash
-make docker-build     # Build Docker image
-make docker-up        # Start services with Docker Compose
-make docker-down      # Stop Docker services
-make docker-logs      # Show Docker logs
-make docker-clean     # Remove containers and volumes
+fastmvc db migrate -m "Description"  # New migration
+fastmvc db upgrade                   # Apply migrations
+fastmvc db reset                     # Reset & Re-seed (Destructive)
 ```
-
-### Utilities
-
-```bash
-make clean            # Remove cache files and build artifacts
-make clean-all        # Clean + remove virtual environment
-make generate-secret  # Generate a secure secret key
-make open             # Open API docs in browser
-```
-
-## Interactive Features
-
-### Progress Bars
-
-The CLI shows progress bars during:
-- File copying
-- Dependency installation
-- Virtual environment creation
-
-### Rich Terminal Output
-
-- ASCII art banner
-- Styled tables for configuration summary
-- Color-coded success/error messages
-- Panel-based information display
-
-### Prompt Validation
-
-- Project name validation (no spaces, valid Python identifier)
-- Email format validation
-- Path existence checks
-
-## VS Code Integration
-
-Generated projects include VS Code tasks for all Makefile commands. Press `Cmd+Shift+P` (or `Ctrl+Shift+P`) and type "Run Task" to see all available tasks.
-
-### Keyboard Shortcuts
-
-- `F5` - Start debugging
-- `Ctrl+F5` - Run without debugging
-- `Cmd+Shift+B` - Build tasks
-- `Cmd+Shift+T` - Run tests

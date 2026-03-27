@@ -4,8 +4,8 @@ site_url: http://localhost:8000/docs
 
 theme:
   name: material
-  logo: assets/logo.svg
-  favicon: assets/favicon.ico
+  logo: assets/logo.png
+  favicon: assets/favicon.png
   palette:
     # Dark mode (default)
     - media: "(prefers-color-scheme: dark)"
@@ -86,6 +86,7 @@ nav:
     - Installation: guide/installation.md
     - Quick Start: guide/quickstart.md
     - Project Structure: guide/project-structure.md
+    - Core Features: guide/features.md
   - User Guide:
     - CLI Reference: guide/cli.md
     - Configuration: guide/configuration.md
@@ -96,8 +97,19 @@ nav:
     - CI/CD: guide/ci-cd.md
   - API Reference:
     - Overview: api/overview.md
-    - Authentication: api/authentication.md
+    - Ecosystem API: api/ecosystem.md
     - Endpoints: api/endpoints.md
+    - DTO Models: api/dtos.md
+  - Changelog:
+    - Release History: CHANGELOG.md
+    - Rules: CHANGELOG_RULES.md
+  - Ecosystem:
+    - Overview: ecosystem/index.md
+    - FastCLI: ecosystem/fast-cli.md
+    - FastDatabase: ecosystem/fast-database.md
+    - FastMiddleware: ecosystem/fast-middleware.md
+    - FastDashboards: ecosystem/fast-dashboards.md
+    - FastPlatform: ecosystem/fast-platform.md
   - Reference: reference/index.md
 
 dev_addr: 127.0.0.1:8001
