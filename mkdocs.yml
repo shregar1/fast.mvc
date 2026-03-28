@@ -6,20 +6,23 @@ theme:
   name: material
   logo: assets/logo.png
   favicon: assets/favicon.png
+  font:
+    text: Inter
+    code: JetBrains Mono
   palette:
     # Dark mode (default)
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: cyan
-      accent: fuchsia
+      primary: black
+      accent: white
       toggle:
         icon: material/brightness-7
         name: Switch to light mode
     # Light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: cyan
-      accent: fuchsia
+      primary: black
+      accent: black
       toggle:
         icon: material/brightness-4
         name: Switch to dark mode
@@ -76,9 +79,11 @@ markdown_extensions:
 
 extra_css:
   - stylesheets/swagger.css
+  - stylesheets/extra.css
 
 extra_javascript:
   - javascripts/swagger-embed.js
+  - javascripts/theme-sync.js
 
 nav:
   - Home: index.md

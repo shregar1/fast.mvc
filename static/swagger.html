@@ -6,7 +6,7 @@
     <title>FastMVC API Documentation</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,10 85,30 85,70 50,90 15,70 15,30' fill='%23999'/></svg>">
 
     <!-- Swagger UI CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
@@ -17,22 +17,52 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
-        /* CSS Variables for FastMVC Theme */
+        /* Theme Variables - Dark (default) */
         :root {
-            --fastmvc-primary: #0ea5e9;
-            --fastmvc-primary-dark: #0284c7;
-            --fastmvc-accent: #d946ef;
-            --fastmvc-accent-dark: #c026d3;
-            --fastmvc-bg: #0a0a0f;
-            --fastmvc-surface: #12121a;
-            --fastmvc-card: #1a1a25;
-            --fastmvc-border: #2d2d3d;
-            --fastmvc-text: #f1f5f9;
-            --fastmvc-text-muted: #94a3b8;
-            --fastmvc-success: #22c55e;
-            --fastmvc-warning: #f59e0b;
-            --fastmvc-error: #ef4444;
-            --fastmvc-info: #3b82f6;
+            --bg: #0a0a0b;
+            --surface: #141416;
+            --surface-raised: #1c1c1f;
+            --border: #27272a;
+            --border-hover: #3f3f46;
+            --text: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #e4e4e7;
+            --accent-hover: #ffffff;
+            --success: #22c55e;
+            --warning: #eab308;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --method-get: #3b82f6;
+            --method-post: #22c55e;
+            --method-put: #eab308;
+            --method-delete: #ef4444;
+            --method-patch: #8b5cf6;
+            --icon-color: #a1a1aa;
+        }
+
+        /* Light Theme */
+        [data-theme="light"] {
+            --bg: #fafafa;
+            --surface: #ffffff;
+            --surface-raised: #f4f4f5;
+            --border: #e4e4e7;
+            --border-hover: #d4d4d8;
+            --text: #18181b;
+            --text-secondary: #52525b;
+            --text-muted: #a1a1aa;
+            --accent: #18181b;
+            --accent-hover: #000000;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --error: #dc2626;
+            --info: #2563eb;
+            --method-get: #2563eb;
+            --method-post: #16a34a;
+            --method-put: #ca8a04;
+            --method-delete: #dc2626;
+            --method-patch: #7c3aed;
+            --icon-color: #52525b;
         }
 
         * {
@@ -43,104 +73,160 @@
             margin: 0;
             padding: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--fastmvc-bg);
-            color: var(--fastmvc-text);
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* Custom Header */
-        .fastmvc-header {
-            background: linear-gradient(135deg, var(--fastmvc-primary) 0%, var(--fastmvc-accent) 100%);
-            padding: 1rem 2rem;
+        /* Header */
+        .fm-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
         }
 
-        .fastmvc-brand {
+        .fm-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 0.75rem;
         }
 
-        .fastmvc-logo {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+        .fm-logo {
+            width: 36px;
+            height: 36px;
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
 
-        .fastmvc-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-            margin: 0;
+        .fm-logo svg {
+            width: 20px;
+            height: 20px;
+            color: var(--text);
+            transition: color 0.3s ease;
         }
 
-        .fastmvc-subtitle {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.8);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .fastmvc-nav {
+        .fm-title-wrap {
             display: flex;
-            gap: 1rem;
+            flex-direction: column;
         }
 
-        .fastmvc-nav a {
-            color: white;
+        .fm-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0;
+            letter-spacing: -0.01em;
+            transition: color 0.3s ease;
+        }
+
+        .fm-subtitle {
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .fm-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .fm-nav a {
+            color: var(--text-secondary);
             text-decoration: none;
             padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.2s;
+            border-radius: 6px;
+            font-size: 0.875rem;
             font-weight: 500;
+            transition: all 0.15s ease;
         }
 
-        .fastmvc-nav a:hover {
-            background: rgba(255, 255, 255, 0.1);
+        .fm-nav a:hover {
+            color: var(--text);
+            background: var(--surface-raised);
         }
 
-        .fastmvc-nav a.active {
-            background: rgba(255, 255, 255, 0.2);
+        .fm-nav a.active {
+            color: var(--text);
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
         }
 
-        /* Swagger UI Overrides */
+        /* Theme Toggle */
+        .theme-toggle {
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.5rem;
+            transition: all 0.2s ease;
+            color: var(--icon-color);
+        }
+
+        .theme-toggle:hover {
+            background: var(--border);
+            border-color: var(--border-hover);
+        }
+
+        .theme-toggle svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .theme-toggle .sun { display: none; }
+        .theme-toggle .moon { display: block; }
+
+        [data-theme="light"] .theme-toggle .sun { display: block; }
+        [data-theme="light"] .theme-toggle .moon { display: none; }
+
+        /* Swagger UI Container */
         #swagger-ui {
-            max-width: 1460px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem;
         }
 
-        /* Loading State */
-        .swagger-ui .loading-container {
-            background: var(--fastmvc-surface);
-            border-radius: 12px;
-            padding: 40px;
-        }
-
-        .swagger-ui .loading-container .loading::after {
-            border-color: var(--fastmvc-primary) transparent var(--fastmvc-primary) transparent;
-        }
-
-        /* Topbar - Hide default, use custom header */
+        /* Hide default topbar */
         .swagger-ui .topbar {
             display: none !important;
         }
 
+        /* Loading */
+        .swagger-ui .loading-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
         /* Info Section */
         .swagger-ui .information-container {
-            background: var(--fastmvc-card);
-            border: 1px solid var(--fastmvc-border);
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
         }
 
         .swagger-ui .info {
@@ -148,322 +234,406 @@
         }
 
         .swagger-ui .info .title {
-            color: var(--fastmvc-text);
-            font-size: 2.5rem;
+            color: var(--text);
+            font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .info .title small {
-            background: var(--fastmvc-primary) !important;
+            background: var(--surface-raised) !important;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
             border-radius: 6px;
-            padding: 4px 12px;
-            font-size: 0.9rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
             font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         .swagger-ui .info .description {
-            color: var(--fastmvc-text-muted);
-            font-size: 1.1rem;
-            line-height: 1.7;
-        }
-
-        .swagger-ui .info .main {
-            margin: 20px 0;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .info a {
-            color: var(--fastmvc-primary);
-            text-decoration: none;
-            transition: color 0.2s;
+            color: var(--text);
+            text-decoration: underline;
+            text-decoration-color: var(--border-hover);
+            transition: all 0.15s;
         }
 
         .swagger-ui .info a:hover {
-            color: var(--fastmvc-accent);
-            text-decoration: underline;
+            color: var(--accent-hover);
+            text-decoration-color: var(--text);
         }
 
         /* Schemes */
         .swagger-ui .scheme-container {
-            background: var(--fastmvc-card);
-            border: 1px solid var(--fastmvc-border);
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 20px;
-            margin: 0 0 30px 0;
+            padding: 1.25rem;
+            margin: 0 0 1.5rem 0;
             box-shadow: none;
+            transition: all 0.3s ease;
         }
 
         .swagger-ui .schemes > label {
-            color: var(--fastmvc-text);
+            color: var(--text);
             font-weight: 500;
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .schemes select {
-            background: var(--fastmvc-surface);
-            border: 1px solid var(--fastmvc-border);
-            color: var(--fastmvc-text);
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            color: var(--text);
             border-radius: 6px;
-            padding: 8px 12px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
         }
 
-        /* Authorization Button */
+        /* Auth Button */
         .swagger-ui .btn.authorize {
-            background: var(--fastmvc-success);
-            border: none;
-            color: white;
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            color: var(--text);
             font-weight: 600;
-            border-radius: 8px;
-            padding: 8px 20px;
-            transition: all 0.2s;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            transition: all 0.15s;
         }
 
         .swagger-ui .btn.authorize:hover {
-            background: #16a34a;
-            transform: translateY(-1px);
+            background: var(--border);
+            border-color: var(--border-hover);
         }
 
         .swagger-ui .btn.authorize svg {
-            fill: white;
+            fill: var(--text);
         }
 
         /* Filter */
         .swagger-ui .filter .operation-filter-input {
-            background: var(--fastmvc-surface);
-            border: 1px solid var(--fastmvc-border);
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            color: var(--fastmvc-text);
-            padding: 10px 15px;
-            font-size: 1rem;
+            color: var(--text);
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
         }
 
         .swagger-ui .filter .operation-filter-input::placeholder {
-            color: var(--fastmvc-text-muted);
+            color: var(--text-muted);
+        }
+
+        .swagger-ui .filter .operation-filter-input:focus {
+            outline: none;
+            border-color: var(--border-hover);
+        }
+
+        /* Section Tags */
+        .swagger-ui .opblock-tag {
+            color: var(--text);
+            font-size: 1.125rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 0;
+            margin: 2rem 0 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .swagger-ui .opblock-tag:hover {
+            background: transparent;
+        }
+
+        .swagger-ui .opblock-tag svg {
+            fill: var(--text-secondary);
+            transition: fill 0.3s ease;
         }
 
         /* Operation Blocks */
         .swagger-ui .opblock {
-            background: var(--fastmvc-card);
-            border: 1px solid var(--fastmvc-border);
-            border-radius: 12px;
-            margin: 0 0 20px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin: 0 0 0.75rem 0;
+            box-shadow: none;
+            transition: all 0.3s ease;
         }
 
         .swagger-ui .opblock:hover {
-            border-color: var(--fastmvc-primary);
-            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.15);
+            border-color: var(--border-hover);
         }
 
         .swagger-ui .opblock .opblock-summary {
-            padding: 20px;
-            border-bottom: 1px solid var(--fastmvc-border);
+            padding: 1rem 1.25rem;
+            border-bottom: none;
         }
 
         .swagger-ui .opblock .opblock-summary-method {
-            border-radius: 8px;
+            border-radius: 6px;
             font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            font-size: 0.85rem;
-            min-width: 80px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            min-width: 72px;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding: 8px 0;
+            padding: 0.375rem 0;
+            color: white;
         }
 
-        /* HTTP Method Colors */
-        .swagger-ui .opblock.opblock-get .opblock-summary-method { background: var(--fastmvc-primary); }
-        .swagger-ui .opblock.opblock-post .opblock-summary-method { background: var(--fastmvc-success); }
-        .swagger-ui .opblock.opblock-put .opblock-summary-method { background: var(--fastmvc-warning); }
-        .swagger-ui .opblock.opblock-delete .opblock-summary-method { background: var(--fastmvc-error); }
-        .swagger-ui .opblock.opblock-patch .opblock-summary-method { background: var(--fastmvc-accent); }
+        /* HTTP Methods */
+        .swagger-ui .opblock.opblock-get .opblock-summary-method { background: var(--method-get); }
+        .swagger-ui .opblock.opblock-post .opblock-summary-method { background: var(--method-post); }
+        .swagger-ui .opblock.opblock-put .opblock-summary-method { background: var(--method-put); }
+        .swagger-ui .opblock.opblock-delete .opblock-summary-method { background: var(--method-delete); }
+        .swagger-ui .opblock.opblock-patch .opblock-summary-method { background: var(--method-patch); }
 
         .swagger-ui .opblock .opblock-summary-path {
-            color: var(--fastmvc-text);
+            color: var(--text);
             font-family: 'JetBrains Mono', monospace;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.9375rem;
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .opblock .opblock-summary-description {
-            color: var(--fastmvc-text-muted);
-            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
         }
 
-        /* Operation Details */
+        /* Operation Body */
         .swagger-ui .opblock .opblock-body {
-            background: var(--fastmvc-surface);
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            transition: all 0.3s ease;
         }
 
         .swagger-ui .opblock-description-wrapper {
-            padding: 20px;
+            padding: 1.25rem;
         }
 
         .swagger-ui .opblock-description-wrapper p {
-            color: var(--fastmvc-text);
-            line-height: 1.7;
+            color: var(--text);
+            line-height: 1.6;
+            transition: color 0.3s ease;
         }
 
         /* Parameters */
         .swagger-ui .parameters-container {
-            padding: 0 20px 20px 20px;
+            padding: 0 1.25rem 1.25rem;
         }
 
         .swagger-ui .parameters-col_name {
-            color: var(--fastmvc-primary);
+            color: var(--text);
             font-weight: 600;
             font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8125rem;
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .parameters-col_description {
-            color: var(--fastmvc-text);
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .parameter__type {
-            color: var(--fastmvc-accent);
+            color: var(--text-muted);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .parameter__name.required::after {
-            color: var(--fastmvc-error);
+            color: var(--error);
         }
 
-        /* Request Body */
+        .swagger-ui .parameter__name.required span {
+            color: var(--error);
+        }
+
+        /* Section Headers */
         .swagger-ui .opblock-section-header {
-            background: var(--fastmvc-card);
-            border-bottom: 1px solid var(--fastmvc-border);
-            padding: 15px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.25rem;
+            transition: all 0.3s ease;
         }
 
         .swagger-ui .opblock-section-header h4 {
-            color: var(--fastmvc-text);
+            color: var(--text);
             font-weight: 600;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
         }
 
+        /* Tabs */
         .swagger-ui .tab-header {
-            background: var(--fastmvc-card);
-            border-bottom: 1px solid var(--fastmvc-border);
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
         }
 
         .swagger-ui .tab-header .tab-item {
-            color: var(--fastmvc-text-muted);
+            color: var(--text-muted);
             font-weight: 500;
+            padding: 0.75rem 1rem;
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .tab-header .tab-item.active {
-            color: var(--fastmvc-primary);
-            border-bottom: 2px solid var(--fastmvc-primary);
+            color: var(--text);
+            border-bottom: 2px solid var(--text);
         }
 
-        /* Code Samples */
+        /* Code Blocks */
         .swagger-ui .highlight-code {
-            background: #0d1117;
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         .swagger-ui .highlight-code .microlight {
-            color: #e6edf3;
+            color: var(--text);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
+            font-size: 0.8125rem;
             line-height: 1.6;
+            transition: color 0.3s ease;
+        }
+
+        /* Curl Command */
+        .swagger-ui .curl-command-wrapper {
+            background: var(--surface-raised);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .swagger-ui .curl-command-wrapper .curl-command {
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            transition: color 0.3s ease;
         }
 
         /* Responses */
         .swagger-ui .responses-wrapper {
-            padding: 0 20px 20px 20px;
-        }
-
-        .swagger-ui .responses-inner {
-            padding: 0;
+            padding: 0 1.25rem 1.25rem;
         }
 
         .swagger-ui .response-col_status {
-            color: var(--fastmvc-success);
-            font-weight: 700;
+            color: var(--success);
+            font-weight: 600;
             font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
         }
 
         .swagger-ui .response-col_status.response-col_status_error {
-            color: var(--fastmvc-error);
+            color: var(--error);
         }
 
         .swagger-ui .response-col_description {
-            color: var(--fastmvc-text);
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
         }
 
         /* Models */
         .swagger-ui .model-box {
-            background: var(--fastmvc-card);
-            border: 1px solid var(--fastmvc-border);
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 15px;
+            padding: 1rem;
+            transition: all 0.3s ease;
         }
 
         .swagger-ui .model-title {
-            color: var(--fastmvc-primary);
+            color: var(--text);
             font-weight: 600;
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .prop-name {
-            color: var(--fastmvc-text);
+            color: var(--text);
             font-weight: 600;
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .prop-type {
-            color: var(--fastmvc-accent);
+            color: var(--text-muted);
             font-family: 'JetBrains Mono', monospace;
+            transition: color 0.3s ease;
         }
 
         .swagger-ui .prop-format {
-            color: var(--fastmvc-text-muted);
+            color: var(--text-muted);
+            transition: color 0.3s ease;
         }
 
-        /* Execute Button */
-        .swagger-ui .btn.execute {
-            background: var(--fastmvc-success);
-            border: none;
-            border-radius: 8px;
-            color: white;
+        .swagger-ui .model .property.primitive {
+            color: var(--text);
+            transition: color 0.3s ease;
+        }
+
+        .swagger-ui .model .property.read-only {
+            color: var(--text-secondary);
+        }
+
+        /* Buttons */
+        .swagger-ui .btn {
             font-weight: 600;
-            padding: 12px 24px;
-            transition: all 0.2s;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+
+        .swagger-ui .btn.execute {
+            background: var(--text);
+            border: none;
+            color: var(--bg);
+            padding: 0.625rem 1.25rem;
         }
 
         .swagger-ui .btn.execute:hover {
-            background: #16a34a;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            background: var(--accent-hover);
         }
 
         .swagger-ui .btn.cancel {
-            background: var(--fastmvc-error);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            padding: 12px 24px;
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.625rem 1.25rem;
+        }
+
+        .swagger-ui .btn.cancel:hover {
+            background: var(--border);
         }
 
         /* Try It Out */
         .swagger-ui .try-out {
-            padding: 20px;
+            padding: 1rem 1.25rem;
         }
 
         .swagger-ui .try-out__btn {
-            border: 2px solid var(--fastmvc-primary);
-            color: var(--fastmvc-primary);
-            background: transparent;
-            border-radius: 8px;
+            border: 1px solid var(--border);
+            color: var(--text);
+            background: var(--surface-raised);
+            border-radius: 6px;
             font-weight: 600;
-            padding: 8px 20px;
-            transition: all 0.2s;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.15s;
         }
 
         .swagger-ui .try-out__btn:hover {
-            background: var(--fastmvc-primary);
-            color: white;
+            background: var(--border);
+            border-color: var(--border-hover);
         }
 
         /* Inputs */
@@ -471,78 +641,68 @@
         .swagger-ui input[type=email],
         .swagger-ui input[type=password],
         .swagger-ui textarea {
-            background: var(--fastmvc-surface);
-            border: 1px solid var(--fastmvc-border);
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            color: var(--fastmvc-text);
-            padding: 10px 15px;
+            color: var(--text);
+            padding: 0.625rem 0.875rem;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            transition: border-color 0.2s;
+            font-size: 0.8125rem;
+            transition: all 0.3s ease;
         }
 
         .swagger-ui input[type=text]:focus,
         .swagger-ui input[type=email]:focus,
         .swagger-ui input[type=password]:focus,
         .swagger-ui textarea:focus {
-            border-color: var(--fastmvc-primary);
+            border-color: var(--border-hover);
             outline: none;
         }
 
         /* Select */
         .swagger-ui select {
-            background: var(--fastmvc-surface);
-            border: 1px solid var(--fastmvc-border);
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            color: var(--fastmvc-text);
-            padding: 10px 15px;
+            color: var(--text);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
         }
 
         /* Copy Button */
         .swagger-ui .copy-to-clipboard {
-            background: var(--fastmvc-primary);
+            background: var(--border);
             border-radius: 4px;
-            transition: all 0.2s;
+            transition: all 0.15s;
         }
 
         .swagger-ui .copy-to-clipboard:hover {
-            background: var(--fastmvc-primary-dark);
+            background: var(--border-hover);
         }
 
-        /* Section Headers */
-        .swagger-ui .opblock-tag {
-            color: var(--fastmvc-text);
-            font-size: 1.3rem;
-            font-weight: 700;
-            border-bottom: 2px solid var(--fastmvc-border);
-            padding: 20px 0;
-            margin: 30px 0 20px 0;
-        }
-
-        .swagger-ui .opblock-tag:hover {
-            background: rgba(14, 165, 233, 0.05);
-        }
-
-        .swagger-ui .opblock-tag svg {
-            fill: var(--fastmvc-primary);
-        }
-
-        /* Expand/Collapse */
+        /* Expand Icons */
         .swagger-ui .expand-methods,
         .swagger-ui .expand-operation {
-            fill: var(--fastmvc-primary);
+            fill: var(--text-secondary);
+            transition: fill 0.3s ease;
+        }
+
+        .swagger-ui .expand-methods:hover,
+        .swagger-ui .expand-operation:hover {
+            fill: var(--text);
         }
 
         /* Errors */
         .swagger-ui .errors-wrapper {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid var(--fastmvc-error);
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid var(--error);
             border-radius: 8px;
-            padding: 20px;
+            padding: 1rem;
         }
 
         .swagger-ui .errors-wrapper .errors h4 {
-            color: var(--fastmvc-error);
+            color: var(--error);
         }
 
         /* Footer */
@@ -552,61 +712,168 @@
 
         /* Scrollbar */
         ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--fastmvc-bg);
+            background: var(--bg);
+            transition: background 0.3s ease;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--fastmvc-border);
-            border-radius: 5px;
+            background: var(--border);
+            border-radius: 4px;
+            transition: background 0.3s ease;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--fastmvc-primary);
+            background: var(--border-hover);
+        }
+
+        /* Modal */
+        .swagger-ui .dialog-ux {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        [data-theme="light"] .swagger-ui .dialog-ux {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .swagger-ui .dialog-ux .modal-ux {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .swagger-ui .dialog-ux .modal-ux-header {
+            border-bottom: 1px solid var(--border);
+            transition: border-color 0.3s ease;
+        }
+
+        .swagger-ui .dialog-ux .modal-ux-header h3 {
+            color: var(--text);
+            transition: color 0.3s ease;
+        }
+
+        .swagger-ui .dialog-ux .close-modal {
+            fill: var(--text-secondary);
+            transition: fill 0.3s ease;
+        }
+
+        .swagger-ui .dialog-ux .close-modal:hover {
+            fill: var(--text);
+        }
+
+        /* Auth Container */
+        .swagger-ui .auth-container {
+            padding: 1rem;
+        }
+
+        .swagger-ui .auth-container h4,
+        .swagger-ui .auth-container h5 {
+            color: var(--text);
+            transition: color 0.3s ease;
+        }
+
+        .swagger-ui .auth-container p {
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        /* Live Response */
+        .swagger-ui .live-responses-table {
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .swagger-ui .live-responses-table .table-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .swagger-ui .live-responses-table .table-header td {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .swagger-ui .live-responses-table td {
+            color: var(--text-secondary);
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .fastmvc-header {
-                flex-direction: column;
+            .fm-header {
+                padding: 0 1rem;
+                height: auto;
+                min-height: 64px;
+                flex-wrap: wrap;
                 gap: 1rem;
-                padding: 1rem;
             }
 
-            .fastmvc-nav {
+            .fm-nav {
                 flex-wrap: wrap;
                 justify-content: center;
             }
 
+            .theme-toggle {
+                margin-left: 0;
+            }
+
             #swagger-ui {
-                padding: 10px;
+                padding: 1rem;
             }
 
             .swagger-ui .opblock .opblock-summary {
                 flex-direction: column;
-                gap: 10px;
+                gap: 0.75rem;
+                align-items: flex-start;
+            }
+
+            .swagger-ui .information-container {
+                padding: 1.25rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- FastMVC Custom Header -->
-    <header class="fastmvc-header">
-        <div class="fastmvc-brand">
-            <div class="fastmvc-logo">⚡</div>
-            <div>
-                <h1 class="fastmvc-title">FastMVC</h1>
-                <span class="fastmvc-subtitle">API Documentation</span>
+    <!-- FastMVC Header -->
+    <header class="fm-header">
+        <div class="fm-brand">
+            <div class="fm-logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/>
+                    <polyline points="12 22 12 15.5"/>
+                    <polyline points="22 8.5 12 15.5 2 8.5"/>
+                </svg>
+            </div>
+            <div class="fm-title-wrap">
+                <h1 class="fm-title">FastMVC</h1>
+                <span class="fm-subtitle">API Documentation</span>
             </div>
         </div>
-        <nav class="fastmvc-nav">
+        <nav class="fm-nav">
             <a href="/docs" class="active">Swagger UI</a>
             <a href="/redoc">ReDoc</a>
             <a href="/openapi.json">OpenAPI</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+                <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </button>
         </nav>
     </header>
 
@@ -618,8 +885,24 @@
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
 
     <script>
-        window.onload = function() {
-            // Initialize Swagger UI with custom configuration
+        (function() {
+            // Theme handling
+            const themeToggle = document.getElementById('theme-toggle');
+            const html = document.documentElement;
+            
+            // Get saved theme or default to dark
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            html.setAttribute('data-theme', savedTheme);
+            
+            // Toggle theme
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            // Initialize Swagger UI
             window.ui = SwaggerUIBundle({
                 url: '/openapi.json',
                 dom_id: '#swagger-ui',
@@ -635,30 +918,12 @@
                 validatorUrl: null,
                 tryItOutEnabled: true,
                 supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-                onComplete: function() {
-                    // Add FastMVC branding to the info section
-                    const infoTitle = document.querySelector('.info .title');
-                    if (infoTitle && !infoTitle.querySelector('.fastmvc-badge')) {
-                        const badge = document.createElement('span');
-                        badge.className = 'fastmvc-badge';
-                        badge.style.cssText = `
-                            background: linear-gradient(135deg, var(--fastmvc-primary), var(--fastmvc-accent));
-                            color: white;
-                            padding: 4px 12px;
-                            border-radius: 20px;
-                            font-size: 0.7rem;
-                            font-weight: 700;
-                            text-transform: uppercase;
-                            letter-spacing: 0.1em;
-                            margin-left: 10px;
-                            vertical-align: middle;
-                        `;
-                        badge.textContent = 'FastMVC';
-                        infoTitle.appendChild(badge);
-                    }
-                }
+                defaultModelRendering: 'model',
+                displayRequestDuration: true,
+                docExpansion: 'list',
+                filter: true
             });
-        };
+        })();
     </script>
 </body>
 </html>

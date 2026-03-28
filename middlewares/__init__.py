@@ -12,7 +12,17 @@ Use::
 """
 
 from .authentication import AuthenticationMiddleware
+from .docs_auth import (
+    DocsBasicAuthMiddleware,
+    docs_auth_configured,
+    docs_logging_exclude_paths,
+    normalized_openapi_url,
+)
 
 __all__ = [
     "AuthenticationMiddleware",
+    "DocsBasicAuthMiddleware",
+    "docs_auth_configured",
+    "docs_logging_exclude_paths",
+    "normalized_openapi_url",
 ]

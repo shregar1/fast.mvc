@@ -41,6 +41,7 @@ Example API (if example module is available):
 """
 
 import os
+from datetime import datetime, timezone
 from http import HTTPStatus
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -48,6 +49,9 @@ from typing import Any, cast
 
 import uvicorn  # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv  # pyright: ignore[reportMissingImports]
+
+load_dotenv()
+
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -139,7 +143,13 @@ except ImportError:
     HAS_PLATFORM_ERRORS = False
 
 # Custom authentication middleware (app-specific with user repository)
-from middlewares import AuthenticationMiddleware
+from middlewares import (
+    AuthenticationMiddleware,
+    DocsBasicAuthMiddleware,
+    docs_auth_configured,
+    docs_logging_exclude_paths,
+    normalized_openapi_url,
+)
 
 # Configuration validation - fail fast on misconfig
 # Set VALIDATE_CONFIG=false to skip validation
@@ -185,13 +195,14 @@ def _get_int_env(name: str, default: int) -> int:
         return default
 
 
-# Initialize FastAPI application
+# Initialize FastAPI application (openapi_url must match middlewares.docs_auth)
 app = FastAPI(
     title="FastMVC API",
     description="Production-grade FastAPI application with MVC architecture. Includes example Item API at /items",
     version="1.0.1",
     docs_url=None,  # Custom docs setup below
     redoc_url=None,
+    openapi_url=normalized_openapi_url(),
 )
 
 # Setup custom FastMVC branded documentation
@@ -204,8 +215,6 @@ except ImportError:
     app.docs_url = "/docs"
     app.redoc_url = "/redoc"
 
-# Load environment variables
-load_dotenv()
 HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", "8000"))
 RATE_LIMIT_REQUESTS_PER_MINUTE: int = int(
@@ -461,8 +470,38 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
+def _urn_for_request(request: Request) -> str:
+    return getattr(request.state, "urn", None) or ""
+
+
+def _health_json_response(
+    request: Request,
+    *,
+    http_ok: bool,
+    response_key: str,
+    response_message: str,
+    data: dict,
+) -> JSONResponse:
+    """Return a :class:`IResponseDTO` envelope for health endpoints."""
+    dto = IResponseDTO(
+        transactionUrn=_urn_for_request(request),
+        status=APIStatus.SUCCESS if http_ok else APIStatus.FAILED,
+        responseMessage=response_message,
+        responseKey=response_key,
+        data=data,
+        errors=None,
+        reference_urn=request.headers.get(X_REFERENCE_URN),
+    )
+    code = HTTPStatus.OK if http_ok else HTTPStatus.SERVICE_UNAVAILABLE
+    return JSONResponse(
+        status_code=code,
+        content=dto.model_dump(mode="json"),
+        headers=x_reference_urn_headers(request.headers.get(X_REFERENCE_URN)),
+    )
+
+
 @app.get("/health", tags=["Health"])
-async def health_check():
+async def health_check(request: Request):
     """Production health check endpoint with dependency status.
 
     Performs comprehensive health checks on:
@@ -475,17 +514,27 @@ async def health_check():
     and monitoring systems to verify application health.
 
     Returns:
-        HealthCheckResponse: Status of all system components.
+        IResponseDTO envelope with dependency details in ``data``.
 
     Example:
         >>> curl http://localhost:8000/health
         {
-            "status": "healthy",
-            "dataI": "connected",
-            "redis": "connected",
-            "version": "1.5.0",
-            "timestamp": "2024-01-01T00:00:00Z",
-            "uptime_seconds": 3600
+            "transactionUrn": "urn:req:...",
+            "status": "SUCCESS",
+            "responseMessage": "All dependencies report healthy.",
+            "responseKey": "success_health",
+            "data": {
+                "status": "healthy",
+                "dataI": "connected",
+                "redis": "connected",
+                "version": "1.5.0",
+                "timestamp": "2024-01-01T00:00:00Z",
+                "uptimeSeconds": 3600
+            },
+            "errors": null,
+            "metadata": null,
+            "timestamp": "...",
+            "referenceUrn": null
         }
 
     HTTP Status Codes:
@@ -493,8 +542,6 @@ async def health_check():
         503: One or more dependencies unhealthy
 
     """
-    from datetime import datetime, timezone
-
     try:
         api_version = version("pyfastmvc")
     except PackageNotFoundError:
@@ -565,52 +612,84 @@ async def health_check():
         f"dataI={db_status}, redis={redis_status}"
     )
 
-    # Return appropriate HTTP status code
-    status_code = (
-        HTTPStatus.OK
-        if health_status["status"] == "healthy"
-        else HTTPStatus.SERVICE_UNAVAILABLE
-    )
+    ok = health_status["status"] == "healthy"
+    data_payload = {
+        "status": health_status["status"],
+        "version": health_status["version"],
+        "timestamp": health_status["timestamp"],
+        "dataI": db_status,
+        "redis": redis_status,
+    }
+    if "uptime_seconds" in health_status:
+        data_payload["uptimeSeconds"] = health_status["uptime_seconds"]
 
-    return JSONResponse(status_code=status_code, content=health_status)
+    return _health_json_response(
+        request,
+        http_ok=ok,
+        response_key="success_health" if ok else "error_health_unhealthy",
+        response_message=(
+            "All dependencies report healthy."
+            if ok
+            else "One or more dependencies are unhealthy."
+        ),
+        data=data_payload,
+    )
 
 
 @app.get("/health/live", tags=["Health"])
-async def liveness_probe():
+async def liveness_probe(request: Request):
     """Kubernetes liveness probe endpoint.
 
     Lightweight check that indicates the application is running.
     If this fails, Kubernetes will restart the container.
 
     Returns:
-        dict: Simple status indicating the application is alive.
+        IResponseDTO envelope; liveness payload is in ``data``.
 
     Example:
         >>> curl http://localhost:8000/health/live
-        {"status": "alive"}
+        {
+            "transactionUrn": "urn:req:...",
+            "status": "SUCCESS",
+            "responseMessage": "Application process is alive.",
+            "responseKey": "success_health_live",
+            "data": {"status": "alive"},
+            ...
+        }
 
     """
-    return {"status": "alive"}
+    return _health_json_response(
+        request,
+        http_ok=True,
+        response_key="success_health_live",
+        response_message="Application process is alive.",
+        data={"status": "alive"},
+    )
 
 
 @app.get("/health/ready", tags=["Health"])
-async def readiness_probe():
+async def readiness_probe(request: Request):
     """Kubernetes readiness probe endpoint.
 
     Checks if the application is ready to receive traffic.
     Includes dependency health checks (dataI, Redis).
 
     Returns:
-        dict: Readiness status with dependency information.
+        IResponseDTO envelope with readiness and checks in ``data``.
 
     Example:
         >>> curl http://localhost:8000/health/ready
         {
-            "status": "ready",
-            "checks": {
-                "dataI": "connected",
-                "redis": "connected"
-            }
+            "transactionUrn": "urn:req:...",
+            "status": "SUCCESS",
+            "responseMessage": "Application is ready to receive traffic.",
+            "responseKey": "success_health_ready",
+            "data": {
+                "status": "ready",
+                "checkedAt": "2024-01-01T00:00:00+00:00",
+                "checks": {"dataI": "connected", "redis": "connected"}
+            },
+            ...
         }
 
     HTTP Status Codes:
@@ -618,8 +697,6 @@ async def readiness_probe():
         503: Application is not ready (dependencies unavailable)
 
     """
-    from datetime import datetime, timezone
-
     checks = {}
     is_ready = True
 
@@ -652,15 +729,23 @@ async def readiness_probe():
         is_ready = False
 
     status = "ready" if is_ready else "not_ready"
-    status_code = HTTPStatus.OK if is_ready else HTTPStatus.SERVICE_UNAVAILABLE
+    checked_at = datetime.now(timezone.utc).isoformat()
+    data_ready = {
+        "status": status,
+        "checkedAt": checked_at,
+        "checks": checks,
+    }
 
-    return JSONResponse(
-        status_code=status_code,
-        content={
-            "status": status,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "checks": checks,
-        },
+    return _health_json_response(
+        request,
+        http_ok=is_ready,
+        response_key="success_health_ready" if is_ready else "error_health_not_ready",
+        response_message=(
+            "Application is ready to receive traffic."
+            if is_ready
+            else "Application is not ready to receive traffic."
+        ),
+        data=data_ready,
     )
 
 
@@ -738,7 +823,7 @@ app.add_middleware(
     LoggingMiddleware,
     log_request_body=False,  # Don't log sensitive request bodies
     log_response_body=False,
-    exclude_paths={"/", "/health", "/docs", "/redoc", "/openapi.json"},
+    exclude_paths=set(docs_logging_exclude_paths()),
 )
 
 # Timing Middleware - Response time tracking
@@ -750,7 +835,20 @@ app.add_middleware(
 # Authentication Middleware - JWT validation (custom, app-specific)
 app.add_middleware(AuthenticationMiddleware)
 
+# OpenAPI /docs, /redoc, /openapi.json — HTTP Basic when DOCS_USERNAME + DOCS_PASSWORD are set
+app.add_middleware(DocsBasicAuthMiddleware)
+
 logger.info("Initialized middleware stack with fastmiddleware")
+if docs_auth_configured():
+    logger.info(
+        "API docs (Swagger/ReDoc under /docs and /redoc, OpenAPI at {}) require "
+        "HTTP Basic auth (DOCS_USERNAME / DOCS_PASSWORD).",
+        normalized_openapi_url(),
+    )
+else:
+    logger.info(
+        "API docs are public; set DOCS_USERNAME and DOCS_PASSWORD to restrict access."
+    )
 
 # =============================================================================
 # ROUTER CONFIGURATION

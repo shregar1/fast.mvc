@@ -25,17 +25,41 @@ All requests should include:
 Content-Type: application/json
 ```
 
-## Response Format
+## Response format (`IResponseDTO`)
 
-Standard response structure:
+Many endpoints return the standard envelope from `dtos.responses.I.IResponseDTO`:
+
+| Field | Description |
+|-------|-------------|
+| `transactionUrn` | Server request / trace id (from request context) |
+| `status` | `SUCCESS` or `FAILED` (`constants.api_status.APIStatus`) |
+| `responseMessage` | Human-readable summary |
+| `responseKey` | Machine-readable key (i18n / clients) |
+| `data` | Main payload (object or list) |
+| `errors` | Present when `status` is `FAILED` |
+| `metadata` | Optional cross-cutting metadata |
+| `timestamp` | UTC time the envelope was generated |
+| `referenceUrn` | Echo of client correlation id when provided (e.g. request body `reference_number`) |
+
+Clients may also send and receive correlation via the **`x-reference-urn`** header (echoed on responses when set).
+
+Example (success):
 
 ```json
 {
+  "transactionUrn": "urn:req:abc123",
+  "status": "SUCCESS",
+  "responseMessage": "Operation completed",
+  "responseKey": "success_example_created",
   "data": {},
-  "message": "Success",
-  "status": "success"
+  "errors": null,
+  "metadata": null,
+  "timestamp": "2024-01-15T12:00:00Z",
+  "referenceUrn": null
 }
 ```
+
+Item-style JSON responses that return only resource fields may omit the full envelope; health endpoints (below) use the envelope consistently.
 
 ## Error Format
 
@@ -95,53 +119,47 @@ X-RateLimit-Remaining: 95
 X-RateLimit-Reset: 1640995200
 ```
 
-## Health Endpoints
+## Health endpoints
+
+`GET /health`, `GET /health/live`, and `GET /health/ready` return the same **`IResponseDTO`** envelope as other API surfaces. Operational details live in **`data`**; `status` is `SUCCESS` or `FAILED`; HTTP status is `200` or `503` when dependencies fail.
 
 ### GET /health
 
 Comprehensive health check with dependency status.
 
-**Response (Healthy):**
+**Response (healthy, abbreviated):**
+
 ```json
 {
-  "status": "healthy",
-  "dataI": "connected",
-  "redis": "connected",
-  "version": "1.5.0",
-  "timestamp": "2024-01-01T00:00:00Z",
-  "uptime_seconds": 3600
+  "transactionUrn": "urn:req:…",
+  "status": "SUCCESS",
+  "responseMessage": "All dependencies report healthy.",
+  "responseKey": "success_health",
+  "data": {
+    "status": "healthy",
+    "version": "1.5.0",
+    "timestamp": "2024-01-01T00:00:00+00:00",
+    "dataI": "connected",
+    "redis": "connected",
+    "uptimeSeconds": 3600
+  },
+  "errors": null,
+  "metadata": null,
+  "timestamp": "2024-01-01T12:00:00+00:00",
+  "referenceUrn": null
 }
 ```
 
-**HTTP Status Codes:**
-- `200`: All systems healthy
-- `503`: One or more dependencies unhealthy
+**HTTP status codes:** `200` all healthy, `503` one or more dependencies unhealthy.
 
 ### GET /health/live
 
-Kubernetes liveness probe - lightweight check.
-
-**Response:**
-```json
-{"status": "alive"}
-```
+Kubernetes liveness probe. **`data.status`** is `"alive"`.
 
 ### GET /health/ready
 
-Kubernetes readiness probe - checks if ready to receive traffic.
+Kubernetes readiness probe. **`data`** includes `status` (`ready` / `not_ready`), `checkedAt`, and `checks` (e.g. `dataI`, `redis`).
 
-**Response:**
-```json
-{
-  "status": "ready",
-  "timestamp": "2024-01-01T00:00:00Z",
-  "checks": {
-    "dataI": "connected",
-    "redis": "connected"
-  }
-}
-```
+**HTTP status codes:** `200` ready, `503` not ready.
 
-**HTTP Status Codes:**
-- `200`: Application is ready
-- `503`: Application is not ready
+For restricting **Swagger / ReDoc / OpenAPI** to developers, see [API Documentation](../guide/api-docs.md) (section *Securing Swagger, ReDoc, and OpenAPI*).

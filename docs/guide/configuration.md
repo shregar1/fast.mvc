@@ -31,7 +31,15 @@ REDIS_URL=redis://localhost:6379/0
 
 # CORS
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
+
+# API documentation (Swagger / ReDoc / OpenAPI) — optional HTTP Basic auth
+# DOCS_USERNAME=... 
+# DOCS_PASSWORD=...
+# OPENAPI_URL=/openapi.json
+# DOCS_EXTRA_PROTECTED_PATHS=
 ```
+
+See [API Documentation](api-docs.md) for how documentation routes are protected, which paths are covered, and nginx notes.
 
 ## Configuration Validation
 
