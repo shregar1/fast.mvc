@@ -26,7 +26,7 @@ The Swagger UI uses a custom dark theme with the following color scheme:
 
 Once your server is running, visit:
 
-```
+```text
 http://localhost:8000/docs
 ```
 
@@ -36,7 +36,7 @@ Subpaths under `/docs` (for example OAuth redirects used by Swagger UI) are serv
 
 FastMVC also provides a ReDoc interface for API documentation:
 
-```
+```text
 http://localhost:8000/redoc
 ```
 
@@ -51,7 +51,7 @@ ReDoc offers:
 
 The raw OpenAPI document is served at a configurable URL (default below). Use it to generate clients, import into Postman, or run contract tests.
 
-```
+```text
 http://localhost:8000/openapi.json
 ```
 

@@ -4,7 +4,7 @@ FastMVC provides a comprehensive REST API with automatic documentation.
 
 ## I URL
 
-```
+```text
 http://localhost:8000
 ```
 
@@ -21,7 +21,7 @@ curl http://localhost:8000/items \
 
 All requests should include:
 
-```
+```http
 Content-Type: application/json
 ```
 
@@ -113,7 +113,7 @@ API endpoints are rate-limited to prevent abuse:
 
 Rate limit headers:
 
-```
+```http
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
 X-RateLimit-Reset: 1640995200

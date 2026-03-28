@@ -48,12 +48,14 @@ FastMVC validates configuration on startup and fails fast with clear error messa
 ### JWT Secret Validation
 
 The `SECRET_KEY` must:
+
 - Be at least 32 characters long
 - Not be a common weak value (like "secret", "password", etc.)
 
 ### DataI URL Validation
 
 Supported dataI schemes:
+
 - `sqlite`
 - `postgresql` / `postgres`
 - `mysql` / `mysql+aiomysql`
@@ -68,6 +70,7 @@ VALIDATE_CONFIG=false python app.py
 ```
 
 Or in `.env`:
+
 ```bash
 VALIDATE_CONFIG=false
 ```
