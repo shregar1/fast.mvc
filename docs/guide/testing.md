@@ -23,10 +23,10 @@ The **`tests/`** tree **mirrors** the application layout (controllers, services,
 ```text
 my-project/
 ├── tests/
-│   ├── conftest.py                    # Re-exports shared fixtures
-│   ├── item_factory.py                # ItemFactory for unit tests
-│   ├── fixtures/
-│   │   └── item.py                    # Item API pytest fixtures
+│   ├── conftest.py                    # Shared + Item API pytest fixtures
+│   ├── factories/apis/v1/item/
+│   │   ├── create.py                  # ItemFactory (single item)
+│   │   └── create_batch.py            # ItemServiceFactory (batch)
 │   ├── example/
 │   │   └── test_example_item.py       # Item API tests
 │   ├── factories/apis/v1/example/
@@ -40,25 +40,25 @@ Factories generate fake test data using `faker`.
 
 DTOs in `dtos/requests/<segment>/` follow **one concrete Pydantic class per module** (nested helpers may share a file with their parent). Factory modules should import the matching DTO from the same paths (e.g. `dtos.requests.example.create`). See [New API scaffolding — One concrete class per file](new-api-scaffolding.md#one-concrete-class-per-file-dtos).
 
-### ItemFactory
+### ItemFactory / ItemServiceFactory
 
 ```python
-from tests.item_factory import ItemFactory
+from tests.factories.apis.v1.item import ItemFactory, ItemServiceFactory
 
 # Create single entity
 item = ItemFactory.create(name="Custom Name")
 completed = ItemFactory.create(name="Done", completed=True)
 
 # Create multiple entities
-items = ItemFactory.create_batch(5)
+items = ItemServiceFactory.create_batch(5)
 ```
 
 ### Factory Methods
 
-| Method | Description |
-|--------|-------------|
-| `create(**overrides)` | Create `Item` (optional `name`, `description`, `completed`, `id`) |
-| `create_batch(n, **kwargs)` | Create `n` items |
+| Class / method | Description |
+|----------------|-------------|
+| `ItemFactory.create(**overrides)` | Create one `Item` (optional `name`, `description`, `completed`, `id`) |
+| `ItemServiceFactory.create_batch(n, **kwargs)` | Create `n` items |
 
 ## Fixtures
 

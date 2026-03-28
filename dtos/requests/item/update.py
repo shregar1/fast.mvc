@@ -10,10 +10,10 @@ from uuid import uuid4
 
 from pydantic import Field
 
-from dtos.requests.abstraction import IRequestDTO
+from dtos.requests.item.abstraction import IRequestItemDTO
 
 
-class UpdateItemRequestDTO(IRequestDTO):
+class UpdateItemRequestDTO(IRequestItemDTO):
     """DTO for updating an existing item."""
 
     reference_number: str = Field(default_factory=lambda: str(uuid4()))

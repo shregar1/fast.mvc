@@ -15,14 +15,17 @@ import uuid
 
 from pydantic import field_validator
 
-from abstractions.dto import AbstractRequestDTO
+from abstractions.dto import IDTO
+
 from dtos.I import EnhancedIModel
 
 
-class IRequestDTO(EnhancedIModel, AbstractRequestDTO):
-    """Abstract I class for all request DTOs.
+class IRequestDTO(EnhancedIModel, IDTO):
+    """Abstract base for all request DTOs.
 
-    This I class defines common fields and validation rules that
+    Inherits :class:`dtos.I.EnhancedIModel` and :class:`abstractions.dto.IDTO`.
+
+    This dto class defines common fields and validation rules that
     all request DTOs must include. Currently, it requires a reference
     number for request tracking.
 

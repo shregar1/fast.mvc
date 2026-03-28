@@ -10,7 +10,7 @@ CI (e.g. GitHub Actions) typically runs **`pytest`** with options from **`pytest
 
 Place test modules under the same relative path as the code they exercise (e.g. factory tests under `tests/factories/apis/v1/example/`, Item API tests under `tests/example/` or `tests/controllers/apis/v1/item/`). Empty packages use `__init__.py` as placeholders until tests are added.
 
-```
+```text
 tests/
 ├── conftest.py                    # Shared fixtures, markers, hooks
 ├── abstractions/                  # → abstractions/
@@ -23,7 +23,7 @@ tests/
 ├── dependencies/                  # → dependencies/
 ├── dtos/                          # → dtos/
 ├── example/                       # → example/
-│   └── test_example_item.py   # Item API (see tests/fixtures/item.py)
+│   └── test_example_item.py   # Item API (fixtures in tests/conftest.py)
 ├── factories/                     # → factories/
 │   └── apis/
 │       └── v1/
@@ -46,13 +46,13 @@ Top-level **`factories/`** (not under `tests/`) provides **DTO-aligned builders*
 
 ## How it fits in the stack
 
-Tests mirror the **production** structure: they import from `services`, `repositories`, `entities`, etc., and may use **`tests/item_factory`**, **`tests/fixtures/item`**, or **`core/testing`** factories and mocks.
+Tests mirror the **production** structure: they import from `services`, `repositories`, `entities`, etc., and may use **`tests/factories/apis/v1/item`**, **`tests/conftest.py`**, or **`core/testing`** factories and mocks.
 
 ## Related files
 
 - **`pytest.ini`** — markers, defaults  
 - **`pytest.ini` / `pyproject.toml`** — coverage and plugins  
-- **`tests/item_factory.py`** / **`tests/fixtures/item.py`** — Item factory and fixtures for Item API tests  
+- **`tests/factories/apis/v1/item/`** (`create.py`, `create_batch.py`) / **`tests/conftest.py`** — Item factory and fixtures for Item API tests  
 
 ## Practices
 

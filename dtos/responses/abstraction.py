@@ -1,13 +1,64 @@
-"""Response DTO abstraction module.
+"""Standard API response envelope DTO."""
 
-Layered response DTOs should inherit from :class:`IResponseDTO` or nested
-Is under ``dtos.responses.*.abstraction`` so the chain terminates at
-:class:`abstractions.dto.AbstractResponseDTO` via :class:`dtos.responses.I.IResponseDTO`.
-"""
+from __future__ import annotations
 
-from abstractions.dto import AbstractResponseDTO
-from dtos.responses.I import IResponseDTO
+from datetime import datetime, timezone
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from abstractions.dto import IDTO
 
 
-class IResponseDTO(IResponseDTO, AbstractResponseDTO):
-    """Standard API response envelope combining Pydantic and framework contracts."""
+def _utc_now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+class IResponseDTO(BaseModel, IDTO):
+    """Standard response DTO for all API endpoints.
+
+    Combines :class:`pydantic.BaseModel` and :class:`abstractions.dto.IDTO`.
+
+    Controllers use DictionaryUtility (or similar) to emit camelCase keys in JSON.
+    """
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=False)
+
+    transactionUrn: str
+    """Unique identifier for request tracing and correlation."""
+
+    status: str
+    """Operation status: ``SUCCESS`` or ``FAILED``."""
+
+    responseMessage: str
+    """Human-readable message describing the result."""
+
+    responseKey: str
+    """Machine-readable key for programmatic handling and i18n."""
+
+    data: list | dict | None = None
+    """Main response payload (success data or empty dict on error)."""
+
+    errors: list | dict | None = None
+    """Error details when status is FAILED."""
+
+    metadata: dict[str, Any] | None = Field(
+        default=None,
+        description=(
+            "Optional envelope metadata (pagination, timings, version, "
+            "feature flags). Distinct from `data`, which holds the main payload."
+        ),
+    )
+
+    timestamp: datetime = Field(
+        default_factory=_utc_now,
+        description="Server time (UTC) when this response envelope was generated.",
+    )
+
+    reference_urn: str | None = Field(
+        default=None,
+        description=(
+            "Echo of the client correlation id when provided "
+            "(e.g. IRequestDTO.reference_number or the x-reference-urn request header)."
+        ),
+    )

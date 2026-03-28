@@ -17,6 +17,10 @@ SECRET_KEY=your-super-secret-key-min-32-chars
 JWT_ALGORITHM=HS256
 JWT_EXPIRATION_HOURS=24
 
+# HTTP security headers (optional — see Security headers section)
+# SECURITY_ENABLE_HSTS=true
+# SECURITY_CONTENT_SECURITY_POLICY=default-src 'self'; ...
+
 # Server
 HOST=0.0.0.0
 PORT=8000
@@ -29,8 +33,11 @@ DATABASE_URL=sqlite:///./app.db
 # Redis (optional)
 REDIS_URL=redis://localhost:6379/0
 
-# CORS
+# CORS (see CORS section — prefer CORS_* variables)
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
+# CORS_ORIGINS=http://localhost:3000,http://localhost:8080
+# CORS_ALLOW_CREDENTIALS=true
+# CORS_EXPOSE_HEADERS=X-Request-ID,X-Process-Time,x-transaction-urn,x-reference-urn
 
 # API documentation (Swagger / ReDoc / OpenAPI) — optional HTTP Basic auth
 # DOCS_USERNAME=... 
@@ -75,12 +82,68 @@ Or in `.env`:
 VALIDATE_CONFIG=false
 ```
 
-## Custom Validation
+## CORS
 
-Add custom validation rules in `config/validator.py`:
+`CORSMiddleware` (from `fastmiddleware`, Starlette-compatible) is configured via `dtos.configuration.CorsSettingsDTO` (inherits `IConfigurationDTO`), loaded by `utilities.cors.load_cors_settings_from_env()` and applied in `app.py` with `get_cors_middleware_kwargs()`.
+
+| Variable | Purpose |
+|----------|---------|
+| `CORS_ORIGINS` | Comma-separated allowed `Origin` values. If unset, `ALLOWED_ORIGINS` is used (e.g. Docker Compose). If both are empty, defaults to `*` (permissive; tighten in production). |
+| `ALLOWED_ORIGINS` | Fallback list when `CORS_ORIGINS` is not set. |
+| `CORS_ALLOW_CREDENTIALS` | `true` / `false` (default `true`). |
+| `CORS_ALLOW_METHODS` | Comma-separated HTTP methods (default: GET, POST, PUT, DELETE, OPTIONS, PATCH). |
+| `CORS_ALLOW_HEADERS` | `*` or comma-separated request header names (default `*`). |
+| `CORS_EXPOSE_HEADERS` | Comma-separated response headers visible to browser JS (defaults include `x-transaction-urn`, `x-reference-urn`). |
+| `CORS_ALLOW_ORIGIN_REGEX` | Optional regex for dynamic origins. |
+| `CORS_MAX_AGE` | Preflight cache seconds (default `600`). |
 
 ```python
-from config.validator import ConfigValidator
+from dtos.configuration import CorsSettingsDTO
+from utilities.cors import load_cors_settings_from_env
+
+settings: CorsSettingsDTO = load_cors_settings_from_env()
+kwargs = settings.to_middleware_kwargs()  # pass to CORSMiddleware
+```
+
+## Security headers
+
+`SecurityHeadersMiddleware` (from `fastmiddleware`) is configured via `dtos.configuration.SecurityHeadersSettingsDTO` (inherits `IConfigurationDTO`), loaded by `utilities.security_headers.load_security_headers_settings_from_env()` and applied in `app.py` through `get_security_headers_middleware_config()`.
+
+Defaults match the previous inline setup (HSTS, `X-Frame-Options: DENY`, CSP allowing Swagger/ReDoc assets from jsDelivr and Google Fonts). Override with:
+
+| Variable | Purpose |
+|----------|---------|
+| `SECURITY_X_CONTENT_TYPE_OPTIONS` | `X-Content-Type-Options` (default `nosniff`) |
+| `SECURITY_X_FRAME_OPTIONS` | `X-Frame-Options` (default `DENY`) |
+| `SECURITY_X_XSS_PROTECTION` | Legacy `X-XSS-Protection` |
+| `SECURITY_REFERRER_POLICY` | `Referrer-Policy` |
+| `SECURITY_ENABLE_HSTS` | `true` / `false` |
+| `SECURITY_HSTS_MAX_AGE` | Seconds (default one year) |
+| `SECURITY_HSTS_INCLUDE_SUBDOMAINS` | `true` / `false` |
+| `SECURITY_HSTS_PRELOAD` | `true` / `false` |
+| `SECURITY_CONTENT_SECURITY_POLICY` | Full CSP string; if unset, `DEFAULT_SECURITY_CONTENT_SECURITY_POLICY` in `utilities/security_headers.py` is used |
+| `SECURITY_PERMISSIONS_POLICY` | Optional `Permissions-Policy` |
+| `SECURITY_CROSS_ORIGIN_OPENER_POLICY` | COOP (default `same-origin`) |
+| `SECURITY_CROSS_ORIGIN_RESOURCE_POLICY` | CORP (default `same-origin`) |
+| `SECURITY_CROSS_ORIGIN_EMBEDDER_POLICY` | Optional COEP |
+| `SECURITY_REMOVE_SERVER_HEADER` | `true` / `false` |
+
+Programmatic access:
+
+```python
+from dtos.configuration import SecurityHeadersSettingsDTO
+from utilities.security_headers import load_security_headers_settings_from_env
+
+settings: SecurityHeadersSettingsDTO = load_security_headers_settings_from_env()
+config = settings.to_middleware_config()  # fastmiddleware.SecurityHeadersConfig
+```
+
+## Custom Validation
+
+Add custom validation rules in `utilities/validator.py`:
+
+```python
+from utilities.validator import ConfigValidator
 
 class MyValidator(ConfigValidator):
     def validate_custom_rule(self, value: str) -> tuple[bool, str]:
@@ -90,7 +153,7 @@ class MyValidator(ConfigValidator):
         return True, ""
 
 # In app.py
-from config.validator import validate_config_or_exit
+from utilities.validator import validate_config_or_exit
 validate_config_or_exit(validator_class=MyValidator)
 ```
 

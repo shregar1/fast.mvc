@@ -16,9 +16,11 @@ Usage:
 """
 
 from collections.abc import Callable
-
-from start_utils import logger
-from fast_utilities.jwt import JWTUtility
+from start_utils import ALGORITHM, SECRET_KEY, logger
+try:
+    from fast_platform.core.utils import JWTUtility
+except ImportError:
+    JWTUtility = None  # type: ignore
 
 
 class JWTUtilityDependency:
@@ -95,6 +97,8 @@ class JWTUtilityDependency:
             """
             logger.info("Instantiating JWTUtility")
             return JWTUtility(
+                secret_key=SECRET_KEY,
+                algorithm=ALGORITHM,
                 urn=urn,
                 user_urn=user_urn,
                 api_name=api_name,

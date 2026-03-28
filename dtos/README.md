@@ -4,7 +4,7 @@
 
 The **`dtos`** package defines **Pydantic models** for **HTTP request bodies**, **query parameters**, and **response envelopes**. It is the **contract** between clients and the API: validation, OpenAPI schema generation, and safe defaults happen here before code reaches **controllers** and **services**.
 
-Request DTOs often inherit from **`IRequestDTO`** (reference numbers, shared validators); responses use **`BaseResponseDTO`** / **`IResponseDTO`** for a consistent **`transactionUrn`**, **`status`**, **`data`**, and **`errors`** shape.
+Request DTOs often inherit from **`IRequestDTO`** (reference numbers, shared validators); responses use **`IResponseDTO`** for a consistent **`transactionUrn`**, **`status`**, **`data`**, and **`errors`** shape. **Configuration DTOs** under **`dtos/configuration/`** inherit **`IConfigurationDTO`** and describe typed, env-backed settings (e.g. CORS and security headers) consumed by **`config.*`** loaders.
 
 ## Nested folders and leaf filenames
 
@@ -36,7 +36,7 @@ The `dtos` module contains Pydantic models for data validation, serialization, a
 
 ## Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                     HTTP Request                             │
 └─────────────────────────────────────────────────────────────┘
@@ -100,6 +100,7 @@ if not result['is_valid']:
 ```
 
 **Features:**
+
 - Automatic string sanitization
 - SQL injection detection
 - XSS attack detection
@@ -138,6 +139,7 @@ login = UserLoginRequestDTO(
 ```
 
 **Validation:**
+
 - Email: Valid format, normalized
 - Password: Non-empty, meets strength requirements
 
@@ -170,7 +172,7 @@ logout = UserLogoutRequestDTO(
 Standard response structure for all endpoints.
 
 ```python
-from dtos.responses.I import IResponseDTO
+from dtos.responses.abstraction import IResponseDTO
 from constants.api_status import APIStatus
 
 # Success response
@@ -194,6 +196,7 @@ error_response = IResponseDTO(
 ```
 
 **JSON Output:**
+
 ```json
 {
     "transactionUrn": "urn:req:abc123",
@@ -243,7 +246,7 @@ class SecurityConfigurationDTO(IModel):
 
 ## File Structure
 
-```
+```text
 dtos/
 ├── __init__.py
 ├── README.md

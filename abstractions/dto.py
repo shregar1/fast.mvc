@@ -1,25 +1,18 @@
 """HTTP DTO contracts for the application layer.
 
-These abstract Is anchor :mod:`dtos` request and response models to the
+These abstract markers anchor :mod:`dtos` request, response, and configuration models to the
 :mod:`abstractions` package so layered DTOs form an explicit inheritance
-chain (e.g. ``IRequestUserV1DTO`` → … → :class:`IRequestDTO`).
+chain. All concrete Pydantic DTOs participate in :class:`IDTO`. Request bases
+live under :mod:`dtos.requests` (e.g. :class:`dtos.requests.abstraction.IRequestDTO`).
 """
 
 from abc import ABC
 
 
-class AbstractRequestDTO(ABC):
-    """Root contract for all HTTP request DTOs.
+class IDTO(ABC):
+    """Root marker for all Data Transfer Objects in :mod:`dtos`.
 
-    Concrete request models combine this with
-    :class:`dtos.I.EnhancedIModel` via :class:`dtos.requests.abstraction.IRequestDTO`
-    and nested ``dtos.requests.*.abstraction`` Is.
-    """
-
-
-class AbstractResponseDTO(ABC):
-    """Root contract for all HTTP response envelope DTOs.
-
-    Concrete response models combine this with :class:`dtos.responses.I.IResponseDTO`
-    via :class:`dtos.responses.abstraction.IResponseDTO` when applicable.
+    Concrete models combine :class:`IDTO` with :class:`pydantic.BaseModel` or
+    :class:`dtos.I.EnhancedIModel` — for example :class:`dtos.configuration.abstraction.IConfigurationDTO`
+    or :class:`dtos.requests.abstraction.IRequestDTO` for HTTP requests.
     """

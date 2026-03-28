@@ -11,33 +11,48 @@ from http import HTTPStatus
 from fastapi.responses import JSONResponse
 
 from constants.api_status import APIStatus
-from constants.http_headers import X_REFERENCE_URN, x_reference_urn_headers
-from dtos.responses.I import IResponseDTO
+from constants.http_header import HttpHeader
+from dtos.responses.apis import IResponseAPIDTO
 
 # Optional dependencies (requires pyfastmvc[platform])
 try:
-    from fastmiddleware import ErrorKind, JWTBearerAuthMiddleware
+    from fast_middleware.sec.jwt_bearer_auth import JWTBearerAuthMiddleware
 except ImportError:
     JWTBearerAuthMiddleware = None  # type: ignore
-    ErrorKind = None  # type: ignore
 
+# JWT Utility dependency
 try:
-    from fast_dataI.persistence.repositories.user import UserRepository
-except ImportError:
-    UserRepository = None  # type: ignore
-
-try:
-    from fast_utilities.jwt import JWTUtility
+    from fast_platform.core.utils import JWTUtility
 except ImportError:
     JWTUtility = None  # type: ignore
 
-from start_utils import callback_routes, db_session, logger, unprotected_routes
+try:
+    from fast_database.persistence.repositories.user import UserRepository
+except ImportError:
+    UserRepository = None  # type: ignore
+
+from start_utils import (
+    ALGORITHM,
+    SECRET_KEY,
+    callback_routes,
+    db_session,
+    logger,
+    unprotected_routes,
+)
 
 
-def _decode_bearer(token: str, urn: str) -> dict:
-    """Decode JWT bearer token."""
+def _decode_token(token: str, urn: str) -> dict:
+    """Execute _decode_token operation.
+
+    Args:
+        token: The token parameter.
+        urn: The urn parameter.
+
+    Returns:
+        The result of the operation.
+    """
     if JWTUtility:
-        return JWTUtility(urn=urn).decode_token(token=token)
+        return JWTUtility(secret_key=SECRET_KEY, algorithm=ALGORITHM, urn=urn).decode_token(token=token)
     # Fallback: return empty payload for development
     logger.warning("JWTUtility not available, returning empty payload")
     return {"user_id": None}
@@ -49,7 +64,7 @@ def _load_user(user_data: dict, urn: str):
         return UserRepository(
             urn=urn, session=db_session
         ).retrieve_record_by_id_and_is_logged_in(
-            id=user_data.get("user_id"),
+            id=user_data.get("user_id") or "",
             is_logged_in=True,
             is_deleted=False,
         )
@@ -61,14 +76,14 @@ def _load_user(user_data: dict, urn: str):
 # Create the middleware only if dependencies are available
 if JWTBearerAuthMiddleware:
     AuthenticationMiddleware = JWTBearerAuthMiddleware(
-        decode_bearer=_decode_bearer,
+        decode_bearer=_decode_token,
         load_user=_load_user,
         unprotected_routes=unprotected_routes,
         callback_routes=callback_routes,
         error_response_factory=lambda request, error: JSONResponse(
             status_code=HTTPStatus.UNAUTHORIZED,
-            content=IResponseDTO(
-                transactionUrn=getattr(request.state, "urn", None),
+            content=IResponseAPIDTO(
+                transactionUrn=getattr(request.state, "urn", "") or "",
                 status=APIStatus.FAILED,
                 responseMessage=error.message,
                 responseKey=f"error_{error.kind.name.lower()}"
@@ -77,7 +92,9 @@ if JWTBearerAuthMiddleware:
                 data={},
                 errors=None,
             ).model_dump(),
-            headers=x_reference_urn_headers(request.headers.get(X_REFERENCE_URN)),
+            headers=HttpHeader().get_reference_urn_header(
+                reference_urn=request.headers.get(HttpHeader.X_REFERENCE_URN)
+            ),
         ),
     )
 else:

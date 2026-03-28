@@ -86,7 +86,7 @@ dtos/
 ```
 
 - Request DTOs inherit from `dtos.requests.abstraction.IRequestDTO` (or layered `IRequest*DTO`).
-- Response DTOs often compose `dtos.responses.I.IResponseDTO` patterns used in your app.
+- Response DTOs often compose `dtos.responses.abstraction.IResponseDTO` patterns used in your app.
 - **Leaf naming**: see [Leaf file naming](#leaf-file-naming-nested-folders) above — verbs in the filename, full names on classes.
 
 ### 3. Repository

@@ -131,8 +131,8 @@ make docker-up-dev
 Generated projects include comprehensive testing utilities:
 
 ```python
-from tests.item_factory import ItemFactory
-# Shared fixtures: tests/conftest.py re-exports tests.fixtures.item
+from tests.factories.apis.v1.item import ItemFactory
+# Shared fixtures: tests/conftest.py (Item API + shared pytest fixtures)
 
 # Generate fake test data
 item = ItemFactory.create(name="Test Item", completed=True)

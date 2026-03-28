@@ -46,6 +46,7 @@ from http import HTTPStatus
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any, cast
+from uuid import uuid4
 
 import uvicorn  # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv  # pyright: ignore[reportMissingImports]
@@ -64,15 +65,29 @@ from fastmiddleware import (  # pyright: ignore[reportMissingImports]
     RateLimitMiddleware,
     RequestContextMiddleware,
     ResponseTimingMiddleware,
-    SecurityHeadersConfig,
     SecurityHeadersMiddleware,
     TrustedHostMiddleware,
 )
 from loguru import logger
 
+from utilities.cors import get_cors_middleware_kwargs
+from utilities.security_headers import get_security_headers_middleware_config
 from constants.api_status import APIStatus
 from constants.default import Default
-from constants.http_headers import X_REFERENCE_URN, x_reference_urn_headers
+from constants.health import (
+    DEPENDENCY_CONNECTED,
+    DEPENDENCY_NOT_CONFIGURED,
+    HEALTH_CHECK_SQL_PING,
+    HEALTH_STATUS_HEALTHY,
+    HEALTH_STATUS_UNHEALTHY,
+    LIVENESS_ALIVE,
+    READINESS_NOT_READY,
+    READINESS_READY,
+    dependency_disconnected_message,
+)
+from constants.http_header import (
+    HttpHeader
+)
 
 # Optional example controllers (can be removed for minimal core)
 try:
@@ -123,7 +138,7 @@ except ImportError:
 # Flags for optional routers (used by tests and docs)
 DASHBOARD_ROUTER_ENABLED = DashboardRouter is not None
 
-from dtos.responses.I import IResponseDTO
+from dtos.responses.apis.abstraction import IResponseAPIDTO
 
 # Domain errors (requires pyfastmvc[platform])
 try:
@@ -164,7 +179,7 @@ try:
         and os.getenv("VALIDATE_CONFIG", "true").lower()
         not in ("false", "0", "no", "off")
     ):
-        from config.validator import validate_config_or_exit
+        from utilities.validator import validate_config_or_exit
 
         validate_config_or_exit()
 except ImportError:
@@ -307,7 +322,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     return JSONResponse(
         status_code=HTTPStatus.BAD_REQUEST,
         content=response_payload,
-        headers=x_reference_urn_headers(request.headers.get(X_REFERENCE_URN)),
+        headers=HttpHeader().get_reference_urn_header(
+            reference_urn=request.headers.get(HttpHeader.X_REFERENCE_URN)
+        ),
     )
 
 
@@ -324,7 +341,7 @@ def _app_error_response(
     except Exception:
         pass
 
-    response_dto = IResponseDTO(
+    response_dto = IResponseAPIDTO(
         transactionUrn=urn,
         status=APIStatus.FAILED,
         responseMessage=getattr(exc, "responseMessage", str(exc)),
@@ -335,7 +352,9 @@ def _app_error_response(
     return JSONResponse(
         status_code=getattr(exc, "httpStatusCode", HTTPStatus.INTERNAL_SERVER_ERROR),
         content=response_dto.model_dump(),
-        headers=x_reference_urn_headers(request.headers.get(X_REFERENCE_URN)),
+        headers=HttpHeader().get_reference_urn_header(
+            reference_urn=request.headers.get(HttpHeader.X_REFERENCE_URN)
+        ),
     )
 
 
@@ -455,7 +474,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     """Catch-all handler for unhandled exceptions to avoid leaking internals."""
     urn = getattr(request.state, "urn", None) or ""
     logger.exception("Unhandled exception occurred while processing request.", urn=urn)
-    response_dto = IResponseDTO(
+    response_dto = IResponseAPIDTO(
         transactionUrn=urn,
         status=APIStatus.FAILED,
         responseMessage="Internal server error.",
@@ -466,12 +485,28 @@ async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         content=response_dto.model_dump(),
-        headers=x_reference_urn_headers(request.headers.get(X_REFERENCE_URN)),
+        headers=HttpHeader().get_reference_urn_header(
+            reference_urn=request.headers.get(HttpHeader.X_REFERENCE_URN)
+        ),
     )
 
 
-def _urn_for_request(request: Request) -> str:
-    return getattr(request.state, "urn", None) or ""
+def _health_transaction_urn(request: Request) -> str:
+    """Transaction URN for health JSON and ``x-transaction-urn`` (always non-empty ``urn:req:...``).
+
+    Reuses :attr:`request.state.urn` from RequestContext middleware when it is already a
+    non-empty string (normalizes to ``urn:...``). Otherwise assigns a new id on ``request.state``.
+    """
+    existing = getattr(request.state, "urn", None)
+    if isinstance(existing, str):
+        s = existing.strip()
+        if s:
+            request.state.urn = s
+            return s
+
+    urn = str(uuid4())
+    request.state.urn = urn
+    return urn
 
 
 def _health_json_response(
@@ -483,20 +518,25 @@ def _health_json_response(
     data: dict,
 ) -> JSONResponse:
     """Return a :class:`IResponseDTO` envelope for health endpoints."""
-    dto = IResponseDTO(
-        transactionUrn=_urn_for_request(request),
+    txn_urn = _health_transaction_urn(request)
+    ref_header = request.headers.get(HttpHeader.X_REFERENCE_URN)
+    dto = IResponseAPIDTO(
+        transactionUrn=txn_urn,
         status=APIStatus.SUCCESS if http_ok else APIStatus.FAILED,
         responseMessage=response_message,
         responseKey=response_key,
         data=data,
         errors=None,
-        reference_urn=request.headers.get(X_REFERENCE_URN),
+        reference_urn=ref_header,
     )
     code = HTTPStatus.OK if http_ok else HTTPStatus.SERVICE_UNAVAILABLE
     return JSONResponse(
         status_code=code,
         content=dto.model_dump(mode="json"),
-        headers=x_reference_urn_headers(request.headers.get(X_REFERENCE_URN)),
+        headers=HttpHeader().correlation_response_headers(
+            reference_urn=ref_header,
+            transaction_urn=txn_urn,
+        ),
     )
 
 
@@ -549,13 +589,13 @@ async def health_check(request: Request):
 
     # Health check results
     health_status: dict[str, str | int] = {
-        "status": "healthy",
+        "status": HEALTH_STATUS_HEALTHY,
         "version": api_version,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
     # Check database connectivity
-    db_status: str = "not_configured"
+    db_status: str = DEPENDENCY_NOT_CONFIGURED
     try:
         from start_utils import db_session
 
@@ -565,21 +605,21 @@ async def health_check(request: Request):
                 # SQLAlchemy session
                 from sqlalchemy import text
 
-                db_session.execute(text("SELECT 1"))
-                db_status = "connected"
+                db_session.execute(text(HEALTH_CHECK_SQL_PING))
+                db_status = DEPENDENCY_CONNECTED
             else:
-                db_status = "connected"
+                db_status = DEPENDENCY_CONNECTED
         else:
-            db_status = "not_configured"
+            db_status = DEPENDENCY_NOT_CONFIGURED
     except Exception as e:
-        db_status = f"disconnected: {str(e)}"
-        health_status["status"] = "unhealthy"
+        db_status = dependency_disconnected_message(e)
+        health_status["status"] = HEALTH_STATUS_UNHEALTHY
         logger.error(f"Health check: DataI connection failed - {e}")
 
     health_status["database"] = db_status
 
     # Check Redis connectivity
-    redis_status: str = "not_configured"
+    redis_status: str = DEPENDENCY_NOT_CONFIGURED
     try:
         from start_utils import redis_session
 
@@ -587,14 +627,14 @@ async def health_check(request: Request):
             # Try a ping to verify connectivity
             if hasattr(redis_session, "ping"):
                 redis_session.ping()
-                redis_status = "connected"
+                redis_status = DEPENDENCY_CONNECTED
             else:
-                redis_status = "connected"
+                redis_status = DEPENDENCY_CONNECTED
         else:
-            redis_status = "not_configured"
+            redis_status = DEPENDENCY_NOT_CONFIGURED
     except Exception as e:
-        redis_status = f"disconnected: {str(e)}"
-        health_status["status"] = "unhealthy"
+        redis_status = dependency_disconnected_message(e)
+        health_status["status"] = HEALTH_STATUS_UNHEALTHY
         logger.error(f"Health check: Redis connection failed - {e}")
 
     health_status["redis"] = redis_status
@@ -612,7 +652,7 @@ async def health_check(request: Request):
         f"database={db_status}, redis={redis_status}"
     )
 
-    ok = health_status["status"] == "healthy"
+    ok = health_status["status"] == HEALTH_STATUS_HEALTHY
     data_payload = {
         "status": health_status["status"],
         "version": health_status["version"],
@@ -663,7 +703,7 @@ async def liveness_probe(request: Request):
         http_ok=True,
         response_key="success_health_live",
         response_message="Application process is alive.",
-        data={"status": "alive"},
+        data={"status": LIVENESS_ALIVE},
     )
 
 
@@ -707,12 +747,12 @@ async def readiness_probe(request: Request):
         if db_session is not None and hasattr(db_session, "execute"):
             from sqlalchemy import text
 
-            db_session.execute(text("SELECT 1"))
-            checks["database"] = "connected"
+            db_session.execute(text(HEALTH_CHECK_SQL_PING))
+            checks["database"] = DEPENDENCY_CONNECTED
         else:
-            checks["database"] = "not_configured"
+            checks["database"] = DEPENDENCY_NOT_CONFIGURED
     except Exception as e:
-        checks["database"] = f"disconnected: {str(e)}"
+        checks["database"] = dependency_disconnected_message(e)
         is_ready = False
 
     # Check Redis
@@ -721,14 +761,14 @@ async def readiness_probe(request: Request):
 
         if redis_session is not None and hasattr(redis_session, "ping"):
             redis_session.ping()
-            checks["redis"] = "connected"
+            checks["redis"] = DEPENDENCY_CONNECTED
         else:
-            checks["redis"] = "not_configured"
+            checks["redis"] = DEPENDENCY_NOT_CONFIGURED
     except Exception as e:
-        checks["redis"] = f"disconnected: {str(e)}"
+        checks["redis"] = dependency_disconnected_message(e)
         is_ready = False
 
-    status = "ready" if is_ready else "not_ready"
+    status = READINESS_READY if is_ready else READINESS_NOT_READY
     checked_at = datetime.now(timezone.utc).isoformat()
     data_ready = {
         "status": status,
@@ -761,38 +801,14 @@ app.add_middleware(RequestContextMiddleware)
 # Trusted Host Middleware - Prevents host header attacks
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
-# CORS Middleware - Cross-Origin Resource Sharing
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["*"],
-    expose_headers=["X-Request-ID", "X-Process-Time"],
-)
+# CORS Middleware - Cross-Origin Resource Sharing (see utilities.cors)
+app.add_middleware(CORSMiddleware, **get_cors_middleware_kwargs())
 
-# Security Headers Middleware - CSP, HSTS, X-Frame-Options, etc.
-security_config = SecurityHeadersConfig(
-    enable_hsts=True,
-    hsts_max_age=31536000,
-    hsts_include_subdomains=True,
-    hsts_preload=False,
-    x_frame_options="DENY",
-    x_content_type_options="nosniff",
-    x_xss_protection="1; mode=block",
-    referrer_policy="strict-origin-when-cross-origin",
-    # Allow Swagger/ReDoc assets from jsdelivr and Google Fonts (launch page, docs UIs)
-    content_security_policy=(
-        "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
-        "font-src 'self' data: https://fonts.gstatic.com; "
-        "img-src 'self' data: https: blob:; "
-        "connect-src 'self'"
-    ),
-    remove_server_header=True,
+# Security Headers Middleware - CSP, HSTS, X-Frame-Options, etc. (see utilities.security_headers)
+app.add_middleware(
+    SecurityHeadersMiddleware,
+    config=get_security_headers_middleware_config(),
 )
-app.add_middleware(SecurityHeadersMiddleware, config=security_config)
 
 # Rate Limiting Middleware - Protects against abuse
 # Base middleware matches exclude_paths by exact URL only; liveness/readiness live under
@@ -829,7 +845,7 @@ app.add_middleware(
 # Timing Middleware - Response time tracking
 app.add_middleware(
     ResponseTimingMiddleware,
-    header_name="X-Process-Time",
+    header_name=HttpHeader.X_PROCESS_TIME,
 )
 
 # Authentication Middleware - JWT validation (custom, app-specific)

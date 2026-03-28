@@ -147,7 +147,7 @@ print(settings.app_name)
 ### Validator
 
 ```python
-from config.validator import validate_config_or_exit
+from utilities.validator import validate_config_or_exit
 
 validate_config_or_exit()
 ```

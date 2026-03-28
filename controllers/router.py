@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 
 from constants.http_headers import x_reference_urn_headers
 from controllers.apis.v1.example.create import ExampleCreateController
-from dtos.responses.I import IResponseDTO
+from dtos.responses.abstraction import IResponseDTO
 
 router = APIRouter(prefix="/example", tags=["Example"])
 controller = ExampleCreateController()

@@ -27,7 +27,7 @@ Patterns Included:
 # I MVC abstractions
 from .controller import IController
 from .dependency import IDependency
-from .dto import AbstractRequestDTO, AbstractResponseDTO
+from .dto import IDTO
 from .error import IError
 from .repository import IRepository
 from .service import IService
@@ -208,8 +208,7 @@ __all__ = [
     # I MVC
     "IController",
     "IDependency",
-    "AbstractRequestDTO",
-    "AbstractResponseDTO",
+    "IDTO",
     "IError",
     "IRepository",
     "IService",

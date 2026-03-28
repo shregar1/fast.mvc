@@ -1,34 +1,22 @@
-"""I Response DTO Module.
-
-This module defines the standard response structure for all API endpoints.
-Every API response should use IResponseDTO to ensure consistent
-response formatting across the application.
-
-Usage:
-    >>> from dtos.responses.I import IResponseDTO
-    >>> from constants.api_status import APIStatus
-    >>>
-    >>> response = IResponseDTO(
-    ...     transactionUrn="urn:req:123",
-    ...     status=APIStatus.SUCCESS,
-    ...     responseMessage="User created successfully",
-    ...     responseKey="success_user_created",
-    ...     data={"user_id": "user-456"}
-    ... )
-"""
+"""Response DTO abstraction for ``controllers/apis``-aligned envelopes."""
 
 from datetime import datetime, timezone
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, Field
+
+from dtos.responses.abstraction import IResponseDTO
 
 
 def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-class IResponseDTO(BaseModel):
+class IResponseAPIDTO(IResponseDTO):
     """Standard response DTO for all API endpoints.
+
+    Combines :class:`pydantic.BaseModel`, :class:`abstractions.dto.IDTO`, and
+    :class:`abstractions.dto.`.
 
     This DTO defines the consistent response structure used across
     all API endpoints in the FastMVC application. It includes
@@ -97,6 +85,8 @@ class IResponseDTO(BaseModel):
 
     """
 
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=False)
+
     transactionUrn: str
     """Unique identifier for request tracing and correlation."""
 
@@ -128,7 +118,7 @@ class IResponseDTO(BaseModel):
         description="Server time (UTC) when this response envelope was generated.",
     )
 
-    reference_urn: str | None = Field(
+    referenceUrn: str | None = Field(
         default=None,
         description=(
             "Echo of the client correlation id when provided "

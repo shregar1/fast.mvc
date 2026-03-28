@@ -27,7 +27,7 @@ Content-Type: application/json
 
 ## Response format (`IResponseDTO`)
 
-Many endpoints return the standard envelope from `dtos.responses.I.IResponseDTO`:
+Many endpoints return the standard envelope from `dtos.responses.abstraction.IResponseDTO`:
 
 | Field | Description |
 |-------|-------------|

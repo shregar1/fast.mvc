@@ -1,12 +1,12 @@
-"""Environment Configuration Validator.
+"""Environment configuration validator.
 
 Validates .env configuration on startup to catch misconfigurations early.
 Fail fast principle - crashes on invalid config rather than running with bad settings.
 
 Usage:
-    from config.validator import ConfigValidator
+    from utilities.validator import ConfigValidator
     validator = ConfigValidator()
-    validator.validate()  # Raises ConfigValidationError on invalid config
+    validator.validate()  # Raises errors.ConfigValidationError on invalid config
 """
 
 import os
@@ -15,21 +15,15 @@ import sys
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional
 
+from errors import ConfigValidationError
 
-class ConfigValidationError(Exception):
-    """Raised when configuration validation fails."""
-
-    def __init__(self, errors: list[str]):
-        """Execute __init__ operation.
-
-        Args:
-            errors: The errors parameter.
-        """
-        self.errors = errors
-        message = "Configuration validation failed:\n" + "\n".join(
-            f"  • {e}" for e in errors
-        )
-        super().__init__(message)
+__all__ = [
+    "ConfigValidationError",
+    "ConfigValidator",
+    "ValidationRule",
+    "quick_validate",
+    "validate_config_or_exit",
+]
 
 
 @dataclass

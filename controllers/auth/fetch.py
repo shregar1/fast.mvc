@@ -3,7 +3,7 @@
 from controllers.auth.abstraction import IAuthController
 from services.user.fetch import FetchUserService
 from dtos.requests.apis.v1.user.fetch import FetchUserRequestDTO
-from dtos.responses.I import IResponseDTO
+from dtos.responses.abstraction import IResponseDTO
 from constants.api_status import APIStatus
 
 

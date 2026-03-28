@@ -6,9 +6,11 @@ The **`config`** package stores **environment-specific and override configuratio
 
 Use this tree when you need **per-deployment** tuning (connection strings, feature flags in config files) **without** hard-coding secrets in Python. Secrets themselves should still come from **environment variables** or a secrets manager; `config/` holds **structure** and non-secret defaults where appropriate.
 
+Env-driven middleware wiring (CORS, security headers) and startup `.env` validation live in the **`utilities`** package, not here.
+
 ---
 
-# Config override (main repo)
+## Config override (main repo)
 
 Config is loaded from this directory so you can **override package defaults** without changing package code.
 
@@ -24,7 +26,7 @@ So any JSON file you add or edit under `config/<name>/config.json` in the main r
 
 ## Layout
 
-```
+```text
 config/
 ├── README.md           ← this file
 ├── db/

@@ -68,7 +68,7 @@ from abstractions.unit_of_work import IUnitOfWork, IUnitOfWork
 from abstractions.result import Result, Success, Failure, success, failure
 
 # DTOs
-from dtos.responses.I import IResponseDTO
+from dtos.responses.abstraction import IResponseDTO
 from dtos.requests.abstraction import IRequestDTO
 
 # Application factory
@@ -81,11 +81,6 @@ try:
         router as item_router,
     )
     from dtos.requests.item import CreateItemRequestDTO, UpdateItemRequestDTO
-    from dtos.responses.item import (
-        ItemListResponseDTO,
-        ItemResponseDTO,
-        ItemStatsResponseDTO,
-    )
     from models.item import Item
     from repositories.item import ItemRepository
     from services.item import ItemService
@@ -138,8 +133,5 @@ if _EXAMPLE_AVAILABLE:
             # Example DTOs
             "CreateItemRequestDTO",
             "UpdateItemRequestDTO",
-            "ItemResponseDTO",
-            "ItemListResponseDTO",
-            "ItemStatsResponseDTO",
         ]
     )

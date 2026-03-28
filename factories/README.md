@@ -4,7 +4,7 @@
 
 The **`factories`** package holds **reusable builders** for test data and local tooling: dictionaries and Pydantic DTOs that match production request/response shapes. The **folder layout mirrors** the API and DTO trees so you can find the factory for an endpoint next to the same path under **`dtos/requests/apis/...`** and conceptually next to **`controllers/apis/...`**.
 
-It complements **`tests/item_factory.py`** (`ItemFactory`), **`tests/fixtures/item.py`** (pytest fixtures re-exported from **`tests/conftest.py`**), and **`core/testing/factories.py`** (generic helpers).
+It complements **`tests/factories/apis/v1/item/`** (`ItemFactory`, `ItemServiceFactory`), **`tests/conftest.py`** (Item API and shared pytest fixtures), and **`core/testing/factories.py`** (generic helpers).
 
 ## Layout (`factories/apis/v1/example`)
 
@@ -18,7 +18,7 @@ It complements **`tests/item_factory.py`** (`ItemFactory`), **`tests/fixtures/it
 | `put.py` | PUT | `ExampleUpdateRequestDTO` (full replacement defaults) |
 | `delete.py` | DELETE | `ExampleDeleteRequestDTO` |
 
-```
+```text
 factories/apis/v1/example/
 ├── common.py
 ├── fetch.py
@@ -64,6 +64,6 @@ get_body = ExampleFetchRequestFactory.build()
 ## Related
 
 - `dtos/requests/example/` — `create.py`, `update.py`, `delete.py` (one **concrete** DTO class per module; see `dtos/README.md`)  
-- `tests/item_factory.py` — Item-focused factory for the sample CRUD API  
+- `tests/factories/apis/v1/item/` — `ItemFactory` (single create) and `ItemServiceFactory` (batch) for the sample CRUD API  
 - `core/testing/factories.py` — Generic `Factory` / `FactoryField` helpers  
 - `tests/README.md` — fixtures and discovery  

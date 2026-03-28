@@ -12,7 +12,7 @@ from dependencies.services.v1.example.example_service_dependency import (
 )
 from dtos.requests.example.create import ExampleCreateRequestDTO
 from dtos.responses.example.example_response import ExampleResponseDataDTO
-from dtos.responses.I import IResponseDTO
+from dtos.responses.abstraction import IResponseDTO
 
 
 class ExampleCreateController(IExampleAPIController):

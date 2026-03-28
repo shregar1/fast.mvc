@@ -9,7 +9,7 @@ from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from abstractions.result import Result
-from constants.http_headers import X_REFERENCE_URN, x_reference_urn_headers
+from constants.http_header import HttpHeader
 from dtos.responses.item import ItemListResponseDTO, ItemResponseDTO, ItemStatsResponseDTO
 from models.item import Item
 
@@ -17,13 +17,15 @@ _TVal = TypeVar("_TVal")
 
 
 def item_ref_headers(
-    body_reference: str | None, http_request: Request | None
+    *,
+    body_reference: str | None,
+    http_request: Request | None,
 ) -> dict[str, str]:
     """Prefer body ``reference_number``; else echo ``x-reference-urn`` from the request."""
     ref = body_reference
     if ref is None and http_request is not None:
-        ref = http_request.headers.get(X_REFERENCE_URN)
-    return x_reference_urn_headers(ref)
+        ref = http_request.headers.get(HttpHeader.X_REFERENCE_URN)
+    return HttpHeader().get_reference_urn_header(reference_urn=ref)
 
 
 def raise_bad_request_if_failure(result: Result[Any, Any]) -> None:
@@ -61,21 +63,30 @@ def json_item(
     return JSONResponse(
         status_code=status_code,
         content=dto.to_dict(),
-        headers=item_ref_headers(reference_urn, http_request),
+        headers=item_ref_headers(
+            body_reference=reference_urn,
+            http_request=http_request
+        ),
     )
 
 
 def json_item_list(entities: list[Item], http_request: Request | None) -> JSONResponse:
     return JSONResponse(
         content=ItemListResponseDTO.from_entities(entities).to_dict(),
-        headers=item_ref_headers(None, http_request),
+        headers=item_ref_headers(
+            body_reference=None,
+            http_request=http_request
+        ),
     )
 
 
 def json_item_stats(stats: dict[str, Any], http_request: Request | None) -> JSONResponse:
     return JSONResponse(
         content=ItemStatsResponseDTO.from_stats(stats).to_dict(),
-        headers=item_ref_headers(None, http_request),
+        headers=item_ref_headers(
+            body_reference=None,
+            http_request=http_request
+        ),
     )
 
 
@@ -150,5 +161,8 @@ def unwrap_deleted_or_404(result: Result[bool, Any], *, item_id: str) -> None:
 def json_delete_message(item_id: str, http_request: Request | None) -> JSONResponse:
     return JSONResponse(
         content={"message": f"Item '{item_id}' deleted successfully"},
-        headers=item_ref_headers(None, http_request),
+        headers=item_ref_headers(
+            body_reference=None,
+            http_request=http_request,
+        ),
     )
