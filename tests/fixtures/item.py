@@ -28,6 +28,26 @@ def _item_from_api_json(data: dict) -> Item:
     )
 
 
+def _post_item(
+    client: TestClient,
+    *,
+    name: str,
+    description: str = "",
+    completed: bool = False,
+) -> Item:
+    r = client.post(
+        "/items",
+        json={
+            "reference_number": str(uuid4()),
+            "name": name,
+            "description": description,
+            "completed": completed,
+        },
+    )
+    assert r.status_code == 201, r.text
+    return _item_from_api_json(r.json())
+
+
 def _clear_app_item_storage() -> None:
     from controllers.apis.v1.item.item_controller import _controller
 
@@ -144,47 +164,23 @@ def test_item(item_client: TestClient, create_item_payload: dict) -> Item:
 @pytest.fixture
 def test_items(item_client: TestClient, mock_auth) -> list[Item]:
     names = ["Alpha Search Me", "Beta Other", "Gamma Third"]
-    out: list[Item] = []
     with mock_auth:
-        for name in names:
-            payload = {
-                "reference_number": str(uuid4()),
-                "name": name,
-                "description": "d",
-                "completed": False,
-            }
-            r = item_client.post("/items", json=payload)
-            assert r.status_code == 201, r.text
-            out.append(_item_from_api_json(r.json()))
-    return out
+        return [
+            _post_item(item_client, name=n, description="d", completed=False)
+            for n in names
+        ]
 
 
 @pytest.fixture
 def completed_items(item_client: TestClient, mock_auth) -> list[Item]:
     with mock_auth:
-        payload = {
-            "reference_number": str(uuid4()),
-            "name": "Done Item",
-            "description": "",
-            "completed": True,
-        }
-        r = item_client.post("/items", json=payload)
-        assert r.status_code == 201, r.text
-        return [_item_from_api_json(r.json())]
+        return [_post_item(item_client, name="Done Item", completed=True)]
 
 
 @pytest.fixture
 def pending_items(item_client: TestClient, mock_auth) -> list[Item]:
     with mock_auth:
-        payload = {
-            "reference_number": str(uuid4()),
-            "name": "Todo Item",
-            "description": "",
-            "completed": False,
-        }
-        r = item_client.post("/items", json=payload)
-        assert r.status_code == 201, r.text
-        return [_item_from_api_json(r.json())]
+        return [_post_item(item_client, name="Todo Item", completed=False)]
 
 
 @pytest.fixture

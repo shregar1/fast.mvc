@@ -22,6 +22,15 @@ class ItemService(IItemService):
         super().__init__(**kwargs)
         self._repository = repository or ItemRepository()
 
+    async def _require_item(self, item_id: str) -> Result[Item, Any]:
+        """Load item by id or return failure (not found / repository error)."""
+        get_result = await self._repository.get_by_id(item_id)
+        if get_result.is_failure:
+            return cast(Result[Item, Any], failure(get_result.error))
+        if get_result.value is None:
+            return failure("Item not found")
+        return success(get_result.value)
+
     def run(self, request_dto: Any) -> dict:
         """Framework hook; item flows use explicit methods (create_item, …)."""
         return {}
@@ -112,25 +121,16 @@ class ItemService(IItemService):
 
         """
         try:
-            # Get existing
-            get_result = await self._repository.get_by_id(item_id)
-            if get_result.is_failure:
-                return cast(
-                    Result[Item, Any],
-                    failure(get_result.error),
-                )
+            req = await self._require_item(item_id)
+            if req.is_failure:
+                return req
+            item = req.value
 
-            item = get_result.value
-            if item is None:
-                return failure("Item not found")
-
-            # Apply updates
             if name is not None:
                 item.name = name
             if description is not None:
                 item.description = description
 
-            # Persist
             return await self._repository.update(item)
         except ValueError as e:
             return failure(f"Validation error: {str(e)}")
@@ -160,17 +160,10 @@ class ItemService(IItemService):
 
         """
         try:
-            get_result = await self._repository.get_by_id(item_id)
-            if get_result.is_failure:
-                return cast(
-                    Result[Item, Any],
-                    failure(get_result.error),
-                )
-
-            item = get_result.value
-            if item is None:
-                return failure("Item not found")
-
+            req = await self._require_item(item_id)
+            if req.is_failure:
+                return req
+            item = req.value
             item.complete()
             return await self._repository.update(item)
         except Exception as e:
@@ -187,17 +180,10 @@ class ItemService(IItemService):
 
         """
         try:
-            get_result = await self._repository.get_by_id(item_id)
-            if get_result.is_failure:
-                return cast(
-                    Result[Item, Any],
-                    failure(get_result.error),
-                )
-
-            item = get_result.value
-            if item is None:
-                return failure("Item not found")
-
+            req = await self._require_item(item_id)
+            if req.is_failure:
+                return req
+            item = req.value
             item.uncomplete()
             return await self._repository.update(item)
         except Exception as e:
@@ -214,17 +200,10 @@ class ItemService(IItemService):
 
         """
         try:
-            get_result = await self._repository.get_by_id(item_id)
-            if get_result.is_failure:
-                return cast(
-                    Result[Item, Any],
-                    failure(get_result.error),
-                )
-
-            item = get_result.value
-            if item is None:
-                return failure("Item not found")
-
+            req = await self._require_item(item_id)
+            if req.is_failure:
+                return req
+            item = req.value
             item.toggle()
             return await self._repository.update(item)
         except Exception as e:

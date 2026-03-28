@@ -5,19 +5,14 @@ Demonstrates FastMVC controller patterns with FastAPI routes.
 
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from abstractions.controller import IController
-from abstractions.result import Result
-from constants.http_headers import X_REFERENCE_URN, x_reference_urn_headers
 from dtos.requests.item import CreateItemRequestDTO, UpdateItemRequestDTO
-from dtos.responses.item import (
-    ItemListResponseDTO,
-    ItemResponseDTO,
-    ItemStatsResponseDTO,
-)
 from services.item.item_service import ItemService
+
+from controllers.apis.v1.item import http as item_http
 
 # Create router
 router = APIRouter(
@@ -28,17 +23,6 @@ router = APIRouter(
         422: {"description": "Validation error"},
     },
 )
-
-
-def _item_response_headers(
-    body_reference: str | None,
-    http_request: Request | None,
-) -> dict[str, str]:
-    """Prefer body ``reference_number``; else echo ``x-reference-urn`` from the request."""
-    ref = body_reference
-    if ref is None and http_request is not None:
-        ref = http_request.headers.get(X_REFERENCE_URN)
-    return x_reference_urn_headers(ref)
 
 
 class ItemController(IController):
@@ -62,133 +46,31 @@ class ItemController(IController):
         """
         self._service = service or ItemService()
 
-    def _handle_result(
-        self, result: Result, status_code: int = HTTPStatus.OK
-    ) -> JSONResponse:
-        """Handle service result and convert to HTTP response.
-
-        Args:
-            result: Service operation result
-            status_code: HTTP status code for success
-
-        Returns:
-            JSONResponse
-
-        """
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        if result.value is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail="Resource not found",
-            )
-
-        return JSONResponse(
-            status_code=status_code,
-            content=result.value.to_dict()
-            if hasattr(result.value, "to_dict")
-            else result.value,
-        )
-
-    # CRUD Endpoints
-
     async def create(
         self, body: CreateItemRequestDTO, http_request: Request | None = None
     ) -> JSONResponse:
-        """Create a new item.
+        """Create a new item."""
+        item_http.raise_unprocessable_if_dto_invalid(body)
 
-        Args:
-            body: Create item request
-            http_request: Incoming HTTP request (for ``x-reference-urn`` echo)
-
-        Returns:
-            Created item response
-
-        """
-        # Validate request
-        is_valid, errors = body.validate()
-        if not is_valid:
-            raise HTTPException(
-                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-                detail={"errors": errors},
-            )
-
-        # Create item
-        result = await self._service.create_item(
-            name=body.name,
-            description=body.description,
-        )
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        # Convert to response DTO (echo client reference_number as reference_urn)
-        response = ItemResponseDTO.from_entity(
-            result.value, reference_urn=body.reference_number
-        )
-
-        return JSONResponse(
-            status_code=HTTPStatus.CREATED,
-            content=response.to_dict(),
-            headers=_item_response_headers(body.reference_number, http_request),
+        return item_http.respond_created_item(
+            await self._service.create_item(
+                name=body.name,
+                description=body.description,
+            ),
+            http_request,
+            reference_urn=body.reference_number,
         )
 
     async def get_by_id(self, item_id: str, http_request: Request | None = None) -> JSONResponse:
-        """Get item by ID.
-
-        Args:
-            item_id: Item identifier
-
-        Returns:
-            Item response
-
-        """
+        """Get item by ID."""
         result = await self._service.get_item(item_id)
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        if result.value is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail=f"Item with ID '{item_id}' not found",
-            )
-
-        response = ItemResponseDTO.from_entity(result.value)
-        return JSONResponse(
-            content=response.to_dict(),
-            headers=_item_response_headers(None, http_request),
-        )
+        entity = item_http.unwrap_item_or_404(result, item_id=item_id)
+        return item_http.json_item(entity, http_request)
 
     async def get_all(self, http_request: Request | None = None) -> JSONResponse:
-        """Get all items.
-
-        Returns:
-            List of items
-
-        """
-        result = await self._service.get_all_items()
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        response = ItemListResponseDTO.from_entities(result.value)
-        return JSONResponse(
-            content=response.to_dict(),
-            headers=_item_response_headers(None, http_request),
+        """Get all items."""
+        return item_http.respond_item_list(
+            await self._service.get_all_items(), http_request
         )
 
     async def update(
@@ -197,236 +79,65 @@ class ItemController(IController):
         body: UpdateItemRequestDTO,
         http_request: Request | None = None,
     ) -> JSONResponse:
-        """Update an item.
+        """Update an item."""
+        item_http.raise_unprocessable_if_dto_invalid(body)
 
-        Args:
-            item_id: Item identifier
-            body: Update item request
-            http_request: Incoming HTTP request (for ``x-reference-urn`` echo)
-
-        Returns:
-            Updated item response
-
-        """
-        # Validate request
-        is_valid, errors = body.validate()
-        if not is_valid:
-            raise HTTPException(
-                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-                detail={"errors": errors},
-            )
-
-        # Update item
-        result = await self._service.update_item(
-            item_id=item_id,
-            name=body.name,
-            description=body.description,
-        )
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        response = ItemResponseDTO.from_entity(
-            result.value, reference_urn=body.reference_number
-        )
-        return JSONResponse(
-            content=response.to_dict(),
-            headers=_item_response_headers(body.reference_number, http_request),
+        return item_http.respond_item_with_ref(
+            await self._service.update_item(
+                item_id=item_id,
+                name=body.name,
+                description=body.description,
+            ),
+            http_request,
+            reference_urn=body.reference_number,
         )
 
     async def delete(self, item_id: str, http_request: Request | None = None) -> JSONResponse:
-        """Delete an item.
-
-        Args:
-            item_id: Item identifier
-
-        Returns:
-            Deletion confirmation
-
-        """
+        """Delete an item."""
         result = await self._service.delete_item(item_id)
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        if not result.value:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail=f"Item with ID '{item_id}' not found",
-            )
-
-        return JSONResponse(
-            content={"message": f"Item '{item_id}' deleted successfully"},
-            headers=_item_response_headers(None, http_request),
-        )
-
-    # Action Endpoints
+        item_http.unwrap_deleted_or_404(result, item_id=item_id)
+        return item_http.json_delete_message(item_id, http_request)
 
     async def complete(self, item_id: str, http_request: Request | None = None) -> JSONResponse:
-        """Mark item as completed.
-
-        Args:
-            item_id: Item identifier
-
-        Returns:
-            Updated item response
-
-        """
-        result = await self._service.complete_item(item_id)
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        response = ItemResponseDTO.from_entity(result.value)
-        return JSONResponse(
-            content=response.to_dict(),
-            headers=_item_response_headers(None, http_request),
+        """Mark item as completed."""
+        return item_http.respond_item(
+            await self._service.complete_item(item_id), http_request
         )
 
     async def uncomplete(self, item_id: str, http_request: Request | None = None) -> JSONResponse:
-        """Mark item as not completed.
-
-        Args:
-            item_id: Item identifier
-
-        Returns:
-            Updated item response
-
-        """
-        result = await self._service.uncomplete_item(item_id)
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        response = ItemResponseDTO.from_entity(result.value)
-        return JSONResponse(
-            content=response.to_dict(),
-            headers=_item_response_headers(None, http_request),
+        """Mark item as not completed."""
+        return item_http.respond_item(
+            await self._service.uncomplete_item(item_id), http_request
         )
 
     async def toggle(self, item_id: str, http_request: Request | None = None) -> JSONResponse:
-        """Toggle item completion status.
-
-        Args:
-            item_id: Item identifier
-
-        Returns:
-            Updated item response
-
-        """
-        result = await self._service.toggle_item(item_id)
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        response = ItemResponseDTO.from_entity(result.value)
-        return JSONResponse(
-            content=response.to_dict(),
-            headers=_item_response_headers(None, http_request),
+        """Toggle item completion status."""
+        return item_http.respond_item(
+            await self._service.toggle_item(item_id), http_request
         )
 
-    # Query Endpoints
-
     async def search(self, query: str = "", http_request: Request | None = None) -> JSONResponse:
-        """Search items by name.
-
-        Args:
-            query: Search query string
-
-        Returns:
-            List of matching items
-
-        """
-        result = await self._service.search_items(query)
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        response = ItemListResponseDTO.from_entities(result.value)
-        return JSONResponse(
-            content=response.to_dict(),
-            headers=_item_response_headers(None, http_request),
+        """Search items by name."""
+        return item_http.respond_item_list(
+            await self._service.search_items(query), http_request
         )
 
     async def get_completed(self, http_request: Request | None = None) -> JSONResponse:
-        """Get all completed items.
-
-        Returns:
-            List of completed items
-
-        """
-        result = await self._service.get_completed_items()
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        response = ItemListResponseDTO.from_entities(result.value)
-        return JSONResponse(
-            content=response.to_dict(),
-            headers=_item_response_headers(None, http_request),
+        """Get all completed items."""
+        return item_http.respond_item_list(
+            await self._service.get_completed_items(), http_request
         )
 
     async def get_pending(self, http_request: Request | None = None) -> JSONResponse:
-        """Get all pending items.
-
-        Returns:
-            List of pending items
-
-        """
-        result = await self._service.get_pending_items()
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        response = ItemListResponseDTO.from_entities(result.value)
-        return JSONResponse(
-            content=response.to_dict(),
-            headers=_item_response_headers(None, http_request),
+        """Get all pending items."""
+        return item_http.respond_item_list(
+            await self._service.get_pending_items(), http_request
         )
 
     async def get_statistics(self, http_request: Request | None = None) -> JSONResponse:
-        """Get item statistics.
-
-        Returns:
-            Statistics response
-
-        """
-        result = await self._service.get_statistics()
-
-        if result.is_failure:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=result.error,
-            )
-
-        response = ItemStatsResponseDTO.from_stats(result.value)
-        return JSONResponse(
-            content=response.to_dict(),
-            headers=_item_response_headers(None, http_request),
+        """Get item statistics."""
+        return item_http.respond_item_stats(
+            await self._service.get_statistics(), http_request
         )
 
 

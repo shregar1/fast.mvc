@@ -30,61 +30,10 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # =============================================================================
-# IMPORT SHARED ITEM API FIXTURES
+# ITEM API FIXTURES — registered via plugin (no duplicate import lists)
 # =============================================================================
 
-# Import all fixtures from tests.fixtures.item
-from tests.fixtures.item import (
-    # DataI fixtures
-    item_db,
-    item_repository,
-    # Client fixtures
-    app,
-    item_client,
-    async_item_client,
-    authenticated_client,
-    # Auth fixtures
-    mock_user,
-    mock_admin_user,
-    mock_auth,
-    mock_invalid_auth,
-    mock_expired_token,
-    # Test data fixtures
-    test_item,
-    test_items,
-    completed_items,
-    pending_items,
-    create_item_payload,
-    update_item_payload,
-    invalid_item_payloads,
-    # Utility fixtures
-    freezer,
-    reset_factories,
-)
-
-# Re-export fixtures
-__all__ = [
-    "item_db",
-    "item_repository",
-    "app",
-    "item_client",
-    "async_item_client",
-    "authenticated_client",
-    "mock_user",
-    "mock_admin_user",
-    "mock_auth",
-    "mock_invalid_auth",
-    "mock_expired_token",
-    "test_item",
-    "test_items",
-    "completed_items",
-    "pending_items",
-    "create_item_payload",
-    "update_item_payload",
-    "invalid_item_payloads",
-    "freezer",
-    "reset_factories",
-]
+pytest_plugins = ["tests.fixtures.item"]
 
 # =============================================================================
 # PYTEST CONFIGURATION
