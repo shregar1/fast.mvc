@@ -3,7 +3,7 @@
 Provides context variables for tracking request IDs across async contexts.
 """
 
-from contextvars import ContextVar
+from contextvars import ContextVar, Token
 from typing import Optional
 
 # Context variable for storing the current request ID
@@ -17,9 +17,10 @@ class RequestIdContext:
     in an async-safe manner using context variables.
 
     Example:
-        >>> RequestIdContext.set("req-123")
+        >>> token = RequestIdContext.set("req-123")
         >>> current_id = RequestIdContext.get()
         >>> print(current_id)  # "req-123"
+        >>> RequestIdContext.reset(token)
 
     """
 
@@ -29,11 +30,15 @@ class RequestIdContext:
         return _request_id_var.get()
 
     @staticmethod
-    def set(request_id: str) -> None:
-        """Set the current request ID in context."""
-        _request_id_var.set(request_id)
+    def set(request_id: Optional[str]) -> Token[Optional[str]]:
+        """Bind *request_id* for the current async task.
+
+        Returns:
+            A token for use with :meth:`reset`.
+        """
+        return _request_id_var.set(request_id)
 
     @staticmethod
-    def reset() -> None:
-        """Reset the request ID context."""
-        _request_id_var.set(None)
+    def reset(token: Token[Optional[str]]) -> None:
+        """Restore the previous value (call in ``finally`` after :meth:`set`)."""
+        _request_id_var.reset(token)
