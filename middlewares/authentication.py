@@ -127,14 +127,16 @@ class JWTAuthHelper:
 class NoOpAuthMiddleware:
     """No-op authentication middleware for development without fastmiddleware."""
 
-    def __init__(self, app):
+    def __init__(self, app, *args: Any, **kwargs: Any):
         """Initialize with ASGI app.
 
         Args:
             app: The ASGI application.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
         """
+        super().__init__(*args, **kwargs)
         self.app = app
-
     async def __call__(self, scope, receive, send):
         """Pass through to the wrapped application.
 

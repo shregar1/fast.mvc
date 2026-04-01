@@ -71,6 +71,7 @@ class IService(ABC, ContextMixin):
         user_urn: Optional[str] = None,
         api_name: Optional[str] = None,
         user_id: int = None,
+        *args: Any,
         **kwargs: Any,
     ) -> None:
         """Initialize the service with request context.
@@ -80,7 +81,8 @@ class IService(ABC, ContextMixin):
             user_urn (str, optional): User's unique resource name. Defaults to None.
             api_name (str, optional): Name of the API endpoint. Defaults to None.
             user_id (int, optional): DataI ID of the user. Defaults to None.
-            **kwargs: Additional arguments for parent classes.
+            *args: Additional positional arguments for parent classes.
+            **kwargs: Additional keyword arguments for parent classes.
 
         """
         super().__init__(
@@ -88,6 +90,7 @@ class IService(ABC, ContextMixin):
             user_urn=user_urn,
             api_name=api_name,
             user_id=user_id,
+            *args,
             **kwargs,
         )
 

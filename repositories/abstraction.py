@@ -4,6 +4,8 @@ Inheritance: :class:`IRepository` → :class:`abstractions.repository.IRepositor
 :class:`core.utils.context.ContextMixin`.
 """
 
+from __future__ import annotations
+
 from typing import Any, Optional
 
 from abstractions.repository import IRepository as FrameworkRepository
@@ -19,6 +21,7 @@ class IRepository(FrameworkRepository):
         api_name: Optional[str] = None,
         user_id: Optional[str] = None,
         session: Any = None,
+        *args: Any,
         **kwargs: Any,
     ) -> None:
         """Initialize the application repository base.
@@ -29,7 +32,8 @@ class IRepository(FrameworkRepository):
             api_name: API name. Defaults to None.
             user_id: User's database ID. Defaults to None.
             session: Database session when applicable. Defaults to None.
-            **kwargs: Forwarded to the framework repository (e.g. ``logger``).
+            *args: Additional positional arguments for parent classes.
+            **kwargs: Additional keyword arguments for parent classes.
 
         """
         super().__init__(
@@ -38,6 +42,7 @@ class IRepository(FrameworkRepository):
             api_name=api_name,
             user_id=user_id,
             session=session,
+            *args,
             **kwargs,
         )
 

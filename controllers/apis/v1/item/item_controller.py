@@ -36,13 +36,16 @@ class ItemController(IController):
 
     """
 
-    def __init__(self, service: ItemService | None = None) -> None:
+    def __init__(self, service: ItemService | None = None, *args: Any, **kwargs: Any) -> None:
         """Initialize controller with service.
 
         Args:
             service: Item service (creates new if None)
+            *args: Additional positional arguments for parent class.
+            **kwargs: Additional keyword arguments for parent class.
 
         """
+        super().__init__(*args, **kwargs)
         self._service = service or ItemService()
 
     async def create(

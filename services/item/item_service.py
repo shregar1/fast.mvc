@@ -13,15 +13,16 @@ from services.item.abstraction import IItemService
 class ItemService(IItemService):
     """Application service for item operations."""
 
-    def __init__(self, repository: ItemRepository | None = None, **kwargs: Any) -> None:
+    def __init__(self, repository: ItemRepository | None = None, *args: Any, **kwargs: Any) -> None:
         """Initialize service with repository.
 
         Args:
             repository: Item repository (creates new if None)
-            **kwargs: Forwarded to :class:`IItemService`.
+            *args: Additional positional arguments for parent class.
+            **kwargs: Additional keyword arguments for parent class.
 
         """
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
         self._repository = repository or ItemRepository()
 
     async def _require_item(self, item_id: str) -> Result[Item, Any]:
