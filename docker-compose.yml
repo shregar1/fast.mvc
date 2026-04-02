@@ -145,6 +145,10 @@ services:
       HOST: 0.0.0.0
       PORT: 8000
       WORKERS: ${WORKERS:-4}
+      # gRPC (optional)
+      GRPC_ENABLED: ${GRPC_ENABLED:-false}
+      GRPC_HOST: ${GRPC_HOST:-0.0.0.0}
+      GRPC_PORT: ${GRPC_PORT:-50051}
       # CORS
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080}
       # Rate Limiting
@@ -155,6 +159,8 @@ services:
       RUN_MIGRATIONS: "false"
     ports:
       - "${APP_PORT:-8000}:8000"
+      # Expose gRPC port when enabled (container listens on GRPC_PORT).
+      - "${GRPC_PORT:-50051}:${GRPC_PORT:-50051}"
     networks:
       - fastmvc-network
     depends_on:

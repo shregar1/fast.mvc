@@ -24,6 +24,13 @@ class EnvironmentVar:
     VALIDATE_CONFIG: Final[str] = "VALIDATE_CONFIG"
 
     # -------------------------------------------------------------------------
+    # gRPC (optional transport)
+    # -------------------------------------------------------------------------
+    GRPC_ENABLED: Final[str] = "GRPC_ENABLED"
+    GRPC_HOST: Final[str] = "GRPC_HOST"
+    GRPC_PORT: Final[str] = "GRPC_PORT"
+
+    # -------------------------------------------------------------------------
     # Security — JWT
     # -------------------------------------------------------------------------
     JWT_SECRET_KEY: Final[str] = "JWT_SECRET_KEY"

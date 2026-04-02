@@ -53,6 +53,15 @@ class ApplicationDefault:
     ALLOW_ORIGIN_REGEX: Final[str] = ""
     """Default allow origin regex."""
 
+    GRPC_ENABLED: Final[bool] = False
+    """Enable optional gRPC server transport (developer opt-in)."""
+
+    GRPC_HOST: Final[str] = "0.0.0.0"
+    """gRPC listen host when `GRPC_ENABLED=true`."""
+
+    GRPC_PORT: Final[int] = 50051
+    """gRPC listen port when `GRPC_ENABLED=true`."""
+
 
 class JwtDefault:
     """JWT signing and token lifetime defaults."""

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package fastmvc.grpc.health.v1;
+
+option go_package = "fastmvc/grpc/health/v1";
+
+service HealthService {
+  rpc Check(HealthRequest) returns (HealthResponse);
+}
+
+message HealthRequest {
+  // Optional logical service name (for richer readiness checks later).
+  string service = 1;
+}
+
+message HealthResponse {
+  // Human-friendly status string (e.g. "SERVING").
+  string status = 1;
+
+  // Unix epoch timestamp in milliseconds.
+  int64 timestamp_unix_ms = 2;
+
+  // Optional details for debugging.
+  string details = 3;
+}
+

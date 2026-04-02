@@ -225,9 +225,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
     route_export_engine.clear_memory()
 
+    # BEGINNER TEMPLATE: optional gRPC transport (removable).
+    # Enable via GRPC_ENABLED=true (see `.env.example`).
+    from core.optional_grpc import maybe_start_grpc, maybe_stop_grpc  # pyright: ignore[reportMissingImports]
+    await maybe_start_grpc(app)
+
     yield
 
     logger.info("Application shutdown event triggered")
+
+    # Best-effort shutdown of the optional gRPC transport.
+    await maybe_stop_grpc(app)
 
 
 # Initialize FastAPI application (openapi_url must match middlewares.docs_auth)
