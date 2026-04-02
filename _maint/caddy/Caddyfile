@@ -1,0 +1,19 @@
+{
+	servers {
+		# Enable HTTP/3 (QUIC) in addition to HTTP/1.1 and HTTP/2.
+		protocols h1 h2 h3
+	}
+}
+
+# Plain HTTP -> app
+:80 {
+	reverse_proxy app:8000
+}
+
+# HTTPS + HTTP/3 (QUIC) -> app
+:443 {
+	# Self-signed cert for local/dev. For production, switch to ACME/TLS settings.
+	tls internal
+	reverse_proxy app:8000
+}
+

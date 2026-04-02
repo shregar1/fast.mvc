@@ -118,6 +118,12 @@ class EnvironmentVar:
     REDIS_INSIGHT_PORT: Final[str] = "REDIS_INSIGHT_PORT"
     NGINX_HTTP_PORT: Final[str] = "NGINX_HTTP_PORT"
     NGINX_HTTPS_PORT: Final[str] = "NGINX_HTTPS_PORT"
+    # -------------------------------------------------------------------------
+    # QUIC / HTTP-3 (Caddy)
+    # -------------------------------------------------------------------------
+    CADDY_HTTP_PORT: Final[str] = "CADDY_HTTP_PORT"
+    CADDY_HTTPS_PORT: Final[str] = "CADDY_HTTPS_PORT"
+    HTTP3_UDP_PORT: Final[str] = "HTTP3_UDP_PORT"
 
     # -------------------------------------------------------------------------
     # Optional: LLM providers

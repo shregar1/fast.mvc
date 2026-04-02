@@ -44,6 +44,7 @@ This starts:
 | `worker` | `worker`, `full` | Celery background worker | - |
 | `scheduler` | `worker`, `full` | Celery beat scheduler | - |
 | `nginx` | `nginx`, `full` | Reverse proxy with SSL | 80, 443 |
+| `caddy` | `caddy` | Reverse proxy with HTTP/3 (QUIC) | 80, 443 TCP + 443 UDP |
 | `pgadmin` | `dev`, `admin` | PostgreSQL admin GUI | 5050 |
 | `redis-insight` | `dev`, `admin` | Redis GUI | 5540 |
 
@@ -213,6 +214,22 @@ _maint/nginx/
 └── ssl/
     ├── cert.pem
     └── key.pem
+
+### Using Caddy (HTTP/3 QUIC)
+
+```bash
+docker-compose --profile caddy up -d
+```
+
+Caddy is configured with HTTP/3 enabled and publishes UDP `443` for QUIC. For local/dev usage it uses `tls internal` (self-signed).
+
+Do not run the `nginx` and `caddy` profiles at the same time (both bind TCP/UDP `443`).
+
+Verify HTTP/3 works by checking for an `Alt-Svc` header:
+
+```bash
+curl -I -k https://localhost/ | grep -i \"alt-svc\"
+```
 
 ### Environment for Production
 
