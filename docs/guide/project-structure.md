@@ -11,7 +11,7 @@ my-project/
 ├── requirements.txt           # Optional dev tooling, ecosystem packages, and docs
 ├── Makefile                   # Development commands
 ├── .env                       # Environment variables (git-ignored)
-├── .env.example               # Example environment file
+├── .env.example               # Environment template (app + Docker Compose + optional integrations)
 ├── .pre-commit-config.yaml    # Pre-commit hooks
 ├── docker-compose.yml         # Docker services
 ├── Dockerfile                 # Container definition

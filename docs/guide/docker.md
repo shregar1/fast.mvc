@@ -78,7 +78,7 @@ make docker-up-full
 make docker-logs
 make docker-logs-app  # App only
 
-# DataI operations
+# Database operations
 make docker-db-shell      # PostgreSQL CLI
 make docker-redis-shell   # Redis CLI
 make docker-migrate       # Run migrations
@@ -109,29 +109,31 @@ docker-compose --profile dev --profile worker up -d
 
 ### Environment Variables
 
-Create `.env` file from template:
+Create `.env` from the consolidated template:
 
 ```bash
-cp .env.docker .env
+cp .env.example .env
 ```
 
-Key variables:
+Key variables (see **`.env.example`** for full list and comments):
 
 ```bash
-# DataI
+# Database
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=your-secure-password
 POSTGRES_DB=fastmvc
 
 # Security (CHANGE IN PRODUCTION!)
-SECRET_KEY=your-secret-key-min-32-chars
-JWT_SECRET_KEY=your-jwt-secret-key
+JWT_SECRET_KEY=your-jwt-secret-key-min-32-chars
+SECRET_KEY=same-or-separate-32-char-secret
 
 # App
 APP_ENV=production
 DEBUG=false
 LOG_LEVEL=INFO
-WORKERS=4
+HOST=0.0.0.0
+PORT=8000
+# WORKERS=4
 ```
 
 ### Port Configuration
@@ -139,13 +141,13 @@ WORKERS=4
 Change ports in `.env`:
 
 ```bash
-APP_PORT=8080           # FastAPI app
-POSTGRES_PORT=5433      # PostgreSQL
-REDIS_PORT=6380         # Redis
+PORT=8080               # FastAPI app (see `.env.example`; maps in compose)
+POSTGRES_PORT=5433      # PostgreSQL host port
+REDIS_PORT=6380         # Redis host port
 PGADMIN_PORT=5050       # PgAdmin
 ```
 
-## DataI Migrations
+## Database Migrations
 
 Migrations run automatically when the stack starts. To run manually:
 
@@ -252,7 +254,7 @@ lsof -i :8000
 APP_PORT=8080
 ```
 
-### DataI Connection Failed
+### Database Connection Failed
 
 ```bash
 # Check postgres is healthy
@@ -350,7 +352,7 @@ docker-compose push
 # 1. Clone and setup
 git clone <your-repo>
 cd <project>
-cp .env.docker .env
+cp .env.example .env
 # Edit .env with your settings
 
 # 2. Start with all dev tools
