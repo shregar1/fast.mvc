@@ -13,6 +13,9 @@ from services.abstraction import IService
 class ConcreteService(IService):
     """Concrete service for testing."""
     
+    def run(self, request_dto) -> dict:
+        return {"executed": True}
+    
     async def execute(self, **kwargs: Any) -> dict:
         return {"executed": True, **kwargs}
 

@@ -33,7 +33,7 @@ class TestSecurityHeadersUtilityInit:
     def test_init_with_api_name(self):
         """Test initialization with api_name."""
         util = SecurityHeadersUtility(api_name="test-api")
-        assert util._api_name == "api-test"
+        assert util._api_name == "test-api"
 
     def test_init_with_user_id(self):
         """Test initialization with user_id."""

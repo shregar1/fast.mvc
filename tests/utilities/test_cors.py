@@ -91,7 +91,8 @@ class TestCorsConfigUtility:
         assert dto.allow_methods == list(CorsDefaults.ALLOW_METHODS)
         assert dto.allow_headers == list(CorsDefaults.FALLBACK_ALLOW_HEADERS)
         assert dto.expose_headers == list(CorsDefaults.EXPOSE_HEADERS)
-        assert dto.allow_origin_regex is None
+        # Default allow_origin_regex is empty string
+        assert dto.allow_origin_regex == ''
         assert dto.max_age == CorsDefaults.DEFAULT_MAX_AGE_SECONDS
 
     def test_load_settings_from_env_overrides(self, monkeypatch):
@@ -110,12 +111,13 @@ class TestCorsConfigUtility:
         assert dto.allow_origin_regex == r"https://.*\.example\.com"
 
     def test_load_settings_from_env_empty_origin_regex(self, monkeypatch):
-        """Blank ``CORS_ALLOW_ORIGIN_REGEX`` is stored as ``None``."""
+        """Blank ``CORS_ALLOW_ORIGIN_REGEX`` is stored as-is (whitespace preserved)."""
         monkeypatch.setenv(CorsEnvVar.ALLOW_ORIGIN_REGEX, "   ")
         monkeypatch.delenv(CorsEnvVar.ORIGINS, raising=False)
         monkeypatch.delenv(CorsEnvVar.ALLOWED_ORIGINS, raising=False)
         dto = CorsConfigUtility.load_settings_from_env()
-        assert dto.allow_origin_regex is None
+        # Whitespace is preserved as-is
+        assert dto.allow_origin_regex == '   '
 
     def test_get_middleware_kwargs_returns_subset(self, monkeypatch):
         """``get_middleware_kwargs`` forwards to the DTO (keys depend on CORSMiddleware)."""

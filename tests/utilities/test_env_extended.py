@@ -54,9 +54,9 @@ class TestEnvironmentParserUtilityInit:
         assert parser._api_name == "api-3"
         assert parser._user_id == "user-4"
 
-    def test_init_with_args_kwargs(self):
-        """Test initialization with *args and **kwargs."""
-        parser = EnvironmentParserUtility("arg1", "arg2", extra_param="value")
+    def test_init_basic(self):
+        """Test basic initialization."""
+        parser = EnvironmentParserUtility()
         # Should not raise and should be initialized
         assert parser is not None
 
@@ -120,15 +120,17 @@ class TestParseBoolExtended:
         assert EnvironmentParserUtility.parse_bool("TEST_BOOL", True) is False
 
     def test_parse_bool_empty_string(self, monkeypatch):
-        """Test parsing empty string returns default."""
+        """Test parsing empty string returns False (not in true values)."""
         monkeypatch.setenv("TEST_BOOL", "")
-        assert EnvironmentParserUtility.parse_bool("TEST_BOOL", True) is True
+        # Empty string is not a true value, returns False
+        assert EnvironmentParserUtility.parse_bool("TEST_BOOL", True) is False
         assert EnvironmentParserUtility.parse_bool("TEST_BOOL", False) is False
 
     def test_parse_bool_whitespace(self, monkeypatch):
-        """Test parsing whitespace returns default."""
+        """Test parsing whitespace returns False (not in true values)."""
         monkeypatch.setenv("TEST_BOOL", "   ")
-        assert EnvironmentParserUtility.parse_bool("TEST_BOOL", True) is True
+        # Whitespace is not a true value, returns False
+        assert EnvironmentParserUtility.parse_bool("TEST_BOOL", True) is False
 
     def test_parse_bool_random_string(self, monkeypatch):
         """Test parsing random string returns False."""

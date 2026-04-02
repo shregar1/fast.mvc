@@ -14,6 +14,7 @@ FastMVC projects follow a "Vertical Slice" architecture by default. Instead of g
 - **Contracts:** Strictly-typed Request/Response DTOs isolated by version.
 
 ### Benefits
+
 1. **Developer Velocity:** Modify an operation without touching unrelated files.
 2. **Reduced Conflicts:** Parallel development on the same resource (e.g., `create` and `fetch`) is seamless.
 3. **Implicit Versioning:** Clear isolation between API versions (`v1`, `v2`, etc.).
@@ -34,15 +35,23 @@ Scaffold a complete, production-ready authentication layer with a single command
 ## 🛡️ Secure Configurations (`.env`)
 
 FastMVC automates the setup of local environment variables:
+
 - **Automatic Secret Generation:** Secure 64-character hex keys for `SECRET_KEY` and `JWT_SECRET_KEY`.
 - **Templating:** Projects generate a functional `.env` from an `.env.example` boilerplate during creation.
 - **Environment Management:** Use `fastmvc add env` at any time to refresh or generate local configurations.
 
 ---
 
+## 🌐 HTTP/3 (QUIC) Edge Proxy Support
+
+FastMVC’s Docker Compose setup can optionally enable an HTTP/3 (QUIC) reverse proxy using the `caddy` profile (publishes UDP `443`), in addition to the existing `nginx` TCP/TLS proxy.
+
+---
+
 ## 🛰️ API Documentation
 
 Documentation is a first-class citizen in FastMVC.
+
 - **OpenAPI:** Native FastAPI interactive Swagger and ReDoc.
 - **Auto-Discovery Reference:** Run `fastmvc docs generate` to crawl your code and build a dedicated MkDocs API Reference using `mkdocstrings`.
 - **Dto Descriptions:** Descriptions from your Pydantic DTOs are automatically pulled into the generated documentation.
@@ -52,6 +61,7 @@ Documentation is a first-class citizen in FastMVC.
 ## ⏳ Background Tasks
 
 FastMVC handles background processing with a clear, decoupled pattern:
+
 - **Task Definitions:** Isolated in the `tasks/` directory.
 - **FastAPI Integration:** Wired for `BackgroundTasks` out of the box.
 - **Celery Ready:** Scaffolds are easy to decorate with `@celery.task` for distributed worker setups.
@@ -61,6 +71,7 @@ FastMVC handles background processing with a clear, decoupled pattern:
 ## 🧪 Built-in Testing
 
 FastMVC makes testing a habit, not a chore.
+
 - **Async Pytest:** Pre-configured for asynchronous operations and `httpx`.
 - **Mocking Support:** Scaffolds include examples for mocking complex service and repository dependencies.
 - **Versioned Tests:** Test suites mirror the API architecture for easy navigation.
