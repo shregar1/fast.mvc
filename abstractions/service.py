@@ -31,7 +31,7 @@ class IService(ABC, ContextMixin):
     """Abstract I class for business logic services.
 
     The IService class provides a standardized interface for implementing
-    business logic in the FastMVC framework. Services are the core of the
+    business logic in the FastX framework. Services are the core of the
     application, containing domain rules and orchestrating data flow.
 
     Key responsibilities:

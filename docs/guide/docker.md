@@ -1,6 +1,6 @@
 # Docker Compose Stack
 
-FastMVC includes a complete Docker Compose stack with PostgreSQL, Redis, and the FastAPI application.
+FastX includes a complete Docker Compose stack with PostgreSQL, Redis, and the FastAPI application.
 
 ## Prerequisites
 
@@ -122,7 +122,7 @@ Key variables (see **`.env.example`** for full list and comments):
 # Database
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=your-secure-password
-POSTGRES_DB=fastmvc
+POSTGRES_DB=fastx
 
 # Security (CHANGE IN PRODUCTION!)
 JWT_SECRET_KEY=your-jwt-secret-key-min-32-chars
@@ -169,7 +169,7 @@ docker-compose exec app alembic upgrade head
 2. **Generate migration** (outside Docker):
 
    ```bash
-   fastmvc db migrate -m "Add users table"
+   fastx db migrate -m "Add users table"
    ```
 
 3. **Rebuild and restart**:
@@ -252,10 +252,10 @@ POSTGRES_PASSWORD=$(openssl rand -hex 16)
 
 ```bash
 # Deploy to swarm
-docker stack deploy -c docker-compose.yml fastmvc
+docker stack deploy -c docker-compose.yml fastx
 
 # Check status
-docker stack ps fastmvc
+docker stack ps fastx
 docker service ls
 ```
 
@@ -316,7 +316,7 @@ Data is stored in Docker volumes:
 docker volume ls
 
 # Backup database
-docker-compose exec postgres pg_dump -U postgres fastmvc > backup.sql
+docker-compose exec postgres pg_dump -U postgres fastx > backup.sql
 
 # Restore database
 cat backup.sql | docker-compose exec -T postgres psql -U postgres

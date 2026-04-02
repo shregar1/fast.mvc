@@ -16,7 +16,7 @@ class IResponseAPIDTO(IResponseDTO):
     :class:`abstractions.dto.`.
 
     This DTO defines the consistent response structure used across
-    all API endpoints in the FastMVC application. It includes
+    all API endpoints in the FastX application. It includes
     transaction tracking, status indication, and flexible data payloads.
 
     Attributes:

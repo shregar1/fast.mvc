@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FastMVC — API Server</title>
+  <title>FastX — API Server</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -301,7 +301,7 @@
       .links {
         grid-template-columns: 1fr;
       }
-      
+
       .link-primary {
         grid-column: span 1;
       }
@@ -338,7 +338,7 @@
     <!-- Logo -->
     <div class="logo">
       <div class="logo-icon">
-        <img src="logo-icon.svg" alt="FastMVC" style="width: 22px; height: 22px; color: var(--accent);">
+        <img src="logo-icon.svg" alt="FastX" style="width: 22px; height: 22px; color: var(--accent);">
       </div>
       <div class="logo-text">Fast<span>MVC</span></div>
     </div>
@@ -349,15 +349,15 @@
         <span class="status-dot"></span>
         Running
       </div>
-      
+
       <h1>API Server</h1>
       <p class="subtitle">Production-grade FastAPI stack with MVC architecture</p>
-      
+
       <div class="base-url">
         <div class="base-url-label">Base URL</div>
         <div class="base-url-value" id="origin">http://localhost:8000</div>
       </div>
-      
+
       <nav class="links" aria-label="Quick links">
         <a class="link link-primary" href="/docs">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -405,11 +405,11 @@
       // Theme handling
       const themeToggle = document.getElementById('theme-toggle');
       const html = document.documentElement;
-      
+
       // Get saved theme or default to dark
       const savedTheme = localStorage.getItem('theme') || 'dark';
       html.setAttribute('data-theme', savedTheme);
-      
+
       // Toggle theme
       themeToggle.addEventListener('click', () => {
         const currentTheme = html.getAttribute('data-theme');

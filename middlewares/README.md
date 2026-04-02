@@ -40,7 +40,7 @@ app.add_middleware(AuthenticationMiddleware)
 
 ## Generic JWT middleware (library)
 
-`JWTBearerAuthMiddleware` lives in **`fast_middleware.jwt_bearer_auth`**. It takes injectable callables (`decode_bearer`, `load_user`, `build_error_response`, …) so other apps can reuse it without depending on FastMVC’s repositories or DTOs.
+`JWTBearerAuthMiddleware` lives in **`fast_middleware.jwt_bearer_auth`**. It takes injectable callables (`decode_bearer`, `load_user`, `build_error_response`, …) so other apps can reuse it without depending on FastX’s repositories or DTOs.
 
 ```python
 from fast_middleware import JWTBearerAuthMiddleware, ErrorKind

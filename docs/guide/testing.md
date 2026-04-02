@@ -1,6 +1,6 @@
 # Testing Guide
 
-FastMVC provides a comprehensive testing framework with factories, fixtures, and utilities for testing your application.
+FastX provides a comprehensive testing framework with factories, fixtures, and utilities for testing your application.
 
 ## Installation
 

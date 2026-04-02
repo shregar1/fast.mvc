@@ -1,4 +1,4 @@
-# FastMVC
+# FastX
 
 A production-grade MVC framework for FastAPI with clean architecture, powerful abstractions, and developer-friendly tools.
 
@@ -11,7 +11,7 @@ A production-grade MVC framework for FastAPI with clean architecture, powerful a
 - **Docker Compose Stack**: One command for full stack (Postgres, Redis, FastAPI)
 - **Rich VS Code Integration**: 15+ tasks, 6 debug configs, recommended extensions
 - **Environment Validation**: Fail-fast config validation with clear error messages
-- **Dark-themed API Docs**: FastMVC-branded Swagger UI and ReDoc
+- **Dark-themed API Docs**: FastX-branded Swagger UI and ReDoc
 - **Production Health Checks**: Kubernetes-ready liveness and readiness probes
 - **CI/CD Ready**: GitHub Actions workflows auto-generated for every project
 - **Production Ready**: Pre-commit hooks, linting, formatting, and testing setup
@@ -19,14 +19,14 @@ A production-grade MVC framework for FastAPI with clean architecture, powerful a
 ## Quick Start
 
 ```bash
-# Install FastMVC
-pip install fastmvc
+# Install FastX
+pip install fastx
 
 # Generate a new project
-fastmvc generate
+fastx generate
 
 # Or use the quickstart for defaults
-fastmvc quickstart my-project
+fastx quickstart my-project
 ```
 
 ## Project Structure
@@ -57,7 +57,7 @@ my-project/
 
 Once your server is running:
 
-- **FastMVC Swagger UI**: http://localhost:8000/docs (dark theme, branded)
+- **FastX Swagger UI**: http://localhost:8000/docs (dark theme, branded)
 - **ReDoc**: http://localhost:8000/redoc
 - **OpenAPI Schema**: http://localhost:8000/openapi.json
 
@@ -79,8 +79,8 @@ make docs-serve
 
 ## Documentation
 
-- [Installation](guide/installation.md) - Install FastMVC and dependencies
-- [Quick Start](guide/quickstart.md) - Your first FastMVC application
+- [Installation](guide/installation.md) - Install FastX and dependencies
+- [Quick Start](guide/quickstart.md) - Your first FastX application
 - [CLI Reference](guide/cli.md) - Project generation and management
 - [Configuration](guide/configuration.md) - Environment variables and validation
 - [API Documentation](guide/api-docs.md) - Swagger UI and ReDoc

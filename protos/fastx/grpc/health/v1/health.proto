@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package fastmvc.grpc.health.v1;
+package fastx.grpc.health.v1;
 
-option go_package = "fastmvc/grpc/health/v1";
+option go_package = "fastx/grpc/health/v1";
 
 service HealthService {
   rpc Check(HealthRequest) returns (HealthResponse);

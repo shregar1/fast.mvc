@@ -1,6 +1,6 @@
 # Authentication
 
-FastMVC supports Bearer token authentication using JWT.
+FastX supports Bearer token authentication using JWT.
 
 ## Login
 

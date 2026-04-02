@@ -1,8 +1,8 @@
 # fast-mvc
 
-**Production-grade MVC tooling for FastAPI** — Interactive CLI for project scaffolding, entity generation, Alembic migrations, and a reference framework layout that ties together the FastMVC ecosystem (SQLAlchemy, Redis, JWT, and optional integrations).
+**Production-grade MVC tooling for FastAPI** — Interactive CLI for project scaffolding, entity generation, Alembic migrations, and a reference framework layout that ties together the FastX ecosystem (SQLAlchemy, Redis, JWT, and optional integrations).
 
-FastMVC is a **project generator for FastAPI** with a clean MVC stack and a **menu of production features** you can turn on from the CLI (or from a visual configurator on your site: collect options, then paste the generated `fastmvc generate …` command). Generated projects stay **lean**: only the services you enable are scaffolded; the rest is pruned.
+FastX is a **project generator for FastAPI** with a clean MVC stack and a **menu of production features** you can turn on from the CLI (or from a visual configurator on your site: collect options, then paste the generated `fastx generate …` command). Generated projects stay **lean**: only the services you enable are scaffolded; the rest is pruned.
 
 **Python:** 3.10+
 
@@ -11,22 +11,22 @@ FastMVC is a **project generator for FastAPI** with a clean MVC stack and a **me
 
 ## Capabilities
 
-- **Interactive CLI** — Terminal UI (Rich) for project generation: `fastmvc generate`, `fastmvc quickstart`, and ecosystem commands such as `fastmvc init` / `fastmvc add entity` where provided by your CLI install.
+- **Interactive CLI** — Terminal UI (Rich) for project generation: `fastx generate`, `fastx quickstart`, and ecosystem commands such as `fastx init` / `fastx add entity` where provided by your CLI install.
 - **Auto venv setup** — Virtual environment, dependencies, `.gitignore` updates.
 - **VS Code integration** — Debug profiles, tasks, recommended extensions.
 - **Makefile** — `make dev`, `test`, `lint`, `migrate`, `docker`, etc.
 - **Entity generation** — Controllers, services, repositories, DTOs.
-- **Alembic migrations** — `fastmvc db migrate/upgrade/downgrade/reset` (see below).
+- **Alembic migrations** — `fastx db migrate/upgrade/downgrade/reset` (see below).
 - **App template** — FastAPI structure, config, middleware, and hooks expected by extension packages (`fast_*`).
 - **Batteries** — FastAPI, SQLAlchemy 2, Alembic, Pydantic v2, Redis, JWT, bcrypt, optional dashboards, observability, payments, and more via flags (see [Optional platform features](#optional-platform-features)).
 
 ### New features (high level)
 
-- **DataI migration CLI** — `fastmvc db migrate/upgrade/downgrade/reset`
+- **DataI migration CLI** — `fastx db migrate/upgrade/downgrade/reset`
 - **Testing** — Factories, pytest fixtures, auth mocks
 - **Docker Compose** — Postgres, Redis, FastAPI, optional dev tools
 - **GitHub Actions** — CI/CD templates in generated projects
-- **Dark-themed API docs** — FastMVC-branded Swagger/ReDoc
+- **Dark-themed API docs** — FastX-branded Swagger/ReDoc
 - **Production health** — `/health`, `/health/live`, `/health/ready`
 - **Dashboards** (when enabled) — e.g. `/dashboard/health`, `/dashboard/api` for health and API activity samples
 
@@ -51,13 +51,13 @@ pip install -e .
 
 ```bash
 # Run the wizard
-fastmvc generate
+fastx generate
 
 # Or with options
-fastmvc generate --name my_api --author "John Doe"
+fastx generate --name my_api --author "John Doe"
 
 # Quick start with defaults
-fastmvc quickstart --name my_api
+fastx quickstart --name my_api
 ```
 
 ### Generated project features
@@ -96,19 +96,19 @@ Manage database migrations directly from the CLI:
 
 ```bash
 # Create migration from model changes
-fastmvc db migrate -m "Add users table"
+fastx db migrate -m "Add users table"
 
 # Apply migrations
-fastmvc db upgrade
+fastx db upgrade
 
 # Rollback one migration
-fastmvc db downgrade
+fastx db downgrade
 
 # Reset database (development only)
-fastmvc db reset --seed
+fastx db reset --seed
 
 # Check status
-fastmvc db status
+fastx db status
 ```
 
 ### Docker Compose stack
@@ -158,7 +158,7 @@ Auto-generated workflows often include:
 ### API documentation
 
 - Dark-themed Swagger UI at `/docs`
-- FastMVC branding (cyan/fuchsia)
+- FastX branding (cyan/fuchsia)
 - Kubernetes health endpoints at `/health`, `/health/live`, `/health/ready`
 
 ### Postman collection
@@ -181,7 +181,7 @@ If startup validation blocks the import, ensure `.env` exists (see `.env.example
 | `POSTMAN_EXPORT_ENVIRONMENT` | Set to `1` or `true` to also write the environment JSON (default is collection-only). |
 | `POSTMAN_OUTPUT_DIR` | Directory for exports (default: `postman`). |
 | `POSTMAN_COLLECTION_FILE` | Path to collection JSON (default: `postman/postman_collection.json`). |
-| `POSTMAN_COLLECTION_NAME` | Override the collection/environment title (default: git repository folder name). |
+| `POSTMAN_COLLECTION_NAME` | Override the collection/environment title (default: APP_NAME from env → git repository folder name → fastx). |
 | `POSTMAN_BASE_URL` | Override the `base_url` variable (default: `http://HOST:PORT` from env). |
 | `POSTMAN_ENV_FILE` | Environment JSON path or basename under `POSTMAN_OUTPUT_DIR` (default: `postman/postman_environment.json`). |
 | `POSTMAN_NEGATIVE_TESTS` | Set to `0` or `false` to skip extra per-request `pm.sendRequest` “negative” scripts. |
@@ -200,7 +200,7 @@ On startup, the app logs the written paths and variable names, for example: `var
 
 ## Optional platform features
 
-The sections below describe **optional** stacks and `--with-*` flags your generator or website configurator can expose. Not every flag exists in every CLI version; treat this as the intended matrix for the full FastMVC ecosystem.
+The sections below describe **optional** stacks and `--with-*` flags your generator or website configurator can expose. Not every flag exists in every CLI version; treat this as the intended matrix for the full FastX ecosystem.
 
 ### Built-in dashboards (when enabled)
 
@@ -273,7 +273,7 @@ Other common generator options: `--output-dir`, `--git` / `--no-git`, `--venv` /
 ### Building a website configurator (command assembly)
 
 1. Collect inputs: `projectName`, optional `outputDir`, booleans for git/venv/install, and toggles for Redis, Mongo, Cassandra, Scylla, Dynamo, Cosmos, Elasticsearch, email, Slack, Datadog, telemetry, payments.
-2. Start with: `fastmvc generate <projectName>`.
+2. Start with: `fastx generate <projectName>`.
 3. Append flags, e.g. `--output-dir`, `--no-git`, `--venv`, `--install`.
 4. Append `--with-*` / `--no-redis` as above.
 5. Join into the final shell command for users to copy/paste.
@@ -281,7 +281,7 @@ Other common generator options: `--output-dir`, `--git` / `--no-git`, `--venv` /
 Example:
 
 ```bash
-fastmvc generate my_api \
+fastx generate my_api \
   --output-dir ./projects \
   --with-redis \
   --with-mongo \
@@ -297,7 +297,7 @@ fastmvc generate my_api \
 
 ```bash
 pip install fast-mvc
-fastmvc generate my_api   # add your flags
+fastx generate my_api   # add your flags
 cd my_api
 pip install -r requirements.txt
 python -m uvicorn app:app --reload
@@ -326,7 +326,7 @@ Thank you for contributing to **fast-mvc**.
 
 ### Monorepo layout
 
-This package usually lives inside the **FastMVC** monorepo. From the repo root, install in editable mode:
+This package usually lives inside the **FastX** monorepo. From the repo root, install in editable mode:
 
 ```bash
 cd fast_mvc_main
@@ -363,7 +363,7 @@ python3 scripts/sync_package_tooling.py
 
 ### Test coverage
 
-Many FastMVC libraries enforce **≥95% line coverage** via `pytest-cov` (`fail_under` in `pyproject.toml`). From this package directory:
+Many FastX libraries enforce **≥95% line coverage** via `pytest-cov` (`fail_under` in `pyproject.toml`). From this package directory:
 
 ```bash
 python3 -m pytest tests/ -q --cov=src --cov-fail-under=95
@@ -405,7 +405,7 @@ Use clear commit messages (e.g. conventional commits: `feat:`, `fix:`, `docs:`).
 
 ### Monorepo releases
 
-If you use the **FastMVC** monorepo scripts, see [../RELEASE.md](../RELEASE.md) and `scripts/release_all.sh` at the repository root.
+If you use the **FastX** monorepo scripts, see [../RELEASE.md](../RELEASE.md) and `scripts/release_all.sh` at the repository root.
 
 ### Package upload (this project)
 

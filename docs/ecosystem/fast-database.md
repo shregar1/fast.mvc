@@ -2,7 +2,7 @@
 
 **Shared SQLAlchemy ORM models, Repositories, and Production Patterns.**
 
-FastDataI is the persistence layer of the FastMVC ecosystem. It ships with a library of declarative models, mixins, and repository logic to handle anything from users and auth to commerce and audit logs.
+FastDataI is the persistence layer of the FastX ecosystem. It ships with a library of declarative models, mixins, and repository logic to handle anything from users and auth to commerce and audit logs.
 
 ---
 
@@ -40,7 +40,7 @@ from fast_dataI.repositories.user import UserRepository
 
 # Filter with operators
 repo = UserRepository(session)
-users = repo.find_all(filters=[("email", FilterOperator.ILIKE, "%@fastmvc.com")])
+users = repo.find_all(filters=[("email", FilterOperator.ILIKE, "%@fastx.com")])
 ```
 
 ---

@@ -1,10 +1,10 @@
 # API Documentation
 
-FastMVC provides branded **Swagger UI** and **ReDoc** plus the machine-readable **OpenAPI JSON** schema. In production you should treat these as **developer-only** surfaces: they expose your full API surface area.
+FastX provides branded **Swagger UI** and **ReDoc** plus the machine-readable **OpenAPI JSON** schema. In production you should treat these as **developer-only** surfaces: they expose your full API surface area.
 
 ## Swagger UI
 
-FastMVC includes a custom Swagger UI with FastMVC branding:
+FastX includes a custom Swagger UI with FastX branding:
 
 ### Dark Theme
 
@@ -16,7 +16,7 @@ The Swagger UI uses a custom dark theme with the following color scheme:
 
 ### Features
 
-- FastMVC-branded dark theme
+- FastX-branded dark theme
 - Code syntax highlighting
 - Copy buttons for code samples
 - Example requests in multiple languages
@@ -34,7 +34,7 @@ Subpaths under `/docs` (for example OAuth redirects used by Swagger UI) are serv
 
 ## ReDoc
 
-FastMVC also provides a ReDoc interface for API documentation:
+FastX also provides a ReDoc interface for API documentation:
 
 ```text
 http://localhost:8000/redoc
@@ -61,7 +61,7 @@ The path is controlled by **`OPENAPI_URL`** and must stay aligned with the FastA
 
 ## Securing Swagger, ReDoc, and OpenAPI (recommended for production)
 
-End users should not need interactive API explorers on a public deployment. FastMVC can require **HTTP Basic authentication** for all documentation and schema routes when you set **both**:
+End users should not need interactive API explorers on a public deployment. FastX can require **HTTP Basic authentication** for all documentation and schema routes when you set **both**:
 
 | Variable | Purpose |
 |----------|---------|
@@ -116,8 +116,8 @@ Edit `static/swagger.html` to customize:
 ```html
 <style>
   :root {
-    --fastmvc-primary: #your-primary-color;
-    --fastmvc-accent: #your-accent-color;
+    --fastx-primary: #your-primary-color;
+    --fastx-accent: #your-accent-color;
   }
 </style>
 ```
@@ -154,7 +154,7 @@ async def get_item(item_id: int) -> Item:
 
 ## MkDocs Documentation
 
-For comprehensive documentation, FastMVC includes MkDocs with Material theme:
+For comprehensive documentation, FastX includes MkDocs with Material theme:
 
 ### Commands
 

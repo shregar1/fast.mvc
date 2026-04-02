@@ -1,4 +1,4 @@
-# FastMVC Makefile
+# FastX Makefile
 # Convenience commands for development
 # Usage: make <command>
 
@@ -27,7 +27,7 @@ PROJECT_NAME := $(shell Iname $(CURDIR))
 
 ## help: Show this help message
 help:
-	@echo "$(BLUE)FastMVC Development Commands$(RESET)"
+	@echo "$(BLUE)FastX Development Commands$(RESET)"
 	@echo ""
 	@grep -E '^##' $(MAKEFILE_LIST) | sed -e 's/## //g' | column -t -s ':'
 	@echo ""
@@ -85,7 +85,7 @@ prod:
 	@echo "$(BLUE)🚀 Starting FastAPI production server...$(RESET)"
 	@$(UVICORN) app:app --host 0.0.0.0 --port 8000 --workers 4
 
-## test: Run developer tests (excludes FastMVC framework tests)
+## test: Run developer tests (excludes FastX framework tests)
 test:
 	@echo "$(BLUE)🧪 Running developer tests...$(RESET)"
 	@echo "$(YELLOW)   (Framework tests excluded. Run 'make test-all' to include them)$(RESET)"
@@ -96,9 +96,9 @@ test-dev:
 	@echo "$(BLUE)🧪 Running developer tests...$(RESET)"
 	@$(PYTEST) -v --tb=short
 
-## test-framework: Run only FastMVC framework tests
+## test-framework: Run only FastX framework tests
 test-framework:
-	@echo "$(BLUE)🧪 Running FastMVC framework tests...$(RESET)"
+	@echo "$(BLUE)🧪 Running FastX framework tests...$(RESET)"
 	@$(PYTEST) tests/framework -v --tb=short
 
 ## test-all: Run all tests (developer + framework)
@@ -201,7 +201,7 @@ db-status:
 shell:
 	@echo "$(BLUE)🐍 Starting Python shell...$(RESET)"
 	@$(PYTHON) -c "import sys; sys.path.insert(0, '.'); import app; print('Loaded app'); print('Available: app, FastAPI, etc.')"
-	@$(PYTHON) -i -c "import sys; sys.path.insert(0, '.'); import app; print('\n=== FastMVC Shell ===\n'); print('Variables available:'); print('  app - FastAPI application')"
+	@$(PYTHON) -i -c "import sys; sys.path.insert(0, '.'); import app; print('\n=== FastX Shell ===\n'); print('Variables available:'); print('  app - FastAPI application')"
 
 ## clean: Remove Python cache files and build artifacts
 clean:
@@ -232,7 +232,7 @@ docker-build:
 
 ## docker-up: Start full stack with Docker Compose
 docker-up:
-	@echo "$(BLUE)🐳 Starting FastMVC full stack...$(RESET)"
+	@echo "$(BLUE)🐳 Starting FastX full stack...$(RESET)"
 	@docker-compose up -d
 	@echo "$(GREEN)✓ Stack started successfully!$(RESET)"
 	@echo ""
@@ -291,7 +291,7 @@ docker-shell:
 
 ## docker-db-shell: Open PostgreSQL shell
 docker-db-shell:
-	@docker-compose exec postgres psql -U postgres -d fastmvc
+	@docker-compose exec postgres psql -U postgres -d fastx
 
 ## docker-redis-shell: Open Redis CLI
 docker-redis-shell:

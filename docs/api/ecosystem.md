@@ -1,6 +1,6 @@
 # 🌐 Ecosystem API Reference
 
-Automated reference for all packages in the FastMVC ecosystem.
+Automated reference for all packages in the FastX ecosystem.
 
 ## 🔗 Fast-Cli
 #### 📦 cli

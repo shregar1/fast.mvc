@@ -1,5 +1,5 @@
-site_name: FastMVC API Documentation
-site_description: Interactive API documentation for FastMVC application
+site_name: FastX API Documentation
+site_description: Interactive API documentation for FastX application
 site_url: http://localhost:8000/docs
 
 theme:
@@ -41,9 +41,9 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/fastmvc/fastmvc
+      link: https://github.com/fastx/fastx
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/fastmvc/
+      link: https://pypi.org/project/fastx/
   version:
     provider: mike
 

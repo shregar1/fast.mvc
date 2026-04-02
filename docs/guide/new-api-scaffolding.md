@@ -1,6 +1,6 @@
 # New API scaffolding (layout reference)
 
-This guide describes how a **new HTTP API resource** is laid out in FastMVC so you can implement a **code generator or CLI** that asks for inputs once and emits a consistent tree. It reflects the **sample Item API** (`/items`) after migration out of a dedicated `example/` package: the same patterns apply to any resource (e.g. `product`, `order`).
+This guide describes how a **new HTTP API resource** is laid out in FastX so you can implement a **code generator or CLI** that asks for inputs once and emits a consistent tree. It reflects the **sample Item API** (`/items`) after migration out of a dedicated `example/` package: the same patterns apply to any resource (e.g. `product`, `order`).
 
 ## Concepts
 

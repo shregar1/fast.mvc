@@ -1,6 +1,6 @@
 # API Overview
 
-FastMVC provides a comprehensive REST API with automatic documentation.
+FastX provides a comprehensive REST API with automatic documentation.
 
 ## I URL
 

@@ -2,7 +2,7 @@
 """DataI Seed Script.
 
 Populate the database with initial data after migrations.
-Run automatically with: fastmvc db reset --seed
+Run automatically with: fastx db reset --seed
 
 Usage:
     python _maint/scripts/seed.py
@@ -39,7 +39,7 @@ def seed_data():
         # Example: Add initial items
         # initial_items = [
         #     {"name": "Welcome Item", "description": "Your first item", "completed": False},
-        #     {"name": "Learn FastMVC", "description": "Explore the framework", "completed": False},
+        #     {"name": "Learn FastX", "description": "Explore the framework", "completed": False},
         # ]
         #
         # for item_data in initial_items:

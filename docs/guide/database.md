@@ -1,6 +1,6 @@
 # DataI Migrations
 
-FastMVC includes a built-in CLInterface for managing database migrations using Alembic.
+FastX includes a built-in CLInterface for managing database migrations using Alembic.
 
 ## Prerequisites
 
@@ -23,10 +23,10 @@ Generate a new migration from model changes:
 
 ```bash
 # Auto-generate migration from SQLAlchemy models
-fastmvc db migrate -m "Add users table"
+fastx db migrate -m "Add users table"
 
 # Create empty migration (manual SQL)
-fastmvc db migrate -m "Create indexes" --no-autogenerate
+fastx db migrate -m "Create indexes" --no-autogenerate
 ```
 
 **Options:**
@@ -45,7 +45,7 @@ Migration file: migrations/versions/20240101_120000_add_users_table.py
 │ Next steps:                                             │
 │   1. Review the generated migration file                │
 │   2. Edit if needed (e.g., add data migrations)         │
-│   3. Run fastmvc db upgrade to apply                    │
+│   3. Run fastx db upgrade to apply                    │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -55,13 +55,13 @@ Upgrade database to latest version:
 
 ```bash
 # Upgrade to latest (head)
-fastmvc db upgrade
+fastx db upgrade
 
 # Upgrade specific number of migrations
-fastmvc db upgrade --revision +1
+fastx db upgrade --revision +1
 
 # Upgrade to specific revision
-fastmvc db upgrade --revision abc123
+fastx db upgrade --revision abc123
 ```
 
 **Options:**
@@ -83,13 +83,13 @@ Downgrade database to previous version:
 
 ```bash
 # Rollback one migration
-fastmvc db downgrade
+fastx db downgrade
 
 # Rollback specific number
-fastmvc db downgrade --revision -2
+fastx db downgrade --revision -2
 
 # Rollback all migrations
-fastmvc db downgrade --revision I
+fastx db downgrade --revision I
 ```
 
 ⚠️ **Warning:** This may cause data loss if migrations include data transformations.
@@ -100,10 +100,10 @@ Drop all tables and recreate (useful for development):
 
 ```bash
 # Reset without seed data
-fastmvc db reset
+fastx db reset
 
 # Reset and run seed data
-fastmvc db reset --seed
+fastx db reset --seed
 ```
 
 ⚠️ **Danger:** This deletes all data! Requires typing "RESET" to confirm.
@@ -119,7 +119,7 @@ fastmvc db reset --seed
 Check if database is up to date:
 
 ```bash
-fastmvc db status
+fastx db status
 ```
 
 **Output:**
@@ -139,7 +139,7 @@ Latest:  def5678_add_posts_table
 
 Status:  1 pending migration(s)
 
-Run 'fastmvc db upgrade' to apply pending migrations
+Run 'fastx db upgrade' to apply pending migrations
 ```
 
 ### View History
@@ -148,10 +148,10 @@ Show all migrations with status:
 
 ```bash
 # Simple history
-fastmvc db history
+fastx db history
 
 # Detailed history
-fastmvc db history --verbose
+fastx db history --verbose
 ```
 
 **Output:**
@@ -171,7 +171,7 @@ fastmvc db history --verbose
 2. **Generate migration:**
 
    ```bash
-   fastmvc db migrate -m "Add email field to users"
+   fastx db migrate -m "Add email field to users"
    ```
 
 3. **Review the migration file** in `migrations/versions/`
@@ -179,7 +179,7 @@ fastmvc db history --verbose
 4. **Apply migration:**
 
    ```bash
-   fastmvc db upgrade
+   fastx db upgrade
    ```
 
 5. **Test your changes**
@@ -191,13 +191,13 @@ fastmvc db history --verbose
 2. Check status:
 
    ```bash
-   fastmvc db status
+   fastx db status
    ```
 
 3. Apply migrations:
 
    ```bash
-   fastmvc db upgrade
+   fastx db upgrade
    ```
 
 4. If conflicts occur, consult with team member who created migration
@@ -211,7 +211,7 @@ fastmvc db history --verbose
 3. **Run migrations** during deployment:
 
    ```bash
-   fastmvc db upgrade
+   fastx db upgrade
    ```
 
 4. **Verify** with health check:
@@ -253,14 +253,14 @@ If a migration fails midway:
 
 ```bash
 # Check current state
-fastmvc db status
+fastx db status
 
 # Downgrade to before failed migration
-fastmvc db downgrade --revision <previous_rev>
+fastx db downgrade --revision <previous_rev>
 
 # Fix the migration file
 # Then re-apply
-fastmvc db upgrade
+fastx db upgrade
 ```
 
 ## Makefile Aliases

@@ -2,7 +2,7 @@
 
 **The Vertical Slice Orchestrator & Scaffolding Engine.**
 
-FastCLI is the primary developer interface for FastMVC. It transforms the framework's architectural philosophy into an automated developer experience.
+FastCLI is the primary developer interface for FastX. It transforms the framework's architectural philosophy into an automated developer experience.
 
 ---
 
@@ -44,7 +44,7 @@ pip install -e ./fast_cli
 
 Once installed, use it from anywhere:
 ```bash
-fastmvc --help
+fastx --help
 ```
 
 ---
@@ -53,6 +53,6 @@ fastmvc --help
 
 FastCLI includes an auto-doc engine:
 ```bash
-fastmvc docs generate
+fastx docs generate
 ```
 It crawls your `apis/` and `dtos/` directories to build a complete **MkDocs API Reference site** using `mkdocstrings`.

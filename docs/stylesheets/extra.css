@@ -1,4 +1,4 @@
-/* FastMVC Documentation Theme - Monochrome Flat Design */
+/* FastX Documentation Theme - Monochrome Flat Design */
 
 /* ========================================
    CSS Variables - Dark (default)
@@ -561,7 +561,7 @@ body {
     .md-footer {
         display: none;
     }
-    
+
     .md-content {
         background: white;
         color: black;

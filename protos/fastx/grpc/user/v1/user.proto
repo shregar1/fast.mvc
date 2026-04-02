@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package fastmvc.grpc.user.v1;
+package fastx.grpc.user.v1;
 
-option go_package = "fastmvc/grpc/user/v1";
+option go_package = "fastx/grpc/user/v1";
 
 service UserService {
   rpc FetchUser(FetchUserRequest) returns (FetchUserResponse);

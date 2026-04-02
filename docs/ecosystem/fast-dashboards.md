@@ -1,6 +1,6 @@
 # 📊 FastDashboards
 
-**HTML Dashboards and Embedded Analytics for FastMVC.**
+**HTML Dashboards and Embedded Analytics for FastX.**
 
 FastDashboards provides a set of FastAPI routers and HTML layout helpers for building operational UIs. It also includes professional-grade embed engines for **MetaI and Grafana**.
 
@@ -63,7 +63,7 @@ app.include_router(DashboardRouter, prefix="/ops", tags=["Operational UI"])
 
 ## 🛠️ Installation
 
-FastDashboards is available for all FastMVC projects:
+FastDashboards is available for all FastX projects:
 ```bash
 pip install -e ./fast_dashboards
 ```

@@ -1,4 +1,4 @@
-"""FastMVC Abstractions Module.
+"""FastX Abstractions Module.
 
 This module provides a comprehensive collection of design pattern
 implementations and abstractions for building scalable, maintainable

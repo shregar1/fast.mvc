@@ -49,20 +49,20 @@ class PostmanTestScriptEngine:
         method_js = json.dumps(str(spec.get("method") or "GET").upper())
         if oid:
             oid_js = json.dumps(oid)
-            oid_line = f"console.info('[FastMVC] ' + {method_js} + ' ' + {path_js} + ' — ' + {name_js} + ' — operationId: ' + {oid_js});"
+            oid_line = f"console.info('[FastX] ' + {method_js} + ' ' + {path_js} + ' — ' + {name_js} + ' — operationId: ' + {oid_js});"
         else:
-            oid_line = f"console.info('[FastMVC] ' + {method_js} + ' ' + {path_js} + ' — ' + {name_js});"
+            oid_line = f"console.info('[FastX] ' + {method_js} + ' ' + {path_js} + ' — ' + {name_js});"
         return [
-            "// FastMVC — auto-generated prerequest (imported with collection)",
+            "// FastX — auto-generated prerequest (imported with collection)",
             oid_line,
             "pm.request.headers.upsert({ key: 'Accept', value: 'application/json' });",
             "(function () {",
             "    const u = pm.request.url && pm.request.url.toString ? pm.request.url.toString() : '';",
-            "    if (!u || u.length < 4) { console.error('[FastMVC] Missing or invalid request URL'); }",
+            "    if (!u || u.length < 4) { console.error('[FastX] Missing or invalid request URL'); }",
             "}());",
             "(function () {",
             "    const m = pm.request.method;",
-            "    if (!m || typeof m !== 'string') { console.error('[FastMVC] Missing HTTP method'); }",
+            "    if (!m || typeof m !== 'string') { console.error('[FastX] Missing HTTP method'); }",
             "}());",
         ]
 
@@ -90,7 +90,7 @@ class PostmanTestScriptEngine:
 
         # Build as single exec array; Postman concatenates lines.
         lines = [
-            "// FastMVC — exhaustive auto-generated tests (Collection Runner)",
+            "// FastX — exhaustive auto-generated tests (Collection Runner)",
             f"const __label = {label_js};",
             f"const __method = {method_js};",
             f"const __successCodes = {success_codes_js};",
@@ -116,7 +116,7 @@ class PostmanTestScriptEngine:
             "pm.test(__label + ': response time soft budget (5s) — informational', function () {",
             "    const t = pm.response.responseTime;",
             "    if (t > 5000) {",
-            "        console.warn('[FastMVC] Slow response ' + t + 'ms for ' + __label);",
+            "        console.warn('[FastX] Slow response ' + t + 'ms for ' + __label);",
             "    }",
             "    pm.expect(t).to.be.a('number');",
             "});",
@@ -213,7 +213,7 @@ class PostmanTestScriptEngine:
             "    });",
             "});",
             "",
-            "pm.test(__label + ': FastMVC API envelope (when fields present)', function () {",
+            "pm.test(__label + ': FastX API envelope (when fields present)', function () {",
             "    if (!__successCodes.includes(pm.response.code)) return;",
             "    if (__noBodyCodes.includes(pm.response.code)) return;",
             "    let body;",
@@ -291,7 +291,7 @@ class PostmanTestScriptEngine:
 
         lines: list[str] = [
             "",
-            "// --- FastMVC negative / generic validation (pm.sendRequest) ---",
+            "// --- FastX negative / generic validation (pm.sendRequest) ---",
             "(function () {",
             "    function __negHeaders() {",
             "        const out = [];",
@@ -309,7 +309,7 @@ class PostmanTestScriptEngine:
             "            };",
             "            pm.sendRequest(Object.assign(base, opts), function (err, res) {",
             "                try {",
-            "                    if (err) { console.warn('[FastMVC NEG] ' + title + ': ' + err); }",
+            "                    if (err) { console.warn('[FastX NEG] ' + title + ': ' + err); }",
             "                    check(err, res);",
             "                } finally { done(); }",
             "            });",
@@ -529,14 +529,14 @@ class PostmanTestScriptEngine:
         """Root-level collection ``event`` scripts (imported with the collection)."""
         title_js = json.dumps(collection_title)
         prereq = [
-            "// FastMVC — collection prerequest",
-            f"console.info('[FastMVC] Collection: ' + {title_js});",
+            "// FastX — collection prerequest",
+            f"console.info('[FastX] Collection: ' + {title_js});",
             "if (!pm.environment.get('base_url') && !pm.collectionVariables.get('base_url')) {",
-            "    console.warn('[FastMVC] Set base_url in the active environment.');",
+            "    console.warn('[FastX] Set base_url in the active environment.');",
             "}",
         ]
         coll_test = [
-            "// FastMVC — collection-level test hook (runs after each request in Runner)",
+            "// FastX — collection-level test hook (runs after each request in Runner)",
             "// Per-request tests live on each request item.",
             "// If the response matches the standard envelope with auth in data.tokens, sync vars for later Bearer requests.",
             "(function () {",

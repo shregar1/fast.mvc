@@ -1,6 +1,6 @@
 # Project Structure
 
-Understanding the FastMVC project layout and organization.
+Understanding the FastX project layout and organization.
 
 ## Directory Overview
 

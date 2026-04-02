@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from fastmvc.grpc.user.v1 import user_pb2 as fastmvc_dot_grpc_dot_user_dot_v1_dot_user__pb2
+from fastx.grpc.user.v1 import user_pb2 as fastx_dot_grpc_dot_user_dot_v1_dot_user__pb2
 
 GRPC_GENERATED_VERSION = '1.80.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in fastmvc/grpc/user/v1/user_pb2_grpc.py depends on'
+        + ' but the generated code in fastx/grpc/user/v1/user_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -35,9 +35,9 @@ class UserServiceStub(object):
             channel: A grpc.Channel.
         """
         self.FetchUser = channel.unary_unary(
-                '/fastmvc.grpc.user.v1.UserService/FetchUser',
-                request_serializer=fastmvc_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserRequest.SerializeToString,
-                response_deserializer=fastmvc_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserResponse.FromString,
+                '/fastx.grpc.user.v1.UserService/FetchUser',
+                request_serializer=fastx_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserRequest.SerializeToString,
+                response_deserializer=fastx_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserResponse.FromString,
                 _registered_method=True)
 
 
@@ -55,14 +55,14 @@ def add_UserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'FetchUser': grpc.unary_unary_rpc_method_handler(
                     servicer.FetchUser,
-                    request_deserializer=fastmvc_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserRequest.FromString,
-                    response_serializer=fastmvc_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserResponse.SerializeToString,
+                    request_deserializer=fastx_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserRequest.FromString,
+                    response_serializer=fastx_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fastmvc.grpc.user.v1.UserService', rpc_method_handlers)
+            'fastx.grpc.user.v1.UserService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('fastmvc.grpc.user.v1.UserService', rpc_method_handlers)
+    server.add_registered_method_handlers('fastx.grpc.user.v1.UserService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -83,9 +83,9 @@ class UserService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/fastmvc.grpc.user.v1.UserService/FetchUser',
-            fastmvc_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserRequest.SerializeToString,
-            fastmvc_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserResponse.FromString,
+            '/fastx.grpc.user.v1.UserService/FetchUser',
+            fastx_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserRequest.SerializeToString,
+            fastx_dot_grpc_dot_user_dot_v1_dot_user__pb2.FetchUserResponse.FromString,
             options,
             channel_credentials,
             insecure,

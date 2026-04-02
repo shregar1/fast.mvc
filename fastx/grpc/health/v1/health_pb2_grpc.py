@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from fastmvc.grpc.health.v1 import health_pb2 as fastmvc_dot_grpc_dot_health_dot_v1_dot_health__pb2
+from fastx.grpc.health.v1 import health_pb2 as fastx_dot_grpc_dot_health_dot_v1_dot_health__pb2
 
 GRPC_GENERATED_VERSION = '1.80.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in fastmvc/grpc/health/v1/health_pb2_grpc.py depends on'
+        + ' but the generated code in fastx/grpc/health/v1/health_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -35,9 +35,9 @@ class HealthServiceStub(object):
             channel: A grpc.Channel.
         """
         self.Check = channel.unary_unary(
-                '/fastmvc.grpc.health.v1.HealthService/Check',
-                request_serializer=fastmvc_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthRequest.SerializeToString,
-                response_deserializer=fastmvc_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthResponse.FromString,
+                '/fastx.grpc.health.v1.HealthService/Check',
+                request_serializer=fastx_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthRequest.SerializeToString,
+                response_deserializer=fastx_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthResponse.FromString,
                 _registered_method=True)
 
 
@@ -55,14 +55,14 @@ def add_HealthServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Check': grpc.unary_unary_rpc_method_handler(
                     servicer.Check,
-                    request_deserializer=fastmvc_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthRequest.FromString,
-                    response_serializer=fastmvc_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthResponse.SerializeToString,
+                    request_deserializer=fastx_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthRequest.FromString,
+                    response_serializer=fastx_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fastmvc.grpc.health.v1.HealthService', rpc_method_handlers)
+            'fastx.grpc.health.v1.HealthService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('fastmvc.grpc.health.v1.HealthService', rpc_method_handlers)
+    server.add_registered_method_handlers('fastx.grpc.health.v1.HealthService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -83,9 +83,9 @@ class HealthService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/fastmvc.grpc.health.v1.HealthService/Check',
-            fastmvc_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthRequest.SerializeToString,
-            fastmvc_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthResponse.FromString,
+            '/fastx.grpc.health.v1.HealthService/Check',
+            fastx_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthRequest.SerializeToString,
+            fastx_dot_grpc_dot_health_dot_v1_dot_health__pb2.HealthResponse.FromString,
             options,
             channel_credentials,
             insecure,

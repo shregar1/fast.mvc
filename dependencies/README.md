@@ -23,7 +23,7 @@ Each injectable is a **class** with a `derive` (or similar) entry point—no loo
 
 ## Overview
 
-The `dependencies` module provides FastAPI dependency injection components for the FastMVC application. Dependencies are reusable components that can be injected into route handlers, enabling clean separation of concerns and easy testing.
+The `dependencies` module provides FastAPI dependency injection components for the FastX application. Dependencies are reusable components that can be injected into route handlers, enabling clean separation of concerns and easy testing.
 
 ## Purpose
 

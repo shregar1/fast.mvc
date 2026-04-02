@@ -35,7 +35,7 @@ __all__ = [
 class ApplicationDefault:
     """Core app identity, logging, and channel settings."""
 
-    APP_NAME: Final[str] = "FastMVC"
+    APP_NAME: Final[str] = "FastX"
     """Default application name."""
 
     APP_VERSION: Final[str] = "1.0.1"
@@ -265,7 +265,7 @@ class Default(
     InputValidationDefault,
     CorsSectionDefault,
 ):
-    """Aggregated defaults for FastMVC (inherits domain classes above).
+    """Aggregated defaults for FastX (inherits domain classes above).
 
     Use :data:`SECURITY_CONFIGURATION` for the combined security nested dict;
     subsection dicts are also exposed on the same names as the domain classes

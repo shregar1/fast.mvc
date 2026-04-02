@@ -1,6 +1,6 @@
 """Item Controller - Example controller implementation.
 
-Demonstrates FastMVC controller patterns with FastAPI routes.
+Demonstrates FastX controller patterns with FastAPI routes.
 """
 
 from http import HTTPStatus

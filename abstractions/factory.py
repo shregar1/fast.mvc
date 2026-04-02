@@ -26,7 +26,7 @@ class IFactory(ABC):
     """Abstract I class for implementing the Factory pattern.
 
     The IFactory class provides a standardized interface for object creation
-    in the FastMVC framework. Factories encapsulate the complexity of object
+    in the FastX framework. Factories encapsulate the complexity of object
     instantiation and dependency wiring.
 
     Use cases:

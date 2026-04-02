@@ -1,6 +1,6 @@
 # Reference
 
-Complete API reference for FastMVC components.
+Complete API reference for FastX components.
 
 ## Abstractions
 

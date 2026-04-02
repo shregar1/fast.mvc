@@ -8,7 +8,7 @@ Anything that is **fixed for the whole application** (or a major version) and **
 
 ## Overview
 
-The `constants` module provides centralized, type-safe constant definitions used throughout the FastMVC application. Constants prevent magic strings/numbers, enable IDE autocompletion, and make refactoring easier.
+The `constants` module provides centralized, type-safe constant definitions used throughout the FastX application. Constants prevent magic strings/numbers, enable IDE autocompletion, and make refactoring easier.
 
 ## Purpose
 

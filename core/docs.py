@@ -1,4 +1,4 @@
-"""FastMVC Custom API Documentation.
+"""FastX Custom API Documentation.
 
 Provides branded Swagger UI and ReDoc with dark mode and custom styling.
 
@@ -15,7 +15,7 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import HTMLResponse
 
-# FastMVC Brand Colors
+# FastX Brand Colors
 FASTMVC_THEME = {
     "primary": "#0ea5e9",  # Cyan 500
     "secondary": "#d946ef",  # Fuchsia 500
@@ -32,364 +32,364 @@ FASTMVC_THEME = {
 # Custom CSS for Swagger UI dark mode
 SWAGGER_UI_CSS = f"""
 <style>
-    /* FastMVC Dark Theme for Swagger UI */
-    
+    /* FastX Dark Theme for Swagger UI */
+
     :root {{
-        --fastmvc-primary: {FASTMVC_THEME["primary"]};
-        --fastmvc-secondary: {FASTMVC_THEME["secondary"]};
-        --fastmvc-accent: {FASTMVC_THEME["accent"]};
-        --fastmvc-bg: {FASTMVC_THEME["dark"]["bg"]};
-        --fastmvc-surface: {FASTMVC_THEME["dark"]["surface"]};
-        --fastmvc-text: {FASTMVC_THEME["dark"]["text"]};
-        --fastmvc-muted: {FASTMVC_THEME["dark"]["muted"]};
-        --fastmvc-border: {FASTMVC_THEME["dark"]["border"]};
+        --fastx-primary: {FASTMVC_THEME["primary"]};
+        --fastx-secondary: {FASTMVC_THEME["secondary"]};
+        --fastx-accent: {FASTMVC_THEME["accent"]};
+        --fastx-bg: {FASTMVC_THEME["dark"]["bg"]};
+        --fastx-surface: {FASTMVC_THEME["dark"]["surface"]};
+        --fastx-text: {FASTMVC_THEME["dark"]["text"]};
+        --fastx-muted: {FASTMVC_THEME["dark"]["muted"]};
+        --fastx-border: {FASTMVC_THEME["dark"]["border"]};
     }}
-    
+
     /* Body & Background */
     body {{
-        background: var(--fastmvc-bg) !important;
-        color: var(--fastmvc-text) !important;
+        background: var(--fastx-bg) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     /* Top Bar */
     .swagger-ui .topbar {{
-        background: linear-gradient(135deg, var(--fastmvc-primary), var(--fastmvc-accent)) !important;
-        border-bottom: 1px solid var(--fastmvc-border);
+        background: linear-gradient(135deg, var(--fastx-primary), var(--fastx-accent)) !important;
+        border-bottom: 1px solid var(--fastx-border);
     }}
-    
+
     .swagger-ui .topbar .download-url-wrapper .select-label span {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     /* Logo/Brand */
     .swagger-ui .topbar .topbar-wrapper {{
         display: flex;
         align-items: center;
     }}
-    
+
     .swagger-ui .topbar .topbar-wrapper:before {{
-        content: "⚡ FastMVC";
+        content: "⚡ FastX";
         font-size: 1.5rem;
         font-weight: bold;
         color: white;
         margin-right: 1rem;
         text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }}
-    
+
     .swagger-ui .topbar img {{
         display: none;
     }}
-    
+
     /* Info Section */
     .swagger-ui .info {{
-        background: var(--fastmvc-surface) !important;
+        background: var(--fastx-surface) !important;
         border-radius: 12px !important;
         padding: 2rem !important;
         margin: 1rem 0 !important;
-        border: 1px solid var(--fastmvc-border);
+        border: 1px solid var(--fastx-border);
         box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
     }}
-    
+
     .swagger-ui .info .title {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
         font-size: 2.5rem !important;
         font-weight: 700 !important;
     }}
-    
+
     .swagger-ui .info .title small {{
-        background: var(--fastmvc-primary) !important;
+        background: var(--fastx-primary) !important;
         color: white !important;
         border-radius: 4px !important;
         padding: 0.25rem 0.5rem !important;
     }}
-    
+
     .swagger-ui .info p,
     .swagger-ui .info li {{
-        color: var(--fastmvc-muted) !important;
+        color: var(--fastx-muted) !important;
     }}
-    
+
     .swagger-ui .info a {{
-        color: var(--fastmvc-primary) !important;
+        color: var(--fastx-primary) !important;
     }}
-    
+
     .swagger-ui .info h2,
     .swagger-ui .info h3,
     .swagger-ui .info h4 {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     /* Schemes */
     .swagger-ui .scheme-container {{
-        background: var(--fastmvc-surface) !important;
+        background: var(--fastx-surface) !important;
         border-radius: 8px !important;
-        border: 1px solid var(--fastmvc-border);
+        border: 1px solid var(--fastx-border);
         box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2);
     }}
-    
+
     .swagger-ui .scheme-container .schemes > label span {{
-        color: var(--fastmvc-muted) !important;
+        color: var(--fastx-muted) !important;
     }}
-    
+
     /* Operations */
     .swagger-ui .opblock {{
-        background: var(--fastmvc-surface) !important;
-        border: 1px solid var(--fastmvc-border) !important;
+        background: var(--fastx-surface) !important;
+        border: 1px solid var(--fastx-border) !important;
         border-radius: 8px !important;
         margin: 0.75rem 0 !important;
         box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2);
     }}
-    
+
     .swagger-ui .opblock .opblock-summary {{
-        border-bottom: 1px solid var(--fastmvc-border);
+        border-bottom: 1px solid var(--fastx-border);
     }}
-    
+
     .swagger-ui .opblock .opblock-summary-method {{
         border-radius: 4px;
         font-weight: 600;
         text-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }}
-    
+
     .swagger-ui .opblock .opblock-summary-path {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     .swagger-ui .opblock .opblock-summary-description {{
-        color: var(--fastmvc-muted) !important;
+        color: var(--fastx-muted) !important;
     }}
-    
+
     /* HTTP Method Colors */
     .swagger-ui .opblock.opblock-get .opblock-summary-method {{
         background: #3b82f6 !important;
     }}
-    
+
     .swagger-ui .opblock.opblock-post .opblock-summary-method {{
         background: #10b981 !important;
     }}
-    
+
     .swagger-ui .opblock.opblock-put .opblock-summary-method {{
         background: #f59e0b !important;
     }}
-    
+
     .swagger-ui .opblock.opblock-delete .opblock-summary-method {{
         background: #ef4444 !important;
     }}
-    
+
     .swagger-ui .opblock.opblock-patch .opblock-summary-method {{
         background: #8b5cf6 !important;
     }}
-    
+
     /* Operation Details */
     .swagger-ui .opblock-body {{
-        background: var(--fastmvc-bg) !important;
+        background: var(--fastx-bg) !important;
     }}
-    
+
     .swagger-ui .opblock-section-header {{
-        background: var(--fastmvc-surface) !important;
-        border-bottom: 1px solid var(--fastmvc-border);
+        background: var(--fastx-surface) !important;
+        border-bottom: 1px solid var(--fastx-border);
     }}
-    
+
     .swagger-ui .opblock-section-header h4 {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     /* Parameters */
     .swagger-ui .parameters-col_name {{
-        color: var(--fastmvc-primary) !important;
+        color: var(--fastx-primary) !important;
     }}
-    
+
     .swagger-ui .parameter__name {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     .swagger-ui .parameter__type {{
-        color: var(--fastmvc-secondary) !important;
+        color: var(--fastx-secondary) !important;
     }}
-    
+
     .swagger-ui .parameter__in {{
-        color: var(--fastmvc-muted) !important;
+        color: var(--fastx-muted) !important;
     }}
-    
+
     /* Tables */
     .swagger-ui table {{
-        background: var(--fastmvc-surface) !important;
-        border: 1px solid var(--fastmvc-border) !important;
+        background: var(--fastx-surface) !important;
+        border: 1px solid var(--fastx-border) !important;
         border-radius: 8px;
     }}
-    
+
     .swagger-ui table thead tr th {{
-        background: var(--fastmvc-bg) !important;
-        color: var(--fastmvc-text) !important;
-        border-bottom: 1px solid var(--fastmvc-border);
+        background: var(--fastx-bg) !important;
+        color: var(--fastx-text) !important;
+        border-bottom: 1px solid var(--fastx-border);
     }}
-    
+
     .swagger-ui table tbody tr td {{
-        color: var(--fastmvc-muted) !important;
-        border-bottom: 1px solid var(--fastmvc-border);
+        color: var(--fastx-muted) !important;
+        border-bottom: 1px solid var(--fastx-border);
     }}
-    
+
     /* Models */
     .swagger-ui .model-box {{
-        background: var(--fastmvc-surface) !important;
-        border: 1px solid var(--fastmvc-border) !important;
+        background: var(--fastx-surface) !important;
+        border: 1px solid var(--fastx-border) !important;
         border-radius: 8px;
     }}
-    
+
     .swagger-ui .model-title {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     .swagger-ui .prop-name {{
-        color: var(--fastmvc-primary) !important;
+        color: var(--fastx-primary) !important;
     }}
-    
+
     .swagger-ui .prop-type {{
-        color: var(--fastmvc-secondary) !important;
+        color: var(--fastx-secondary) !important;
     }}
-    
+
     /* Code Samples */
     .swagger-ui .curl {{
-        background: var(--fastmvc-bg) !important;
-        border: 1px solid var(--fastmvc-border) !important;
+        background: var(--fastx-bg) !important;
+        border: 1px solid var(--fastx-border) !important;
         border-radius: 8px;
     }}
-    
+
     .swagger-ui .curl command {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     /* Response Section */
     .swagger-ui .responses-inner {{
-        background: var(--fastmvc-surface) !important;
+        background: var(--fastx-surface) !important;
     }}
-    
+
     .swagger-ui .responses-inner h4,
     .swagger-ui .responses-inner h5 {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     /* Try It Out Button */
     .swagger-ui .btn {{
-        background: var(--fastmvc-primary) !important;
-        border-color: var(--fastmvc-primary) !important;
+        background: var(--fastx-primary) !important;
+        border-color: var(--fastx-primary) !important;
         color: white !important;
         border-radius: 6px !important;
         font-weight: 500;
         transition: all 0.2s ease;
     }}
-    
+
     .swagger-ui .btn:hover {{
-        background: var(--fastmvc-accent) !important;
-        border-color: var(--fastmvc-accent) !important;
+        background: var(--fastx-accent) !important;
+        border-color: var(--fastx-accent) !important;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
     }}
-    
+
     .swagger-ui .btn.cancel {{
         background: transparent !important;
-        border-color: var(--fastmvc-border) !important;
-        color: var(--fastmvc-muted) !important;
+        border-color: var(--fastx-border) !important;
+        color: var(--fastx-muted) !important;
     }}
-    
+
     .swagger-ui .btn.execute {{
-        background: linear-gradient(135deg, var(--fastmvc-primary), var(--fastmvc-accent)) !important;
+        background: linear-gradient(135deg, var(--fastx-primary), var(--fastx-accent)) !important;
     }}
-    
+
     /* Input Fields */
     .swagger-ui input[type="text"],
     .swagger-ui textarea {{
-        background: var(--fastmvc-bg) !important;
-        border: 1px solid var(--fastmvc-border) !important;
-        color: var(--fastmvc-text) !important;
+        background: var(--fastx-bg) !important;
+        border: 1px solid var(--fastx-border) !important;
+        color: var(--fastx-text) !important;
         border-radius: 6px;
     }}
-    
+
     .swagger-ui input[type="text"]:focus,
     .swagger-ui textarea:focus {{
-        border-color: var(--fastmvc-primary) !important;
+        border-color: var(--fastx-primary) !important;
         outline: none;
         box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
     }}
-    
+
     /* Dropdown */
     .swagger-ui .select-wrapper select {{
-        background: var(--fastmvc-bg) !important;
-        border: 1px solid var(--fastmvc-border) !important;
-        color: var(--fastmvc-text) !important;
+        background: var(--fastx-bg) !important;
+        border: 1px solid var(--fastx-border) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     /* Response Codes */
     .swagger-ui .response-col_status {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
         font-weight: 600;
     }}
-    
+
     .swagger-ui .response-col_description {{
-        color: var(--fastmvc-muted) !important;
+        color: var(--fastx-muted) !important;
     }}
-    
+
     /* Auth */
     .swagger-ui .auth-container {{
-        background: var(--fastmvc-surface) !important;
-        border: 1px solid var(--fastmvc-border);
+        background: var(--fastx-surface) !important;
+        border: 1px solid var(--fastx-border);
         border-radius: 8px;
     }}
-    
+
     .swagger-ui .auth-container h3,
     .swagger-ui .auth-container h4 {{
-        color: var(--fastmvc-text) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     .swagger-ui .auth-container p {{
-        color: var(--fastmvc-muted) !important;
+        color: var(--fastx-muted) !important;
     }}
-    
+
     /* Loading */
     .swagger-ui .loading-container .loading {{
-        color: var(--fastmvc-primary) !important;
+        color: var(--fastx-primary) !important;
     }}
-    
+
     /* Errors */
     .swagger-ui .errors-wrapper {{
         background: rgba(239, 68, 68, 0.1) !important;
         border: 1px solid #ef4444 !important;
         border-radius: 8px;
     }}
-    
+
     .swagger-ui .errors-wrapper .errors h4 {{
         color: #ef4444 !important;
     }}
-    
+
     /* Scrollbar */
     ::-webkit-scrollbar {{
         width: 10px;
         height: 10px;
     }}
-    
+
     ::-webkit-scrollbar-track {{
-        background: var(--fastmvc-bg);
+        background: var(--fastx-bg);
     }}
-    
+
     ::-webkit-scrollbar-thumb {{
-        background: var(--fastmvc-border);
+        background: var(--fastx-border);
         border-radius: 5px;
     }}
-    
+
     ::-webkit-scrollbar-thumb:hover {{
-        background: var(--fastmvc-muted);
+        background: var(--fastx-muted);
     }}
-    
+
     /* Filter */
     .swagger-ui .filter .filter-input {{
-        background: var(--fastmvc-surface) !important;
-        border: 1px solid var(--fastmvc-border) !important;
-        color: var(--fastmvc-text) !important;
+        background: var(--fastx-surface) !important;
+        border: 1px solid var(--fastx-border) !important;
+        color: var(--fastx-text) !important;
     }}
-    
+
     /* Servers */
     .swagger-ui .servers > label select {{
-        background: var(--fastmvc-bg) !important;
-        border: 1px solid var(--fastmvc-border) !important;
-        color: var(--fastmvc-text) !important;
+        background: var(--fastx-bg) !important;
+        border: 1px solid var(--fastx-border) !important;
+        color: var(--fastx-text) !important;
     }}
 </style>
 """
@@ -397,10 +397,10 @@ SWAGGER_UI_CSS = f"""
 # Custom JS for Swagger UI enhancements
 SWAGGER_UI_JS = """
 <script>
-    // FastMVC Swagger UI Enhancements
+    // FastX Swagger UI Enhancements
     (function() {
         'use strict';
-        
+
         // Wait for Swagger UI to load
         function waitForSwaggerUI() {
             if (document.querySelector('.swagger-ui .info')) {
@@ -409,9 +409,9 @@ SWAGGER_UI_JS = """
                 setTimeout(waitForSwaggerUI, 100);
             }
         }
-        
+
         function enhanceSwaggerUI() {
-            // Add FastMVC badge
+            // Add FastX badge
             const info = document.querySelector('.swagger-ui .info');
             if (info) {
                 const badge = document.createElement('div');
@@ -429,12 +429,12 @@ SWAGGER_UI_JS = """
                         margin-bottom: 1rem;
                     ">
                         <span>⚡</span>
-                        <span>FastMVC API</span>
+                        <span>FastX API</span>
                     </div>
                 `;
                 info.insertBefore(badge.firstElementChild, info.firstChild);
             }
-            
+
             // Add copy buttons to code blocks
             document.querySelectorAll('.swagger-ui .curl command').forEach(block => {
                 const copyBtn = document.createElement('button');
@@ -460,7 +460,7 @@ SWAGGER_UI_JS = """
                 block.parentElement.appendChild(copyBtn);
             });
         }
-        
+
         // Start waiting
         waitForSwaggerUI();
     })();
@@ -483,7 +483,7 @@ def _merge_html_response(base: HTMLResponse, *extra_parts: str) -> HTMLResponse:
 
 
 def setup_custom_docs(app: FastAPI) -> None:
-    """Set up custom FastMVC branded documentation for FastAPI.
+    """Set up custom FastX branded documentation for FastAPI.
 
     Args:
         app: FastAPI application instance
@@ -493,16 +493,16 @@ def setup_custom_docs(app: FastAPI) -> None:
     original_openapi = app.openapi
 
     def custom_openapi():
-        """Generate custom OpenAPI schema with FastMVC branding."""
+        """Generate custom OpenAPI schema with FastX branding."""
         if app.openapi_schema:
             return app.openapi_schema
 
         openapi_schema = original_openapi()
 
-        # Add FastMVC branding
+        # Add FastX branding
         openapi_schema["info"]["x-logo"] = {
             "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E",
-            "altText": "FastMVC Logo",
+            "altText": "FastX Logo",
         }
 
         # Add example servers
@@ -539,7 +539,7 @@ def setup_custom_docs(app: FastAPI) -> None:
 
     @app.get("/docs", include_in_schema=False)
     async def custom_swagger_ui_html():
-        """Custom Swagger UI with FastMVC branding."""
+        """Custom Swagger UI with FastX branding."""
         # Use standalone HTML file if available
         if swagger_html_path.exists():
             return HTMLResponse(content=swagger_html_path.read_text())
@@ -569,7 +569,7 @@ def setup_custom_docs(app: FastAPI) -> None:
     # Override ReDoc endpoint
     @app.get("/redoc", include_in_schema=False)
     async def custom_redoc_html():
-        """Custom ReDoc with FastMVC branding."""
+        """Custom ReDoc with FastX branding."""
         openapi_url = app.openapi_url or "/openapi.json"
         return _merge_html_response(
             get_redoc_html(
@@ -587,7 +587,7 @@ def setup_custom_docs(app: FastAPI) -> None:
         """,
         )
 
-    print("✅ Custom FastMVC API documentation configured")
+    print("✅ Custom FastX API documentation configured")
     print("   - Swagger UI: http://localhost:8000/docs")
     print("   - ReDoc:      http://localhost:8000/redoc")
 

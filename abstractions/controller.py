@@ -24,7 +24,7 @@ class IController(ABC, ContextMixin):
     """Abstract I class for all API controllers.
 
     The IController provides a standardized interface for handling HTTP requests
-    in the FastMVC framework. It includes request context tracking (URN, user info),
+    in the FastX framework. It includes request context tracking (URN, user info),
     structured logging, and request validation hooks.
 
     Attributes:

@@ -15,6 +15,7 @@ from core.postman_test_script_engine import (
     PostmanTestScriptEngine,
     enrich_operation_spec_for_tests,
 )
+from constants.environment import EnvironmentVar
 from utilities.system import SystemUtility
 
 
@@ -57,14 +58,24 @@ class RouteExportEngine:
         return v in ("1", "true", "yes", "on")
 
     def _postman_project_display_name(self) -> str:
-        """Label for Postman collection/environment: git repo folder, or override, or app title."""
+        """Label for Postman collection/environment.
+
+        Precedence:
+        1) `POSTMAN_COLLECTION_NAME` override (explicit)
+        2) `APP_NAME` from the environment (typically from `.env`)
+        3) git repo folder name
+        4) `fastx` (last-resort default)
+        """
         override = os.getenv("POSTMAN_COLLECTION_NAME", "").strip()
         if override:
             return override
+        app_name_raw = os.getenv(EnvironmentVar.APP_NAME, "").strip()
+        if app_name_raw:
+            return app_name_raw
         git_name = SystemUtility.git_repository_folder_name()
         if git_name:
             return git_name
-        return str(self.app.title)
+        return "fastx"
 
     def install(self) -> None:
         """Install monkey patches that observe route registration."""

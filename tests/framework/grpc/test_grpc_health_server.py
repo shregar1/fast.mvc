@@ -4,8 +4,8 @@ import pytest
 
 import grpc
 
-from fastmvc.grpc.health.v1 import health_pb2, health_pb2_grpc
-from fastmvc.grpc.user.v1 import user_pb2, user_pb2_grpc
+from fastx.grpc.health.v1 import health_pb2, health_pb2_grpc
+from fastx.grpc.user.v1 import user_pb2, user_pb2_grpc
 
 
 @pytest.mark.asyncio
@@ -35,7 +35,7 @@ async def test_grpc_health_serving_without_jwt(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_grpc_health_jwt_enabled_secret_missing_allows_like_http(monkeypatch):
-    """Match FastMVC HTTP behavior: if JWT enabled but SECRET_KEY empty, enforcement is disabled."""
+    """Match FastX HTTP behavior: if JWT enabled but SECRET_KEY empty, enforcement is disabled."""
     monkeypatch.setenv("GRPC_HOST", "127.0.0.1")
     monkeypatch.setenv("GRPC_PORT", "0")
     monkeypatch.setenv("JWT_AUTH_ENABLED", "true")

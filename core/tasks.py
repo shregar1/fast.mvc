@@ -18,7 +18,7 @@ def _make_fallback_celery_app() -> Any:
 
     redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
     # Use Redis for both broker and result backend in this fallback.
-    return Celery("fastmvc", broker=redis_url, backend=redis_url)
+    return Celery("fastx", broker=redis_url, backend=redis_url)
 
 
 try:

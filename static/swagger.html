@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastMVC API Documentation</title>
+    <title>FastX API Documentation</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%2300d4aa' d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/></svg>">
@@ -839,14 +839,14 @@
     </style>
 </head>
 <body>
-    <!-- FastMVC Header -->
+    <!-- FastX Header -->
     <header class="fm-header">
         <div class="fm-brand">
             <div class="fm-logo">
-                <img src="logo-icon.svg" alt="FastMVC" style="width: 20px; height: 20px; color: var(--text);">
+                <img src="logo-icon.svg" alt="FastX" style="width: 20px; height: 20px; color: var(--text);">
             </div>
             <div class="fm-title-wrap">
-                <h1 class="fm-title">FastMVC</h1>
+                <h1 class="fm-title">FastX</h1>
                 <span class="fm-subtitle">API Documentation</span>
             </div>
         </div>
@@ -885,11 +885,11 @@
             // Theme handling
             const themeToggle = document.getElementById('theme-toggle');
             const html = document.documentElement;
-            
+
             // Get saved theme or default to dark
             const savedTheme = localStorage.getItem('theme') || 'dark';
             html.setAttribute('data-theme', savedTheme);
-            
+
             // Toggle theme
             themeToggle.addEventListener('click', () => {
                 const currentTheme = html.getAttribute('data-theme');

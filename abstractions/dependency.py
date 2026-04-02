@@ -24,7 +24,7 @@ class IDependency(ABC):
     """Abstract I class for FastAPI dependencies.
 
     The IDependency class provides a standardized interface for creating
-    injectable dependencies in the FastMVC framework. Dependencies encapsulate
+    injectable dependencies in the FastX framework. Dependencies encapsulate
     reusable logic and resources that can be injected into route handlers.
 
     Common use cases:

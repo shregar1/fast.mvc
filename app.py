@@ -1,4 +1,4 @@
-"""FastMVC Application Entry Point.
+"""FastX Application Entry Point.
 
 This is the main FastAPI application module that initializes the web server,
 configures middleware, registers routes, and handles application lifecycle events.
@@ -19,7 +19,7 @@ Environment Variables:
     RATE_LIMIT_WINDOW_SECONDS: Rate limit window size in seconds (default: 60)
     RATE_LIMIT_BURST_LIMIT: Maximum burst requests allowed (default: 10)
     POSTMAN_EXPORT_ENVIRONMENT: Set to 1/true to also write environment JSON under postman/ on boot
-    POSTMAN_COLLECTION_NAME: Override Postman collection/env title (default: git repo folder name)
+    POSTMAN_COLLECTION_NAME: Override Postman collection/env title (default: APP_NAME from env → git repo folder name → fastx)
     POSTMAN_BASE_URL: Override default base_url in collection/environment (else HOST:PORT)
     POSTMAN_OUTPUT_DIR: Directory for Postman exports (default: postman)
     POSTMAN_COLLECTION_FILE: Collection JSON path (default: postman/postman_collection.json)
@@ -204,12 +204,76 @@ if not IS_TEST_RUN and EnvironmentParserUtility.get_bool_with_logging(
     validate_config_or_exit()
 
 
+def print_startup_banner() -> None:
+    """Print a beautiful startup banner with server information (monochrome)."""
+    from constants.banner import (
+        FASTX_BANNER,
+        SERVER_INFO_HEADER,
+        API_DOCS_HEADER,
+        HEALTH_ENDPOINTS_HEADER,
+        ENVIRONMENT_HEADER,
+        FEATURES_HEADER,
+        FEATURE_ENABLED,
+        FEATURE_DISABLED,
+        READY_MESSAGE,
+        LABEL_WIDTH,
+    )
+
+    # Print banner
+    print(FASTX_BANNER)
+
+    # Server info
+    print(SERVER_INFO_HEADER)
+    print(f"   {'Host:':<{LABEL_WIDTH}} {HOST}")
+    print(f"   {'Port:':<{LABEL_WIDTH}} {PORT}")
+    print(f"   {'URL:':<{LABEL_WIDTH}} http://{HOST}:{PORT}")
+    print()
+
+    # API Documentation
+    print(API_DOCS_HEADER)
+    print(f"   {'Swagger UI:':<{LABEL_WIDTH}} http://{HOST}:{PORT}/docs")
+    print(f"   {'ReDoc:':<{LABEL_WIDTH}} http://{HOST}:{PORT}/redoc")
+    print(f"   {'OpenAPI:':<{LABEL_WIDTH}} http://{HOST}:{PORT}/openapi.json")
+    print()
+
+    # Health Endpoints
+    print(HEALTH_ENDPOINTS_HEADER)
+    print(f"   {'Live:':<{LABEL_WIDTH}} http://{HOST}:{PORT}/health/live")
+    print(f"   {'Ready:':<{LABEL_WIDTH}} http://{HOST}:{PORT}/health/ready")
+    print(f"   {'Full:':<{LABEL_WIDTH}} http://{HOST}:{PORT}/health")
+    print()
+
+    # Environment
+    print(ENVIRONMENT_HEADER)
+    print(f"   {'Mode:':<{LABEL_WIDTH}} {EnvironmentParserUtility.parse_str(EnvironmentVar.APP_ENV, 'development')}")
+    print(f"   {'Debug:':<{LABEL_WIDTH}} {EnvironmentParserUtility.parse_bool(EnvironmentVar.DEBUG, False)}")
+    print(f"   {'Workers:':<{LABEL_WIDTH}} {EnvironmentParserUtility.parse_int('WORKERS', 1)}")
+    print()
+
+    # Features
+    jwt_enabled = EnvironmentParserUtility.parse_bool(EnvironmentVar.JWT_AUTH_ENABLED, False)
+
+    print(FEATURES_HEADER)
+    print(f"   {FEATURE_ENABLED if jwt_enabled else FEATURE_DISABLED} JWT Auth")
+    print(f"   {FEATURE_ENABLED} Request Tracing (URN)")
+    print(f"   {FEATURE_ENABLED} Auto-generated API Docs")
+    print(f"   {FEATURE_ENABLED} Middleware Stack")
+    print()
+
+    print(READY_MESSAGE)
+    print()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Startup and shutdown (replaces deprecated ``@app.on_event`` handlers)."""
     app.state.start_time = DateTimeUtility.utc_now()
+
+    # Print beautiful startup banner
+    print_startup_banner()
+
     logger.info("Application startup event triggered")
-    logger.info(f"FastMVC API starting on {HOST}:{PORT}")
+    logger.info(f"FastX API starting on {HOST}:{PORT}")
     logger.info("Using fast-middleware for request processing")
     curl_examples = route_export_engine.build_curl_examples()
     app.state.route_curl_examples = curl_examples
@@ -240,7 +304,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 # Initialize FastAPI application (openapi_url must match middlewares.docs_auth)
 app = FastAPI(
-    title=EnvironmentParserUtility.parse_str(EnvironmentVar.APP_NAME, "FastMVC API"),
+    title=EnvironmentParserUtility.parse_str(EnvironmentVar.APP_NAME, "FastX API"),
     description="Production-grade FastAPI application with MVC architecture.",
     version=EnvironmentParserUtility.parse_str(EnvironmentVar.APP_VERSION, "1.0.1"),
     docs_url=None,  # Custom docs setup below
@@ -251,7 +315,7 @@ app = FastAPI(
 route_export_engine = RouteExportEngine(app)
 route_export_engine.install()
 
-# Setup custom FastMVC branded documentation
+# Setup custom FastX branded documentation
 try:
     from core.docs import setup_custom_docs
 
@@ -290,7 +354,7 @@ async def launch_page() -> HTMLResponse:
             },
         )
     return HTMLResponse(
-        "<!DOCTYPE html><html><body><p>FastMVC API</p></body></html>",
+        "<!DOCTYPE html><html><body><p>FastX API</p></body></html>",
         status_code=HTTPStatus.OK,
     )
 

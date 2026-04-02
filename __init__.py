@@ -1,12 +1,12 @@
-"""FastMVC - Minimal Core Framework.
+"""FastX - Minimal Core Framework.
 
 A production-grade MVC framework for FastAPI with clean architecture,
 dependency injection, and modular service integration.
 
 Basic Usage:
-    from fast_mvc import FastMVCApp, Controller, Service, Repository
+    from fast_mvc import FastXApp, Controller, Service, Repository
 
-    app = FastMVCApp()
+    app = FastXApp()
     app.run()
 
 Sample Item API (included):
@@ -72,7 +72,7 @@ from dtos.responses.abstraction import IResponseDTO
 from dtos.requests.abstraction import IRequestDTO
 
 # Application factory
-from app import app as FastMVCApp
+from app import app as FastXApp
 
 # Sample Item API (optional — demonstrates full stack wiring)
 try:
@@ -114,7 +114,7 @@ __all__ = [
     "IResponseDTO",
     "IRequestDTO",
     # App
-    "FastMVCApp",
+    "FastXApp",
 ]
 
 # Add example exports if available

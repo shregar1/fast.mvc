@@ -1,5 +1,5 @@
 /**
- * FastMVC Theme Sync
+ * FastX Theme Sync
  * Synchronizes dark/light mode across Launch Page, Swagger UI, and Docs
  */
 
@@ -37,7 +37,7 @@
      */
     function applyMkDocsTheme(theme) {
         const body = document.body;
-        
+
         if (theme === THEME_LIGHT) {
             body.setAttribute('data-md-color-scheme', 'default');
             body.setAttribute('data-md-color-primary', 'cyan');
@@ -52,11 +52,11 @@
      */
     function syncTheme() {
         const storedTheme = getStoredTheme();
-        
+
         // Check if there's a mismatch between stored theme and current theme
         const currentScheme = document.body.getAttribute('data-md-color-scheme');
         const expectedScheme = storedTheme === THEME_LIGHT ? 'default' : 'slate';
-        
+
         if (currentScheme !== expectedScheme) {
             applyMkDocsTheme(storedTheme);
         }
@@ -89,10 +89,10 @@
     function init() {
         // Apply stored theme on load
         syncTheme();
-        
+
         // Set up listener for theme changes
         setupThemeListener();
-        
+
         // Listen for storage events from other pages
         window.addEventListener('storage', function(e) {
             if (e.key === STORAGE_KEY) {

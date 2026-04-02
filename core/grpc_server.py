@@ -1,6 +1,6 @@
 """Optional gRPC server support (health-first).
 
-This keeps gRPC as an opt-in transport, aligned with FastMVC's configuration
+This keeps gRPC as an opt-in transport, aligned with FastX's configuration
 and layered approach.
 
 Currently implemented:
@@ -35,11 +35,11 @@ def _extract_bearer_token(metadata: Iterable[tuple[str, Any]]) -> Optional[str]:
 
 async def start_grpc_health_server() -> Any:
     """Start the optional gRPC health server and return the aio server."""
-    # Local imports so FastMVC works without grpc installed (until enabled).
+    # Local imports so FastX works without grpc installed (until enabled).
     import grpc  # type: ignore
 
-    from fastmvc.grpc.health.v1 import health_pb2, health_pb2_grpc
-    from fastmvc.grpc.user.v1 import user_pb2, user_pb2_grpc
+    from fastx.grpc.health.v1 import health_pb2, health_pb2_grpc
+    from fastx.grpc.user.v1 import user_pb2, user_pb2_grpc
 
     jwt_enabled = EnvironmentParserUtility.get_bool_with_logging(
         EnvironmentVar.JWT_AUTH_ENABLED,

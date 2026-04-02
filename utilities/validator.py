@@ -80,7 +80,7 @@ class ConfigValidatorUtility(IUtility):
         self._add_default_rules()
 
     def _add_default_rules(self):
-        """Add default validation rules for common FastMVC settings."""
+        """Add default validation rules for common FastX settings."""
         # DataI
         self.add_rule(
             "DATABASE_URL",

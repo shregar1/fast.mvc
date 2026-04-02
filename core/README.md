@@ -8,7 +8,7 @@ This is not where business rules live—that remains in **`services/`** and **`m
 
 ---
 
-## FastMVC Core Module
+## FastX Core Module
 
 Production-grade features for enterprise FastAPI applications.
 

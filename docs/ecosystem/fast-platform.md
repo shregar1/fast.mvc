@@ -1,6 +1,6 @@
 # 💎 FastPlatform
 
-**Unified distribution for the entire FastMVC Ecosystem.**
+**Unified distribution for the entire FastX Ecosystem.**
 
 FastPlatform is a single installable package that bundles 30+ standalone services. It follows a **package taxonomy** that organizes imports while keeping them flat and easy to use.
 

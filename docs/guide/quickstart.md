@@ -5,7 +5,7 @@
 ### Interactive Mode
 
 ```bash
-fastmvc generate
+fastx generate
 ```
 
 Follow the prompts to customize your project:
@@ -19,7 +19,7 @@ Follow the prompts to customize your project:
 ### Quick Start Mode
 
 ```bash
-fastmvc quickstart my-project
+fastx quickstart my-project
 ```
 
 This creates a project with sensible defaults:

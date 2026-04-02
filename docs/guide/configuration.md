@@ -1,6 +1,6 @@
 # Configuration
 
-FastMVC uses environment variables for configuration with built-in validation.
+FastX uses environment variables for configuration with built-in validation.
 
 ## Environment Variables
 
@@ -8,7 +8,7 @@ Create a `.env` file in your project root:
 
 ```bash
 # Application
-APP_NAME=My FastMVC App
+APP_NAME=My FastX App
 APP_VERSION=1.0.0
 DEBUG=false
 
@@ -50,7 +50,7 @@ See [API Documentation](api-docs.md) for how documentation routes are protected,
 
 ## Configuration Validation
 
-FastMVC validates configuration on startup and fails fast with clear error messages.
+FastX validates configuration on startup and fails fast with clear error messages.
 
 ### JWT Secret Validation
 
@@ -171,7 +171,7 @@ The `config/settings.py` file uses Pydantic Settings for type-safe configuration
 from pydantic_settings import ISettings
 
 class Settings(ISettings):
-    app_name: str = "FastMVC App"
+    app_name: str = "FastX App"
     debug: bool = False
     dataI_url: Optional[str] = None
     

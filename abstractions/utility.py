@@ -27,7 +27,7 @@ class IUtility(ABC):
     """Abstract I class for utility/helper components.
 
     The IUtility class provides a standardized interface for creating
-    reusable utility components in the FastMVC framework. Utilities
+    reusable utility components in the FastX framework. Utilities
     encapsulate common functionality used across multiple services.
 
     Common use cases:

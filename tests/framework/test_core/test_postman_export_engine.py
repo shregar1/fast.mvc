@@ -66,6 +66,56 @@ def test_export_groups_requests_by_endpoint_path(tmp_path: Path, monkeypatch) ->
     assert "health" in root_names
 
 
+def test_postman_collection_name_prefers_app_name_env(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("APP_NAME", "My FastX App")
+    app = FastAPI(title="Sample API")
+    engine = RouteExportEngine(app)
+    engine.install()
+
+    @app.get("/health/live")
+    async def live():
+        return {"status": "alive"}
+
+    collection_path, _ = engine.export_postman_collection()
+    payload = json.loads(collection_path.read_text(encoding="utf-8"))
+    assert payload["info"]["name"] == "My FastX App - Auto Generated"
+
+
+def test_postman_collection_name_falls_back_to_repo_or_fastx(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("APP_NAME", raising=False)
+
+    # Repo fallback
+    from utilities.system import SystemUtility
+
+    monkeypatch.setattr(
+        SystemUtility, "git_repository_folder_name", staticmethod(lambda: "RepoName")
+    )
+
+    app = FastAPI(title="Sample API")
+    engine = RouteExportEngine(app)
+    engine.install()
+
+    @app.get("/health/live")
+    async def live():
+        return {"status": "alive"}
+
+    collection_path, _ = engine.export_postman_collection()
+    payload = json.loads(collection_path.read_text(encoding="utf-8"))
+    assert payload["info"]["name"] == "RepoName - Auto Generated"
+
+    # fastx last-resort
+    monkeypatch.setattr(
+        SystemUtility, "git_repository_folder_name", staticmethod(lambda: None)
+    )
+    collection_path2, _ = engine.export_postman_collection()
+    payload2 = json.loads(collection_path2.read_text(encoding="utf-8"))
+    assert payload2["info"]["name"] == "fastx - Auto Generated"
+
+
 def test_export_request_contains_generated_tests_and_headers(
     tmp_path: Path, monkeypatch
 ) -> None:

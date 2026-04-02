@@ -1,7 +1,7 @@
-"""Core utilities for FastMVC.
+"""Core utilities for FastX.
 
 This module provides utility classes and helpers used throughout
-the FastMVC framework.
+the FastX framework.
 """
 
 from core.utils.context import ContextMixin

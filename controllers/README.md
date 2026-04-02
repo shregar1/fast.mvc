@@ -2,7 +2,7 @@
 
 ## What this module does
 
-The **`controllers`** package is the **HTTP / presentation layer** of the FastMVC application. It receives validated requests, coordinates work by calling **services** and **repositories**, and returns standardized **response DTOs**. Controllers should stay thin: no business rules that belong in the domain, and no raw SQL or persistence details.
+The **`controllers`** package is the **HTTP / presentation layer** of the FastX application. It receives validated requests, coordinates work by calling **services** and **repositories**, and returns standardized **response DTOs**. Controllers should stay thin: no business rules that belong in the domain, and no raw SQL or persistence details.
 
 This tree mirrors how you organize features—by area (`apis`, `auth`, …) and optional versioning—so that each controller class maps clearly to a use case or route family.
 

@@ -1,8 +1,8 @@
-# 🌌 The FastMVC Ecosystem
+# 🌌 The FastX Ecosystem
 
-FastMVC is more than just a framework; it's a modular ecosystem of specialized packages designed to handle every layer of a production-grade application.
+FastX is more than just a framework; it's a modular ecosystem of specialized packages designed to handle every layer of a production-grade application.
 
-Each package is decoupled and can be used independently, but they are designed to work together seamlessly within the FastMVC architecture.
+Each package is decoupled and can be used independently, but they are designed to work together seamlessly within the FastX architecture.
 
 ---
 
@@ -20,7 +20,7 @@ Each package is decoupled and can be used independently, but they are designed t
 
 ## 🛠️ Philosophy: Modular & Decoupled
 
-The FastMVC ecosystem follows a **"Flat but Deep"** philosophy:
+The FastX ecosystem follows a **"Flat but Deep"** philosophy:
 - **Flat Imports:** All packages under `fast_platform` use top-level imports (e.g., `from notifications import ...`) to keep your code clean.
 - **Deep Functionality:** Each module handles the complexities of its domain (e.g., `fast_middleware` handles HSTS, CSP, and Rate Limiting automatically).
 - **Vendor Friendly:** You can choose to vendor specific parts of the ecosystem into your project or install them as standalone wheels.
@@ -29,7 +29,7 @@ The FastMVC ecosystem follows a **"Flat but Deep"** philosophy:
 
 ## 🚀 Getting Started with the Ecosystem
 
-If you are using the FastMVC CLI, most of these packages are already available in your environment. You can explore them in your `src/` or `fast_<package>/` directories.
+If you are using the FastX CLI, most of these packages are already available in your environment. You can explore them in your `src/` or `fast_<package>/` directories.
 
 To install a specific part of the ecosystem in any Python project:
 ```bash

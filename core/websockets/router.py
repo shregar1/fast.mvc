@@ -1,4 +1,4 @@
-"""Basic WebSocket support for FastMVC.
+"""Basic WebSocket support for FastX.
 
 Provides:
 - An echo endpoint at `/ws/echo` for quick testing

@@ -2,10 +2,10 @@
 
 ## Overview
 
-The **`tests`** package contains automated tests for the FastMVC application:
+The **`tests`** package contains automated tests for the FastX application:
 
 - **`tests/dev/`** - **Your application tests** (runs by default)
-- **`tests/framework/`** - FastMVC framework tests (excluded by default)
+- **`tests/framework/`** - FastX framework tests (excluded by default)
 
 ## Test Structure
 
@@ -15,7 +15,7 @@ tests/
 ├── dev/                     # Your application tests (run by default)
 │   ├── __init__.py
 │   └── test_example.py      # Example/template tests
-├── framework/               # FastMVC framework tests (excluded by default)
+├── framework/               # FastX framework tests (excluded by default)
 │   ├── test_abstractions/   # Framework abstraction tests
 │   ├── test_constants/      # Framework constants tests
 │   ├── test_controllers/    # Framework controller tests

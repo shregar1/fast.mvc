@@ -22,7 +22,7 @@ class TestApplicationDefault:
 
     def test_app_name(self):
         """Test APP_NAME constant."""
-        assert ApplicationDefault.APP_NAME == "FastMVC"
+        assert ApplicationDefault.APP_NAME == "FastX"
 
     def test_app_version(self):
         """Test APP_VERSION constant."""
@@ -277,7 +277,7 @@ class TestDefault:
     def test_default_inherits_application_default(self):
         """Test Default inherits from ApplicationDefault."""
         assert hasattr(Default, "APP_NAME")
-        assert Default.APP_NAME == "FastMVC"
+        assert Default.APP_NAME == "FastX"
 
     def test_default_inherits_jwt_default(self):
         """Test Default inherits from JwtDefault."""

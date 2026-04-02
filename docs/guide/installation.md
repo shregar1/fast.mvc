@@ -5,34 +5,34 @@
 - Python 3.10 or higher
 - pip or uv package manager
 
-## Install FastMVC
+## Install FastX
 
 ### Using pip
 
 ```bash
-pip install fastmvc
+pip install fastx
 ```
 
 ### Using uv (recommended)
 
 ```bash
-uv pip install fastmvc
+uv pip install fastx
 ```
 
 ## Verify Installation
 
 ```bash
-fastmvc --version
+fastx --version
 ```
 
 ## Generate Your First Project
 
 ```bash
 # Interactive mode
-fastmvc generate
+fastx generate
 
 # Or quickstart with defaults
-fastmvc quickstart my-project
+fastx quickstart my-project
 ```
 
 ## Project Dependencies
@@ -70,8 +70,8 @@ pip install pytest pytest-asyncio pytest-cov
 
 ```bash
 # Clone the repository
-git clone https://github.com/fastmvc/fastmvc.git
-cd fastmvc
+git clone https://github.com/fastx/fastx.git
+cd fastx
 
 # Install in development mode
 pip install -e ".[dev]"

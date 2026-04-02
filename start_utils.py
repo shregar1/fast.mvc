@@ -136,7 +136,7 @@ APP_NAME: str = EnvironmentParserUtility.parse_str(
     EnvironmentVar.APP_NAME,
     Default.APP_NAME
 )
-"""Application name (default: FastMVC)."""
+"""Application name (default: FastX)."""
 
 SECRET_KEY: str = EnvironmentParserUtility.parse_str(
     EnvironmentVar.SECRET_KEY,

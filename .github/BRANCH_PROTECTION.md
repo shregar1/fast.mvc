@@ -1,6 +1,6 @@
 # Branch Protection Setup
 
-This document explains how to configure branch protection rules for the FastMVC repository.
+This document explains how to configure branch protection rules for the FastX repository.
 
 ## Required Settings for `main` Branch
 

@@ -1,6 +1,6 @@
 # CI/CD with GitHub Actions
 
-FastMVC projects come with pre-configured GitHub Actions workflows for continuous integration and deployment.
+FastX projects come with pre-configured GitHub Actions workflows for continuous integration and deployment.
 
 ## Included Workflows
 

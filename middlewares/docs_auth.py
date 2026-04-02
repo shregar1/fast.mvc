@@ -71,7 +71,7 @@ class DocsAuthConfig:
         return PlainTextResponse(
             "Authentication required for API documentation.",
             status_code=401,
-            headers={"WWW-Authenticate": 'Basic realm="FastMVC API Documentation"'},
+            headers={"WWW-Authenticate": 'Basic realm="FastX API Documentation"'},
         )
 
     @classmethod

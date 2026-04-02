@@ -1,6 +1,6 @@
 """Test Fixtures and Utilities.
 
-Provides common fixtures and test utilities for FastMVC applications.
+Provides common fixtures and test utilities for FastX applications.
 """
 
 import asyncio
