@@ -52,9 +52,19 @@ FastMVC’s Docker Compose setup can optionally enable an HTTP/3 (QUIC) reverse 
 
 FastMVC can optionally start a gRPC server alongside FastAPI (enabled via `GRPC_ENABLED=true`).
 
-The first supported RPC is `HealthService.Check`, available on `GRPC_HOST:GRPC_PORT` (defaults to `0.0.0.0:50051`).
+The initial gRPC surface includes:
 
-The gRPC contract lives at `protos/fastmvc/grpc/health/v1/health.proto`.
+- `HealthService.Check`
+- `UserService.FetchUser` (reuses your existing vertical-slice `FetchUserService`)
+
+Both are available on `GRPC_HOST:GRPC_PORT` (defaults to `0.0.0.0:50051`).
+
+The gRPC contract currently ships with:
+
+- `protos/fastmvc/grpc/health/v1/health.proto`
+- `protos/fastmvc/grpc/user/v1/user.proto`
+
+These contracts describe the initial demo methods; gRPC message classes are constructed in-code for now to keep gRPC optional.
 
 If `JWT_AUTH_ENABLED=true`, the gRPC health call requires a valid `Authorization: Bearer <token>` using the same JWT config.
 

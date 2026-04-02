@@ -24,73 +24,6 @@ from constants.environment import EnvironmentVar
 from utilities.env import EnvironmentParserUtility
 
 
-def _build_health_messages():
-    """Create protobuf message classes + wire a minimal service descriptor."""
-    # Local imports to avoid importing grpc when GRPC_ENABLED=false.
-    import grpc  # type: ignore
-    from google.protobuf import descriptor_pb2, descriptor_pool, message_factory
-
-    package = "fastmvc.grpc.health.v1"
-    file_name = "fastmvc/grpc/health/v1/health.proto"
-
-    file_proto = descriptor_pb2.FileDescriptorProto()
-    file_proto.name = file_name
-    file_proto.package = package
-    file_proto.syntax = "proto3"
-
-    # HealthRequest { string service = 1; }
-    msg_req = file_proto.message_type.add()
-    msg_req.name = "HealthRequest"
-    field_service = msg_req.field.add()
-    field_service.name = "service"
-    field_service.number = 1
-    field_service.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
-    field_service.type = descriptor_pb2.FieldDescriptorProto.TYPE_STRING
-
-    # HealthResponse { string status = 1; int64 timestamp_unix_ms = 2; string details = 3; }
-    msg_resp = file_proto.message_type.add()
-    msg_resp.name = "HealthResponse"
-    f_status = msg_resp.field.add()
-    f_status.name = "status"
-    f_status.number = 1
-    f_status.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
-    f_status.type = descriptor_pb2.FieldDescriptorProto.TYPE_STRING
-
-    f_ts = msg_resp.field.add()
-    f_ts.name = "timestamp_unix_ms"
-    f_ts.number = 2
-    f_ts.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
-    f_ts.type = descriptor_pb2.FieldDescriptorProto.TYPE_INT64
-
-    f_details = msg_resp.field.add()
-    f_details.name = "details"
-    f_details.number = 3
-    f_details.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
-    f_details.type = descriptor_pb2.FieldDescriptorProto.TYPE_STRING
-
-    # service HealthService { rpc Check(HealthRequest) returns (HealthResponse); }
-    svc = file_proto.service.add()
-    svc.name = "HealthService"
-    method = svc.method.add()
-    method.name = "Check"
-    method.input_type = f".{package}.HealthRequest"
-    method.output_type = f".{package}.HealthResponse"
-
-    pool = descriptor_pool.DescriptorPool()
-    pool.Add(file_proto)
-    # Avoid deprecated MessageFactory usage (protobuf >= 4.23).
-    HealthRequest = message_factory.GetMessageClass(
-        pool.FindMessageTypeByName(f"{package}.HealthRequest")
-    )
-    HealthResponse = message_factory.GetMessageClass(
-        pool.FindMessageTypeByName(f"{package}.HealthResponse")
-    )
-
-    service_full_name = f"{package}.HealthService"
-    method_name = "Check"
-    return grpc, HealthRequest, HealthResponse, service_full_name, method_name
-
-
 def _extract_bearer_token(metadata: Iterable[tuple[str, Any]]) -> Optional[str]:
     for k, v in metadata:
         if str(k).lower() == "authorization" and v is not None:
@@ -105,7 +38,8 @@ async def start_grpc_health_server() -> Any:
     # Local imports so FastMVC works without grpc installed (until enabled).
     import grpc  # type: ignore
 
-    grpc_mod, HealthRequest, HealthResponse, service_full_name, method_name = _build_health_messages()
+    from fastmvc.grpc.health.v1 import health_pb2, health_pb2_grpc
+    from fastmvc.grpc.user.v1 import user_pb2, user_pb2_grpc
 
     jwt_enabled = EnvironmentParserUtility.get_bool_with_logging(
         EnvironmentVar.JWT_AUTH_ENABLED,
@@ -137,48 +71,107 @@ async def start_grpc_health_server() -> Any:
 
         jwt_decode = _jwt.decode
 
+    grpc_mod = grpc
     server = grpc_mod.aio.server()
 
-    async def check(request, context) -> Any:  # request/response are dynamic protobuf messages
-        if jwt_enabled_effective:
-            # Keep behavior consistent with REST auth: require Bearer token when JWT is enabled.
-            token = _extract_bearer_token(context.invocation_metadata())
-            if not token:
-                await context.abort(
-                    grpc_mod.StatusCode.UNAUTHENTICATED, "Missing Bearer token"
-                )
-                return HealthResponse(
-                    status="ERROR", timestamp_unix_ms=0, details="Missing Bearer token"
-                )
+    # Import DTO/service/repo once per server start to keep per-RPC overhead low.
+    from dtos.responses.apis.v1.user.fetch import FetchUserResponseDataDTO
+    from repositories.user.fetch import FetchUserRepository
+    from services.user.fetch import FetchUserService
+    fetch_service = FetchUserService(repo=FetchUserRepository())
 
-            try:
-                assert jwt_decode is not None  # for type checkers
-                jwt_decode(token, jwt_secret, algorithms=[jwt_algorithm])
-            except Exception:
-                await context.abort(grpc_mod.StatusCode.UNAUTHENTICATED, "Invalid token")
-                return HealthResponse(
-                    status="ERROR", timestamp_unix_ms=0, details="Invalid token"
-                )
+    class _HealthServicer(health_pb2_grpc.HealthServiceServicer):
+        async def Check(self, request: health_pb2.HealthRequest, context) -> Any:
+            if jwt_enabled_effective:
+                token = _extract_bearer_token(context.invocation_metadata())
+                if not token:
+                    await context.abort(
+                        grpc_mod.StatusCode.UNAUTHENTICATED,
+                        "Missing Bearer token",
+                    )
+                    return health_pb2.HealthResponse(
+                        status="ERROR",
+                        timestamp_unix_ms=0,
+                        details="Missing Bearer token",
+                    )
 
-        return HealthResponse(
-            status="SERVING",
-            timestamp_unix_ms=int(time.time() * 1000),
-            details="gRPC health ok",
-        )
+                try:
+                    assert jwt_decode is not None  # for type checkers
+                    jwt_decode(token, jwt_secret, algorithms=[jwt_algorithm])
+                except Exception:
+                    await context.abort(
+                        grpc_mod.StatusCode.UNAUTHENTICATED,
+                        "Invalid token",
+                    )
+                    return health_pb2.HealthResponse(
+                        status="ERROR",
+                        timestamp_unix_ms=0,
+                        details="Invalid token",
+                    )
 
-    request_deserializer = lambda b: HealthRequest.FromString(b)
-    response_serializer = lambda m: m.SerializeToString()
+            return health_pb2.HealthResponse(
+                status="SERVING",
+                timestamp_unix_ms=int(time.time() * 1000),
+                details="gRPC health ok",
+            )
 
-    handler = grpc_mod.unary_unary_rpc_method_handler(
-        check,
-        request_deserializer=request_deserializer,
-        response_serializer=response_serializer,
-    )
-    generic_handler = grpc_mod.method_handlers_generic_handler(
-        service_full_name,
-        {method_name: handler},
-    )
-    server.add_generic_rpc_handlers((generic_handler,))
+    class _UserServicer(user_pb2_grpc.UserServiceServicer):
+        async def FetchUser(
+            self, request: user_pb2.FetchUserRequest, context
+        ) -> Any:
+            if jwt_enabled_effective:
+                token = _extract_bearer_token(context.invocation_metadata())
+                if not token:
+                    await context.abort(
+                        grpc_mod.StatusCode.UNAUTHENTICATED,
+                        "Missing Bearer token",
+                    )
+                    return user_pb2.FetchUserResponse(
+                        id="",
+                        message="Missing Bearer token",
+                        status="",
+                    )
+
+                try:
+                    assert jwt_decode is not None
+                    jwt_decode(token, jwt_secret, algorithms=[jwt_algorithm])
+                except Exception:
+                    await context.abort(
+                        grpc_mod.StatusCode.UNAUTHENTICATED,
+                        "Invalid token",
+                    )
+                    return user_pb2.FetchUserResponse(
+                        id="",
+                        message="Invalid token",
+                        status="",
+                    )
+
+            # Your current Request DTOs are ABC-style interfaces (not instantiable
+            # pydantic models). Pass a lightweight adapter with expected attributes.
+            from types import SimpleNamespace
+
+            name: str = getattr(request, "name", "")
+            desc: str = getattr(request, "description", "")
+            dto = SimpleNamespace(
+                name=name,
+                description=desc or None,
+                reference_urn="",  # not available in this transport yet
+            )
+
+            result = fetch_service.run(dto)
+            item = (result or {}).get("item") or {}
+            user_id = str(item.get("id", "")) if item is not None else ""
+            message = str((result or {}).get("message", ""))
+
+            resp_data = FetchUserResponseDataDTO(id=user_id)
+            return user_pb2.FetchUserResponse(
+                id=user_id,
+                message=message,
+                status=resp_data.status,
+            )
+
+    health_pb2_grpc.add_HealthServiceServicer_to_server(_HealthServicer(), server)
+    user_pb2_grpc.add_UserServiceServicer_to_server(_UserServicer(), server)
 
     bound_port = server.add_insecure_port(f"{host}:{port}")
     setattr(server, "_fastmvc_bound_port", bound_port)

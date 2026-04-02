@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package fastmvc.grpc.user.v1;
+
+option go_package = "fastmvc/grpc/user/v1";
+
+service UserService {
+  rpc FetchUser(FetchUserRequest) returns (FetchUserResponse);
+}
+
+message FetchUserRequest {
+  // Simple demo input (maps to your existing FetchUserRequestDTO fields).
+  string name = 1;
+  string description = 2;
+}
+
+message FetchUserResponse {
+  string id = 1;
+  string message = 2;
+  string status = 3;
+}
+
