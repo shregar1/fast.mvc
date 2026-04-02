@@ -22,8 +22,8 @@ PYTEST := $(shell if [ -d ".venv" ]; then echo ".venv/bin/pytest"; else echo "py
 ALEMBIC := $(shell if [ -d ".venv" ]; then echo ".venv/bin/alembic"; else echo "alembic"; fi)
 RUFF := $(shell if [ -d ".venv" ]; then echo ".venv/bin/ruff"; else echo "ruff"; fi)
 
-# Project name from pyproject.toml or directory
-PROJECT_NAME := $(shell Iname $(CURDIR))
+# Project name from current directory
+PROJECT_NAME := $(notdir $(CURDIR))
 
 ## help: Show this help message
 help:
@@ -68,12 +68,14 @@ dev:
 	@echo "$(YELLOW)Server will be available at: http://localhost:8000$(RESET)"
 	@echo "$(YELLOW)Press Ctrl+C to stop$(RESET)"
 	@echo ""
-	$(UVICORN) app:app --host 0.0.0.0 --port 8000 --reload
+	@if [ -f ".env" ]; then set -a; . ./.env; set +a; fi; \
+	$(UVICORN) app:app --host 0.0.0.0 --port $${PORT:-8000} --reload
 
 ## dev-no-reload: Run server without hot reload (for debugging)
 dev-no-reload:
 	@echo "$(BLUE)🚀 Starting FastAPI server (no reload)...$(RESET)"
-	@$(UVICORN) app:app --host 0.0.0.0 --port 8000
+	@if [ -f ".env" ]; then set -a; . ./.env; set +a; fi; \
+	$(UVICORN) app:app --host 0.0.0.0 --port $${PORT:-8000}
 
 ## postman-export: Regenerate postman/postman_collection.json from the live app (same code path as startup)
 postman-export:
@@ -83,7 +85,8 @@ postman-export:
 ## prod: Run production server (no reload, 4 workers)
 prod:
 	@echo "$(BLUE)🚀 Starting FastAPI production server...$(RESET)"
-	@$(UVICORN) app:app --host 0.0.0.0 --port 8000 --workers 4
+	@if [ -f ".env" ]; then set -a; . ./.env; set +a; fi; \
+	$(UVICORN) app:app --host 0.0.0.0 --port $${PORT:-8000} --workers 4
 
 ## test: Run developer tests (excludes FastX framework tests)
 test:
