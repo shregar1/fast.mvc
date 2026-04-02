@@ -1,62 +1,146 @@
 # Tests
 
-## What this module does
+## Overview
 
-The **`tests`** package contains **automated tests** for the FastMVC application: pytest modules, shared fixtures, and integration tests that exercise HTTP, database, and external boundaries. The goal is to **verify behavior** of controllers, services, repositories, and middleware without manual runs.
+The **`tests`** package contains automated tests for the FastMVC application:
 
-CI (e.g. GitHub Actions) typically runs **`pytest`** with options from **`pytest.ini`** and coverage thresholds from **`pyproject.toml`**.
+- **`tests/dev/`** - **Your application tests** (runs by default)
+- **`tests/framework/`** - FastMVC framework tests (excluded by default)
 
-## Layout (mirrors the app)
-
-Place test modules under the same relative path as the code they exercise (e.g. factory tests under `tests/factories/apis/v1/example/`, Item API tests under `tests/example/` or `tests/controllers/apis/v1/item/`). Empty packages use `__init__.py` as placeholders until tests are added.
+## Test Structure
 
 ```text
 tests/
-├── conftest.py                    # Shared fixtures, markers, hooks
-├── abstractions/                  # → abstractions/
-├── apis/                          # → apis/
-│   └── v1/
-├── config/                        # → config/
-├── constants/                     # → constants/
-├── controllers/                   # → controllers/
-├── core/                          # → core/
-├── dependencies/                  # → dependencies/
-├── dtos/                          # → dtos/
-├── example/                       # → example/
-│   └── test_example_item.py   # Item API (fixtures in tests/conftest.py)
-├── factories/                     # → factories/
-│   └── apis/
-│       └── v1/
-│           └── example/
-│               └── test_factories_example.py
-├── middlewares/                   # → middlewares/
-├── repositories/                  # → repositories/
-└── services/                      # → services/
+├── conftest.py              # Shared fixtures, markers, hooks
+├── dev/                     # Your application tests (run by default)
+│   ├── __init__.py
+│   └── test_example.py      # Example/template tests
+├── framework/               # FastMVC framework tests (excluded by default)
+│   ├── test_abstractions/   # Framework abstraction tests
+│   ├── test_constants/      # Framework constants tests
+│   ├── test_controllers/    # Framework controller tests
+│   ├── test_core/           # Framework core tests
+│   ├── test_dependencies/   # Framework dependency tests
+│   ├── test_dtos/           # Framework DTO tests
+│   ├── test_services/       # Framework service tests
+│   ├── test_utilities/      # Framework utility tests
+│   └── test_*.py            # Additional framework tests
+└── utils/                   # Test utilities/helpers
 ```
 
-Top-level **`factories/`** (not under `tests/`) provides **DTO-aligned builders**; see `factories/README.md` and `tests/factories/apis/v1/example/test_factories_example.py`. The **`fetch_example_request_payload`** fixture in `conftest.py` is wired from `ExampleFetchRequestFactory`.
+## Running Tests
 
-## Types of tests
+### Run developer tests only (default)
+```bash
+# Only runs tests in tests/dev/ and tests/* (not tests/framework/)
+pytest
 
-| Type | Purpose |
-|------|---------|
-| **Unit** | Services, repositories in isolation (mocks/fakes) |
-| **API / integration** | `TestClient` / HTTP against real or test app |
-| **Contract** | DTO validation, response shapes (optional) |
+# Or explicitly
+pytest tests/dev
 
-## How it fits in the stack
+# Or using make
+make test
+make test-dev
+```
 
-Tests mirror the **production** structure: they import from `services`, `repositories`, `models`, etc., and may use **`tests/factories/apis/v1/item`**, **`tests/conftest.py`**, or **`core/testing`** factories and mocks.
+### Run framework tests only
+```bash
+# Only runs tests in tests/framework/
+pytest tests/framework
 
-## Related files
+# Or using make
+make test-framework
+```
 
-- **`pytest.ini`** — markers, defaults  
-- **`pytest.ini` / `pyproject.toml`** — coverage and plugins  
-- **`tests/factories/apis/v1/item/`** (`create.py`, `create_batch.py`) / **`tests/conftest.py`** — Item factory and fixtures for Item API tests  
+### Run all tests (developer + framework)
+```bash
+# Runs all tests
+pytest tests/ tests/framework
 
-## Practices
+# Or using make
+make test-all
+```
 
-1. **Mark** slow or integration tests (`pytest.mark.integration`) for selective runs.  
-2. **Use** environment variables or test DB URLs for isolation.  
-3. **Avoid** flaky tests; use deterministic seeds and clock mocks where needed.  
-4. **Run** `pytest` before opening PRs; fix failures locally first.
+### Other useful commands
+```bash
+# Run with coverage
+make test-coverage
+
+# Run with verbose output
+make test-verbose
+
+# Run specific test file
+pytest tests/dev/test_your_feature.py
+
+# Run specific test
+pytest tests/dev/test_your_feature.py::TestYourClass::test_your_method
+```
+
+## Writing Tests
+
+### For Application Features
+
+Add your tests to `tests/dev/`:
+
+```python
+# tests/dev/test_your_feature.py
+from __future__ import annotations
+
+import pytest
+
+
+class TestYourFeature:
+    """Tests for your feature."""
+
+    def test_something_works(self):
+        """Test that something works."""
+        from services.your_service import YourService
+        service = YourService()
+        result = service.do_something()
+        assert result == expected_value
+```
+
+### Test Markers
+
+Use pytest markers to categorize tests:
+
+```python
+import pytest
+
+
+@pytest.mark.unit
+def test_unit_test():
+    pass
+
+
+@pytest.mark.integration
+def test_integration_test():
+    pass
+
+
+@pytest.mark.slow
+def test_slow_test():
+    pass
+```
+
+Run marked tests selectively:
+```bash
+pytest -m unit          # Only unit tests
+pytest -m integration   # Only integration tests
+pytest -m "not slow"    # Exclude slow tests
+```
+
+## Configuration
+
+- **`pytest.ini`** - Pytest configuration (markers, defaults, ignore patterns)
+- **`pyproject.toml`** - Coverage settings
+- **`Makefile`** - Convenient test commands (`make test`, `make test-all`, etc.)
+
+## Best Practices
+
+1. **Place tests in `tests/dev/`** for your application code
+2. **Use descriptive test names** that explain what is being tested
+3. **Mark slow or integration tests** for selective runs
+4. **Use fixtures** from `conftest.py` for shared setup
+5. **Run `pytest` before committing** to catch issues early
+6. **Keep tests isolated** - each test should be independent

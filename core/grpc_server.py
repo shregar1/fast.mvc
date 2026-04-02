@@ -78,14 +78,17 @@ def _build_health_messages():
 
     pool = descriptor_pool.DescriptorPool()
     pool.Add(file_proto)
-    factory = message_factory.MessageFactory(pool)
-
-    req_cls = factory.GetPrototype(pool.FindMessageTypeByName(f"{package}.HealthRequest"))
-    resp_cls = factory.GetPrototype(pool.FindMessageTypeByName(f"{package}.HealthResponse"))
+    # Avoid deprecated MessageFactory usage (protobuf >= 4.23).
+    HealthRequest = message_factory.GetMessageClass(
+        pool.FindMessageTypeByName(f"{package}.HealthRequest")
+    )
+    HealthResponse = message_factory.GetMessageClass(
+        pool.FindMessageTypeByName(f"{package}.HealthResponse")
+    )
 
     service_full_name = f"{package}.HealthService"
     method_name = "Check"
-    return grpc, req_cls, resp_cls, service_full_name, method_name
+    return grpc, HealthRequest, HealthResponse, service_full_name, method_name
 
 
 def _extract_bearer_token(metadata: Iterable[tuple[str, Any]]) -> Optional[str]:
@@ -120,24 +123,42 @@ async def start_grpc_health_server() -> Any:
     host = EnvironmentParserUtility.parse_str(EnvironmentVar.GRPC_HOST, Default.GRPC_HOST)
     port = EnvironmentParserUtility.parse_int(EnvironmentVar.GRPC_PORT, Default.GRPC_PORT)
 
+    # Match FastAPI behavior: if JWT is enabled but secret isn't configured,
+    # HTTP middleware is not registered. For gRPC, we also skip enforcement.
+    jwt_enabled_effective = bool(jwt_enabled and jwt_secret.strip())
+    if jwt_enabled and not jwt_secret.strip():
+        logger.warning(
+            "JWT_AUTH_ENABLED is true but SECRET_KEY is empty; gRPC JWT enforcement disabled."
+        )
+
+    jwt_decode: Optional[Callable[..., Any]] = None
+    if jwt_enabled_effective:
+        import jwt as _jwt  # pyjwt
+
+        jwt_decode = _jwt.decode
+
     server = grpc_mod.aio.server()
 
     async def check(request, context) -> Any:  # request/response are dynamic protobuf messages
-        if jwt_enabled:
+        if jwt_enabled_effective:
             # Keep behavior consistent with REST auth: require Bearer token when JWT is enabled.
             token = _extract_bearer_token(context.invocation_metadata())
             if not token:
-                context.abort(grpc_mod.StatusCode.UNAUTHENTICATED, "Missing Bearer token")
-
-            if not jwt_secret.strip():
-                context.abort(grpc_mod.StatusCode.UNAUTHENTICATED, "JWT secret not configured")
+                await context.abort(
+                    grpc_mod.StatusCode.UNAUTHENTICATED, "Missing Bearer token"
+                )
+                return HealthResponse(
+                    status="ERROR", timestamp_unix_ms=0, details="Missing Bearer token"
+                )
 
             try:
-                import jwt  # pyjwt
-
-                jwt.decode(token, jwt_secret, algorithms=[jwt_algorithm])
+                assert jwt_decode is not None  # for type checkers
+                jwt_decode(token, jwt_secret, algorithms=[jwt_algorithm])
             except Exception:
-                context.abort(grpc_mod.StatusCode.UNAUTHENTICATED, "Invalid token")
+                await context.abort(grpc_mod.StatusCode.UNAUTHENTICATED, "Invalid token")
+                return HealthResponse(
+                    status="ERROR", timestamp_unix_ms=0, details="Invalid token"
+                )
 
         return HealthResponse(
             status="SERVING",
@@ -159,10 +180,11 @@ async def start_grpc_health_server() -> Any:
     )
     server.add_generic_rpc_handlers((generic_handler,))
 
-    server.add_insecure_port(f"{host}:{port}")
+    bound_port = server.add_insecure_port(f"{host}:{port}")
+    setattr(server, "_fastmvc_bound_port", bound_port)
 
     await server.start()
-    logger.info(f"gRPC HealthService started on {host}:{port}")
+    logger.info(f"gRPC HealthService started on {host}:{bound_port}")
     return server
 
 

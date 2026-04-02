@@ -85,10 +85,26 @@ prod:
 	@echo "$(BLUE)🚀 Starting FastAPI production server...$(RESET)"
 	@$(UVICORN) app:app --host 0.0.0.0 --port 8000 --workers 4
 
-## test: Run all tests
+## test: Run developer tests (excludes FastMVC framework tests)
 test:
-	@echo "$(BLUE)🧪 Running tests...$(RESET)"
+	@echo "$(BLUE)🧪 Running developer tests...$(RESET)"
+	@echo "$(YELLOW)   (Framework tests excluded. Run 'make test-all' to include them)$(RESET)"
 	@$(PYTEST) -v --tb=short
+
+## test-dev: Run only developer tests (same as 'make test')
+test-dev:
+	@echo "$(BLUE)🧪 Running developer tests...$(RESET)"
+	@$(PYTEST) -v --tb=short
+
+## test-framework: Run only FastMVC framework tests
+test-framework:
+	@echo "$(BLUE)🧪 Running FastMVC framework tests...$(RESET)"
+	@$(PYTEST) tests/framework -v --tb=short
+
+## test-all: Run all tests (developer + framework)
+test-all:
+	@echo "$(BLUE)🧪 Running all tests (developer + framework)...$(RESET)"
+	@$(PYTEST) tests/ tests/framework -v --tb=short
 
 ## test-verbose: Run tests with verbose output
 test-verbose:
