@@ -168,6 +168,8 @@ class EnvironmentVar:
     # -------------------------------------------------------------------------
     RELOAD: Final[str] = "RELOAD"
     WORKERS: Final[str] = "WORKERS"
+    # Uvicorn-only log level (does not affect app loguru logs). Use ``error`` to hide reload notices.
+    UVICORN_LOG_LEVEL: Final[str] = "UVICORN_LOG_LEVEL"
 
     # -------------------------------------------------------------------------
     # Runtime / testing / project

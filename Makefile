@@ -69,13 +69,13 @@ dev:
 	@echo "$(YELLOW)Press Ctrl+C to stop$(RESET)"
 	@echo ""
 	@if [ -f ".env" ]; then set -a; . ./.env; set +a; fi; \
-	$(UVICORN) app:app --host 0.0.0.0 --port $${PORT:-8000} --reload
+	$(UVICORN) app:app --host 0.0.0.0 --port $${PORT:-8000} --reload --log-level $${UVICORN_LOG_LEVEL:-error}
 
 ## dev-no-reload: Run server without hot reload (for debugging)
 dev-no-reload:
 	@echo "$(BLUE)🚀 Starting FastAPI server (no reload)...$(RESET)"
 	@if [ -f ".env" ]; then set -a; . ./.env; set +a; fi; \
-	$(UVICORN) app:app --host 0.0.0.0 --port $${PORT:-8000}
+	$(UVICORN) app:app --host 0.0.0.0 --port $${PORT:-8000} --log-level $${UVICORN_LOG_LEVEL:-error}
 
 ## postman-export: Regenerate postman/postman_collection.json from the live app (same code path as startup)
 postman-export:
@@ -86,7 +86,7 @@ postman-export:
 prod:
 	@echo "$(BLUE)🚀 Starting FastAPI production server...$(RESET)"
 	@if [ -f ".env" ]; then set -a; . ./.env; set +a; fi; \
-	$(UVICORN) app:app --host 0.0.0.0 --port $${PORT:-8000} --workers 4
+	$(UVICORN) app:app --host 0.0.0.0 --port $${PORT:-8000} --workers 4 --log-level $${UVICORN_LOG_LEVEL:-error}
 
 ## test: Run developer tests (excludes FastX framework tests)
 test:

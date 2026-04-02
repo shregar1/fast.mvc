@@ -13,6 +13,7 @@ Usage:
 Environment Variables:
     HOST: Server host address (default: 0.0.0.0)
     PORT: Server port (default: 8000)
+    UVICORN_LOG_LEVEL: Uvicorn log level only — default ``error`` (quiet); use ``warning`` or ``info`` for more Uvicorn console output
     JWT_AUTH_ENABLED: Enable JWT authentication (default: false)
     RATE_LIMIT_REQUESTS_PER_MINUTE: Rate limit per minute (default: 60)
     RATE_LIMIT_REQUESTS_PER_HOUR: Rate limit per hour (default: 1000)
@@ -810,5 +811,18 @@ logger.info("Initialized routers")
 # MAIN ENTRY POINT
 # =============================================================================
 
+def _uvicorn_log_level() -> str:
+    """Uvicorn console verbosity; does not affect application ``loguru`` logging."""
+    raw = (os.getenv(EnvironmentVar.UVICORN_LOG_LEVEL) or "error").strip().lower()
+    allowed = {"critical", "error", "warning", "info", "debug", "trace"}
+    return raw if raw in allowed else "error"
+
+
 if __name__ == "__main__":
-    uvicorn.run("app:app", host=HOST, port=PORT, reload=True)
+    uvicorn.run(
+        "app:app",
+        host=HOST,
+        port=PORT,
+        reload=True,
+        log_level=_uvicorn_log_level(),
+    )
