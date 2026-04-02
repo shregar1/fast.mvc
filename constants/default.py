@@ -11,6 +11,8 @@ Usage:
 
 from typing import Any, Final
 
+from constants.cors import CorsDefaults
+from constants.http_method import HttpMethod
 from constants.security_headers import SecurityHeadersConstants
 
 
@@ -76,6 +78,9 @@ class Default:
     ACCESS_TOKEN_EXPIRE_MINUTE: Final[int] = 1440
     """Default JWT access token expiry: 24 hours (1440 minutes)."""
 
+    ACCESS_TOKEN_EXPIRE_MINUTES: Final[int] = ACCESS_TOKEN_EXPIRE_MINUTE
+    """Alias of :data:`ACCESS_TOKEN_EXPIRE_MINUTE` (plural name used in docs and examples)."""
+
     REFRESH_TOKEN_EXPIRE_DAYS: Final[int] = 7
     """Default JWT refresh token expiry: 7 days."""
 
@@ -94,6 +99,141 @@ class Default:
     RATE_LIMIT_BURST_LIMIT: Final[int] = 10
     """Maximum burst requests allowed."""
 
+    INPUT_VALIDATION_MAX_STRING_LENGTH: Final[int] = 1000
+    """Default max general string length (``SECURITY_CONFIGURATION`` input_validation)."""
+
+    INPUT_VALIDATION_MAX_PASSWORD_LENGTH: Final[int] = 128
+    """Default max password length."""
+
+    INPUT_VALIDATION_MIN_PASSWORD_LENGTH: Final[int] = 8
+    """Default min password length."""
+
+    INPUT_VALIDATION_MAX_EMAIL_LENGTH: Final[int] = 254
+    """Default max email length (RFC-friendly upper bound)."""
+
+    SECURITY_JWT_EXPIRY_MINUTES: Final[int] = 30
+    """JWT expiry in minutes for ``SECURITY_CONFIGURATION`` authentication (nested default)."""
+
+    MAX_LOGIN_ATTEMPTS: Final[int] = 5
+    """Failed attempts before lockout (``SECURITY_CONFIGURATION`` authentication)."""
+
+    LOCKOUT_DURATION_MINUTES: Final[int] = 15
+    """Account lockout duration in minutes."""
+
+    PASSWORD_HISTORY_COUNT: Final[int] = 5
+    """Passwords remembered for reuse checks."""
+
+    REQUIRE_STRONG_PASSWORD: Final[bool] = True
+    """Require strong password policy in security config defaults."""
+
+    SESSION_TIMEOUT_MINUTES: Final[int] = 60
+    """Idle session timeout in minutes."""
+
+    AUTHENTICATION_CONFIGURATION: Final[dict[str, Any]] = {
+        "jwt_expiry_minutes": SECURITY_JWT_EXPIRY_MINUTES,
+        "refresh_token_expiry_days": REFRESH_TOKEN_EXPIRE_DAYS,
+        "max_login_attempts": MAX_LOGIN_ATTEMPTS,
+        "lockout_duration_minutes": LOCKOUT_DURATION_MINUTES,
+        "password_history_count": PASSWORD_HISTORY_COUNT,
+        "require_strong_password": REQUIRE_STRONG_PASSWORD,
+        "session_timeout_minutes": SESSION_TIMEOUT_MINUTES,
+    }
+    # Defaults for ``SECURITY_CONFIGURATION["authentication"]``.
+
+    # --- ``SECURITY_CONFIGURATION["rate_limiting"]`` (flags & lists) ---
+    RATE_LIMITING_ENABLE_SLIDING_WINDOW: Final[bool] = True
+    RATE_LIMITING_ENABLE_TOKEN_BUCKET: Final[bool] = False
+    RATE_LIMITING_ENABLE_FIXED_WINDOW: Final[bool] = False
+    RATE_LIMITING_EXCLUDED_PATHS: Final[tuple[str, ...]] = (
+        "/health",
+        "/docs",
+        "/openapi.json",
+    )
+    RATE_LIMITING_EXCLUDED_METHODS: Final[tuple[str, ...]] = ("OPTIONS",)
+
+    RATE_LIMITING_CONFIGURATION: Final[dict[str, Any]] = {
+        "requests_per_minute": RATE_LIMIT_REQUESTS_PER_MINUTE,
+        "requests_per_hour": RATE_LIMIT_REQUESTS_PER_HOUR,
+        "burst_limit": RATE_LIMIT_BURST_LIMIT,
+        "window_size": RATE_LIMIT_WINDOW_SECONDS,
+        "enable_sliding_window": RATE_LIMITING_ENABLE_SLIDING_WINDOW,
+        "enable_token_bucket": RATE_LIMITING_ENABLE_TOKEN_BUCKET,
+        "enable_fixed_window": RATE_LIMITING_ENABLE_FIXED_WINDOW,
+        "excluded_paths": list(RATE_LIMITING_EXCLUDED_PATHS),
+        "excluded_methods": list(RATE_LIMITING_EXCLUDED_METHODS),
+    }
+    # Defaults for ``SECURITY_CONFIGURATION["rate_limiting"]``.
+
+    # --- ``SECURITY_CONFIGURATION["security_headers"]`` ---
+    SECURITY_HEADERS_ENABLE_HSTS: Final[bool] = True
+    SECURITY_HEADERS_ENABLE_CSP: Final[bool] = True
+    SECURITY_HEADERS_CSP_REPORT_ONLY: Final[bool] = False
+    SECURITY_HEADERS_HSTS_MAX_AGE: Final[int] = 31_536_000
+    SECURITY_HEADERS_HSTS_INCLUDE_SUBDOMAINS: Final[bool] = True
+    SECURITY_HEADERS_HSTS_PRELOAD: Final[bool] = False
+
+    SECURITY_HEADERS_CONFIGURATION: Final[dict[str, Any]] = {
+        "enable_hsts": SECURITY_HEADERS_ENABLE_HSTS,
+        "enable_csp": SECURITY_HEADERS_ENABLE_CSP,
+        "csp_report_only": SECURITY_HEADERS_CSP_REPORT_ONLY,
+        "hsts_max_age": SECURITY_HEADERS_HSTS_MAX_AGE,
+        "hsts_include_subdomains": SECURITY_HEADERS_HSTS_INCLUDE_SUBDOMAINS,
+        "hsts_preload": SECURITY_HEADERS_HSTS_PRELOAD,
+        "frame_options": SecurityHeadersConstants.X_FRAME_OPTIONS,
+        "content_type_options": SecurityHeadersConstants.X_CONTENT_TYPE_OPTIONS,
+        "xss_protection": SecurityHeadersConstants.X_XSS_PROTECTION,
+        "referrer_policy": SecurityHeadersConstants.REFERRER_POLICY,
+        "custom_csp": None,
+        "custom_permissions_policy": None,
+    }
+    # Defaults for ``SECURITY_CONFIGURATION["security_headers"]``.
+
+    # --- ``SECURITY_CONFIGURATION["input_validation"]`` (feature flags & list) ---
+    INPUT_VALIDATION_ENABLE_SQL_INJECTION_CHECK: Final[bool] = True
+    INPUT_VALIDATION_ENABLE_XSS_CHECK: Final[bool] = True
+    INPUT_VALIDATION_ENABLE_PATH_TRAVERSAL_CHECK: Final[bool] = True
+    INPUT_VALIDATION_WEAK_PASSWORDS: Final[tuple[str, ...]] = (
+        "password",
+        "123456",
+        "qwerty",
+        "admin",
+        "letmein",
+    )
+
+    INPUT_VALIDATION_CONFIGURATION: Final[dict[str, Any]] = {
+        "max_string_length": INPUT_VALIDATION_MAX_STRING_LENGTH,
+        "max_password_length": INPUT_VALIDATION_MAX_PASSWORD_LENGTH,
+        "min_password_length": INPUT_VALIDATION_MIN_PASSWORD_LENGTH,
+        "max_email_length": INPUT_VALIDATION_MAX_EMAIL_LENGTH,
+        "enable_sql_injection_check": INPUT_VALIDATION_ENABLE_SQL_INJECTION_CHECK,
+        "enable_xss_check": INPUT_VALIDATION_ENABLE_XSS_CHECK,
+        "enable_path_traversal_check": INPUT_VALIDATION_ENABLE_PATH_TRAVERSAL_CHECK,
+        "weak_passwords": list(INPUT_VALIDATION_WEAK_PASSWORDS),
+    }
+    # Defaults for ``SECURITY_CONFIGURATION["input_validation"]`` (see scalars above).
+
+    # --- ``SECURITY_CONFIGURATION["cors"]`` ---
+    CORS_DEFAULT_ALLOWED_ORIGINS: Final[tuple[str, ...]] = (CorsDefaults.WILDCARD,)
+    CORS_DEFAULT_ALLOWED_METHODS: Final[tuple[str, ...]] = (
+        HttpMethod.GET,
+        HttpMethod.POST,
+        HttpMethod.PUT,
+        HttpMethod.DELETE,
+        HttpMethod.OPTIONS,
+    )
+    CORS_DEFAULT_ALLOWED_HEADERS: Final[tuple[str, ...]] = (CorsDefaults.WILDCARD,)
+    CORS_DEFAULT_ALLOW_CREDENTIALS: Final[bool] = True
+    CORS_DEFAULT_MAX_AGE: Final[int] = 3600
+
+    CORS_CONFIGURATION: Final[dict[str, Any]] = {
+        "allowed_origins": list(CORS_DEFAULT_ALLOWED_ORIGINS),
+        "allowed_methods": list(CORS_DEFAULT_ALLOWED_METHODS),
+        "allowed_headers": list(CORS_DEFAULT_ALLOWED_HEADERS),
+        "allow_credentials": CORS_DEFAULT_ALLOW_CREDENTIALS,
+        "max_age": CORS_DEFAULT_MAX_AGE,
+    }
+    # Defaults for ``SECURITY_CONFIGURATION["cors"]`` (see tuples/bools above).
+
     CHANNEL_BACKEND: Final[str] = "redis"
     """Default channels backend."""
 
@@ -101,57 +241,11 @@ class Default:
     """Default allow origin regex."""
 
     SECURITY_CONFIGURATION: Final[dict[str, Any]] = {
-        "rate_limiting": {
-            "requests_per_minute": 60,
-            "requests_per_hour": 1000,
-            "burst_limit": 10,
-            "window_size": 60,
-            "enable_sliding_window": True,
-            "enable_token_bucket": False,
-            "enable_fixed_window": False,
-            "excluded_paths": ["/health", "/docs", "/openapi.json"],
-            "excluded_methods": ["OPTIONS"],
-        },
-        "security_headers": {
-            "enable_hsts": True,
-            "enable_csp": True,
-            "csp_report_only": False,
-            "hsts_max_age": 31536000,
-            "hsts_include_subdomains": True,
-            "hsts_preload": False,
-            "frame_options": SecurityHeadersConstants.X_FRAME_OPTIONS,
-            "content_type_options": SecurityHeadersConstants.X_CONTENT_TYPE_OPTIONS,
-            "xss_protection": SecurityHeadersConstants.X_XSS_PROTECTION,
-            "referrer_policy": SecurityHeadersConstants.REFERRER_POLICY,
-            "custom_csp": None,
-            "custom_permissions_policy": None,
-        },
-        "input_validation": {
-            "max_string_length": 1000,
-            "max_password_length": 128,
-            "min_password_length": 8,
-            "max_email_length": 254,
-            "enable_sql_injection_check": True,
-            "enable_xss_check": True,
-            "enable_path_traversal_check": True,
-            "weak_passwords": ["password", "123456", "qwerty", "admin", "letmein"],
-        },
-        "authentication": {
-            "jwt_expiry_minutes": 30,
-            "refresh_token_expiry_days": 7,
-            "max_login_attempts": 5,
-            "lockout_duration_minutes": 15,
-            "password_history_count": 5,
-            "require_strong_password": True,
-            "session_timeout_minutes": 60,
-        },
-        "cors": {
-            "allowed_origins": ["*"],
-            "allowed_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allowed_headers": ["*"],
-            "allow_credentials": True,
-            "max_age": 3600,
-        },
+        "rate_limiting": RATE_LIMITING_CONFIGURATION,
+        "security_headers": SECURITY_HEADERS_CONFIGURATION,
+        "input_validation": INPUT_VALIDATION_CONFIGURATION,
+        "authentication": AUTHENTICATION_CONFIGURATION,
+        "cors": CORS_CONFIGURATION,
     }
     """
     Complete security configuration with sensible defaults.
