@@ -13,11 +13,11 @@ Usage:
 """
 
 # Optional fast_platform services - gracefully degrade if not installed
-# These require: pip install fastx-mvc[platform] or specific extras
+# These require: pip install fastx[platform] or specific extras
 
 # Observability (fast_platform.observability)
 try:
-    from core.observability import AuditLog, Metrics, StructuredLogger, Tracer
+    from fast_platform.observability import AuditLog, Metrics, StructuredLogger, Tracer
 except ImportError:
     AuditLog = None  # type: ignore
     Metrics = None  # type: ignore
@@ -73,7 +73,7 @@ except ImportError:
 
 # Versioning (fast_platform.utils.versioning)
 try:
-    from utils.versioning import APIVersion, versioned_router
+    from fast_platform.utils.versioning import APIVersion, versioned_router
 except ImportError:
     APIVersion = None  # type: ignore
     versioned_router = None  # type: ignore

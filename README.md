@@ -6,7 +6,7 @@ FastX is a **project generator for FastAPI** with a clean MVC stack and a **menu
 
 **Python:** 3.10+
 
-**Package name on PyPI:** `fastx` (the name `fastx` is already used on PyPI by another project)  
+**Package name on PyPI:** `fastx`  
 **Version:** see `[project]` in [`pyproject.toml`](pyproject.toml).
 
 ## Capabilities
@@ -410,7 +410,7 @@ If you use the **FastX** monorepo scripts, see [../RELEASE.md](../RELEASE.md) an
 ### Package upload (this project)
 
 1. Run tests: `make test` or `pytest`.
-2. Build: `make build` or `python -m build`.
+2. Build: `make build` (recommended; clears `dist/` first) or `rm -rf dist && python -m build`.
 3. Upload:
 
 ```bash

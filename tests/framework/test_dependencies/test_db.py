@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from dependencies.db import DBDependency
+from dependencies.db import DatabaseDependency
 
 
 class TestDBDependency:
@@ -15,11 +15,11 @@ class TestDBDependency:
 
     def test_db_dependency_exists(self):
         """Test DBDependency exists."""
-        assert DBDependency is not None
+        assert DatabaseDependency is not None
 
     def test_db_dependency_has_derive(self):
         """Test DBDependency has derive method."""
-        assert hasattr(DBDependency, "derive")
+        assert hasattr(DatabaseDependency, "derive")
 
 
 class TestDBDependencyFallback:
@@ -29,12 +29,11 @@ class TestDBDependencyFallback:
         """Test fallback raises ImportError when fast_db not installed."""
         # Force reimport to test fallback
         import sys
-        import dependencies.db as db_module
-        
+
         # Remove cached module to force reimport
         if "fast_db" in sys.modules:
             del sys.modules["fast_db"]
-        
+
         # Mock the import to fail
         with patch.dict("sys.modules", {"fast_db": None}):
             # Create a fresh fallback class
@@ -46,9 +45,9 @@ class TestDBDependencyFallback:
                     """Raise informative error about missing dependency."""
                     raise ImportError(
                         "fast_db is required for database dependencies. "
-                        "Install with: pip install fastx-mvc[platform]"
+                        "Install with: pip install fastx[platform]"
                     )
-            
+
             fallback = _DBDependencyFallback()
             with pytest.raises(ImportError) as exc_info:
                 fallback.derive()

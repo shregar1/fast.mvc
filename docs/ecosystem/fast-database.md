@@ -24,6 +24,7 @@ FastDataI provides standardized mixins for common production patterns:
 ## 📦 Baked-in Models
 
 FastDataI includes production-replicated tables for core business entities:
+
 - **Identity:** `User`, `UserOneTimeToken`, `UserLoginEvent`, `UserMfaFactor`.
 - **SaaS:** `Organization`, `Subscription`, `Plan`.
 - **Commerce:** `Order`, `Invoice`, `Cart`, `Payment`.
@@ -50,7 +51,9 @@ users = repo.find_all(filters=[("email", FilterOperator.ILIKE, "%@fastx.com")])
 FastDataI is designed to be used with **Alembic**.
 
 ### `Alembic Autogenerate`
+
 To use FastDataI models with Alembic, ensure your `env.py` registers the models:
+
 ```python
 import fast_dataI.models  # Registers all tables on I.metadata
 from fast_dataI.models import I
@@ -59,6 +62,7 @@ target_metadata = I.metadata
 ```
 
 Apply migrations:
+
 ```bash
 alembic revision --autogenerate -m "Add custom table"
 alembic upgrade head
@@ -69,7 +73,9 @@ alembic upgrade head
 ## 🛠️ Installation
 
 FastDataI can be installed in any SQLAlchemy project:
+
 ```bash
 pip install fast-database
 ```
+
 Add **`[dev]`** to include `factory-boy` for testing.

@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-# PyPI install: pip install fastx-mvc  (name ``fastx`` is already taken on PyPI — unrelated FASTA/Q package)
+# PyPI: pip install fastx
 name = "fastx"
 version = "1.5.0"
 description = "Production-grade MVC Framework for FastAPI - Generate projects, entities, and migrations with a single command"

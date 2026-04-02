@@ -2,7 +2,7 @@
 # Convenience commands for development
 # Usage: make <command>
 
-.PHONY: help install dev test lint format migrate shell clean docker-build docker-up docker-down postman-export
+.PHONY: help install dev test lint format migrate shell build clean docker-build docker-up docker-down postman-export
 
 # Default target when running just 'make'
 .DEFAULT_GOAL := help
@@ -205,6 +205,12 @@ shell:
 	@echo "$(BLUE)🐍 Starting Python shell...$(RESET)"
 	@$(PYTHON) -c "import sys; sys.path.insert(0, '.'); import app; print('Loaded app'); print('Available: app, FastAPI, etc.')"
 	@$(PYTHON) -i -c "import sys; sys.path.insert(0, '.'); import app; print('\n=== FastX Shell ===\n'); print('Variables available:'); print('  app - FastAPI application')"
+
+## build: Remove dist/ then build sdist and wheel for PyPI (fastx)
+build:
+	@echo "$(BLUE)📦 Building package (rm -rf dist first)...$(RESET)"
+	@rm -rf dist && $(PYTHON) -m build
+	@echo "$(GREEN)✓ dist/ contains only the current pyproject name/version$(RESET)"
 
 ## clean: Remove Python cache files and build artifacts
 clean:

@@ -12,22 +12,21 @@ Usage:
 
 from typing import Any, Optional
 
-# Optional fast_db dependency
 try:
-    from fast_db import DBDependency
+    from dependencies.db import DatabaseDependency
 except ImportError:
-    # Fallback when fast_db is not installed
-    class _DBDependencyFallback:
-        """Fallback DBDependency when fast_db is not installed."""
+
+    class _DatabaseDependencyFallback:
+        """Fallback DatabaseDependency when fast_database is not installed."""
 
         @staticmethod
         def derive() -> Any:
             """Raise informative error about missing dependency."""
             raise ImportError(
                 "fast_db is required for database dependencies. "
-                "Install with: pip install fastx-mvc[platform]"
+                "Install with: pip install fastx[platform]"
             )
 
-    DBDependency = _DBDependencyFallback  # type: ignore
+    DatabaseDependency = _DatabaseDependencyFallback  # type: ignore
 
-__all__ = ["DBDependency"]
+__all__ = ["DatabaseDependency"]

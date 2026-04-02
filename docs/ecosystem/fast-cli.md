@@ -25,12 +25,14 @@ FastCLI generates **complete vertical slices** in accordance with our per-versio
 ## 🎯 Architectural Philosophy: Vertical Slices
 
 FastCLI enforces **isolation at the operation level**. Instead of monolithic controllers, it scaffolds:
+
 ```text
 v1/
   user/
     create.py    # Isolated Controller
     fetch.py     # Isolated Controller
 ```
+
 This reduces merge conflicts, simplifies testing, and makes versioning (`v1` to `v2`) as simple as creating a new folder.
 
 ---
@@ -38,11 +40,13 @@ This reduces merge conflicts, simplifies testing, and makes versioning (`v1` to 
 ## 🛠️ Installation
 
 FastCLI is available as a standalone CLI package:
+
 ```bash
 pip install -e ./fast_cli
 ```
 
 Once installed, use it from anywhere:
+
 ```bash
 fastx --help
 ```
@@ -52,7 +56,9 @@ fastx --help
 ## 🛰️ Documentation Generation
 
 FastCLI includes an auto-doc engine:
+
 ```bash
 fastx docs generate
 ```
+
 It crawls your `apis/` and `dtos/` directories to build a complete **MkDocs API Reference site** using `mkdocstrings`.

@@ -7,6 +7,7 @@ FastX provides a high-performance interactive CLInterface for project generation
 ## 🏗️ Project Lifecycle
 
 ### `fastx generate`
+
 The interactive wizard to start a new project from scratch. It handles project structure, dependencies, `.env` files, and virtual environments.
 
 ```bash
@@ -14,6 +15,7 @@ fastx generate [OPTIONS]
 ```
 
 ### `fastx quickstart`
+
 Instantly create a project with all defaults.
 
 ```bash
@@ -27,13 +29,16 @@ fastx quickstart <project_name>
 The `add` group is the heart of FastX's development efficiency. It scaffolds complete "vertical slices" following architectural patterns.
 
 ### `fastx add resource`
+
 Scaffolds a new versioned operation (e.g., `create`, `fetch`, `delete`) with full isolation.
 
 ```bash
 fastx add resource -f <folder> -r <operation> -v <version>
 ```
+
 **Example:** `fastx add resource -f user -r create -v v1`
 **Generates:**
+
 - `apis/v1/user/create.py` (Controller)
 - `services/user/create.py` (Business Logic)
 - `repositories/user/create.py` (Data Logic)
@@ -46,24 +51,30 @@ fastx add resource -f <folder> -r <operation> -v <version>
 **One concrete DTO class per generated file**: each `create.py` / `update.py` module exports a **single** primary request model. **Nested** Pydantic models that only support that body may live in the **same** file; shared sub-models get their own file. See [One concrete class per file](new-api-scaffolding.md#one-concrete-class-per-file-dtos).
 
 ### `fastx add auth`
+
 Scaffolds a complete **Zero-to-Hero** authentication stack in one command.
 
 ```bash
 fastx add auth [--version v1]
 ```
+
 **Includes:**
+
 - **Security:** JWT token generation/decoding and Bcrypt hashing.
 - **Operations:** Login and Registration API endpoints.
 - **Middleware:** `AuthMiddleware` for token extraction and session injection.
 - **Dependencies:** `get_current_user_id` for protecting any subsequent route.
 
 ### `fastx add middleware`
+
 Generates framework-compliant Middlewares with specialized templates.
 
 ```bash
 fastx add middleware <name>
 ```
+
 **Templates:**
+
 - `request_logger`: Logs paths and timings (`X-Process-Time`).
 - `rate_limiter`: In-memory sliding window limiter.
 - `cors_config`: Pre-configured CORS module.
@@ -73,19 +84,23 @@ fastx add middleware <name>
 ## 🧪 Testing & Tasks
 
 ### `fastx add test`
+
 Generates an async Pytest boilerplate for a specific resource operation.
 
 ```bash
 fastx add test -f <folder> -r <operation> -v <version>
 ```
+
 **Features:** Includes `AsyncClient` setup and examples of mocking your services and repositories.
 
 ### `fastx add task`
+
 Scaffolds a background worker task.
 
 ```bash
 fastx add task <name>
 ```
+
 **Execution:** Works with FastAPI `BackgroundTasks` out of the box and is ready for Celery/TaskIQ `@task` decorators.
 
 ---
@@ -93,22 +108,27 @@ fastx add task <name>
 ## 🐳 Infrastructure & Docs
 
 ### `fastx dockerize`
+
 Generates production-grade containerization configuration.
 
 ```bash
 fastx dockerize
 ```
+
 **Outputs:**
+
 - `Dockerfile`: Multistage slim image.
 - `docker-compose.yml`: Wires App, Postgres, Redis, and Migrations.
 - `docker-entrypoint.sh`: Startup coordination.
 
 ### `fastx docs generate`
+
 Automatically discover your code and build a complete API Reference.
 
 ```bash
 fastx docs generate
 ```
+
 **Refreshes:** Scans your `apis/` and `dtos/` folders to update `docs/api/endpoints.md` using `mkdocstrings`.
 
 ---

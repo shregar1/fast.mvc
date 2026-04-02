@@ -52,16 +52,19 @@ structlog>=24.1.0
 ### Optional Dependencies
 
 For database support:
+
 ```bash
 pip install sqlalchemy alembic asyncpg
 ```
 
 For Redis caching:
+
 ```bash
 pip install redis
 ```
 
 For testing:
+
 ```bash
 pip install pytest pytest-asyncio pytest-cov
 ```
